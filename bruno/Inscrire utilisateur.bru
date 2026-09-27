@@ -1,0 +1,22 @@
+meta {
+  name: Inscrire utilisateur
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/users
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "alice",
+    "email": "alice@example.com"
+  }
+}
