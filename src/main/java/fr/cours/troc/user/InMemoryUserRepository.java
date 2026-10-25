@@ -1,16 +1,20 @@
-package com.example.troc.repository;
+package fr.cours.troc.user;
 
-import com.example.troc.domain.User;
+import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class UserRepositoryImpl {
+@Repository
+public class InMemoryUserRepository implements UserRepository {
 
     private final Map<Long, User> users = new HashMap<>();
     private final AtomicLong nextId = new AtomicLong(1);
 
+    @Override
     public User save(User user) {
         if (user.getId() == null) {
             user.setId(nextId.getAndIncrement());
@@ -19,6 +23,12 @@ public class UserRepositoryImpl {
         return user;
     }
 
+    @Override
+    public List<User> findAll() {
+        return new ArrayList<>(users.values());
+    }
+
+    @Override
     public User findById(Long id) {
         return users.get(id);
     }

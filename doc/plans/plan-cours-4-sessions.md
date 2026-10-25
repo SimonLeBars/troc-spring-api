@@ -34,17 +34,23 @@
 
 ## Session 1 — Fondations Spring + IoC
 
-**Objectif obligatoire de fin de session : une API Hello World exécutable.**
+**Objectif obligatoire de fin de session : une API qui répond à `GET /users` et `POST /users` (données en mémoire).**
 
-- **Théorie (30 min)** : problème du couplage fort (exemple troc : `TrocService` qui instancie en dur son `UserRepository`) ; principe IoC/DI ; `ApplicationContext` ; annotations Spring Boot en survol.
-- **TP bloc 1 (noyau)** : coder les entités du domaine (`User`, `Objet`, `Troc`) avec couplage fort volontaire, pour ressentir la douleur (pas testable, changement d'implémentation = tout casser).
-- **Checkpoint #1** : blocages Maven/IntelliJ/structure de projet ; transition vers la solution IoC.
-- **TP bloc 2 (noyau)** : refactor en interfaces + `@Component`/`@Autowired`, puis `@SpringBootApplication` + premier `@RestController` → endpoint hello world renvoyant un objet troc factice.
-- **Bonus (groupes avancés)** : profils Spring (dev/test) ; séparation `@Service`/`@Repository` ; endpoint supplémentaire.
+Domaine codé en anglais : `User`, `Item` (un objet et sa quantité ; type d'objet libre, les exemples utilisent des légumes), `Trade`. Package racine `fr.cours.troc`, découpé par fonctionnalité (`user/`, `item/`, `trade/`).
+
+- **Présentation du cours (10 min)** : fil rouge, API REST, feuille de route, organisation, évaluation.
+- **Théorie A (20 min)** : SOLID en survol, architecture en couches, couplage fort (`UserService` qui fait `new InMemoryUserRepository()`), inversion des dépendances. Pas une ligne de Spring.
+- **TP bloc 1 (noyau)** : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade.
+- **Checkpoint #1 + théorie B (20 min)** : blocages Maven/IntelliJ, relevé des chiffres par groupe ; injection par constructeur à la main, conteneur IoC, `@Service`/`@Repository`/`@RestController`, `ApplicationContext`, structure du projet.
+- **TP bloc 2 (noyau)** : interfaces + injection manuelle (évolution 2 refaite : 1 fichier), puis Spring (`@Repository`/`@Service`, injection par constructeur sans `@Autowired`), `UserController` (`GET`/`POST /users`), évolution 2 refaite avec Spring (déplacer `@Repository`).
+- **Bonus (groupes avancés)** : profils Spring (`@Profile("dev")`) ; endpoint supplémentaire `GET /users/{id}`.
+- La testabilité (4e problème du couplage fort) est volontairement gardée pour la séance 4.
+
+Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-session1-initialisation.md`, `doc/tp/02-session1-tp-bloc1-couplage-fort.md`, `doc/tp/03-session1-tp-bloc2-ioc.md`.
 
 ### À faire avant la session
-- [ ] Rédiger le support de TP détaillé (étapes couplage fort → IoC → Spring Boot)
-- [ ] Préparer la diapo théorie IoC/DI
+- [x] Rédiger le support de TP détaillé (étapes couplage fort → IoC → Spring Boot)
+- [x] Préparer la diapo théorie IoC/DI
 - [ ] Vérifier le prérequis setup (JDK 25, IntelliJ, git/gitlab) — potentiel temps de setup à prévoir avant le TP
 
 ---
@@ -61,7 +67,7 @@
 
 ### À faire avant la session
 - [ ] Rédiger le support de TP (externalisation + endpoints CRUD + troc)
-- [ ] Préparer la diapo théorie config/REST
+- [x] Préparer la diapo théorie config/REST
 
 ---
 
@@ -77,7 +83,7 @@
 
 ### À faire avant la session
 - [ ] Rédiger le support de TP (Spring Data JDBC + transaction du workflow de troc)
-- [ ] Préparer la diapo théorie transactions/PK-FK
+- [x] Préparer la diapo théorie transactions/PK-FK
 
 ---
 
@@ -102,7 +108,7 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 
 ### À faire avant la session
 - [ ] Rédiger le support de TP (AOP logging + tests)
-- [ ] Préparer la diapo théorie AOP/tests
+- [x] Préparer la diapo théorie AOP/tests
 
 ---
 

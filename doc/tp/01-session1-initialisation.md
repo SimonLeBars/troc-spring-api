@@ -29,18 +29,34 @@ Vous avez deux façons équivalentes de faire ; utilisez celle qui vous met le p
 | Project | Maven |
 | Language | Java |
 | Spring Boot | dernière version stable (évitez les SNAPSHOT/M/RC) |
-| Group | `com.example` |
+| Group | `fr.cours` |
 | Artifact | `troc-api` |
 | Name | `troc-api` |
 | Description | API de troc d'objets entre utilisateurs |
-| Package name | `com.example.troc` |
+| Package name | `fr.cours.troc` |
 | Packaging | Jar |
 | Java | 25 |
 | Dependencies | **Spring Web** uniquement |
 
 ⚠️ Ne rajoutez pas d'autres dépendances (base de données, tests, sécurité...) pour l'instant — on les ajoutera au fur et à mesure des prochaines sessions, quand elles auront du sens. Un `pom.xml` qui ne contient que ce dont on a besoin est plus facile à comprendre.
 
-## Étape 2 — Vérifier que tout fonctionne
+## Étape 2 — Repérer la structure du projet
+
+Le projet généré contient une classe de démarrage dans le package racine `fr.cours.troc`. Renommez-la `TrocApplication` si l'assistant l'a appelée autrement (par exemple `TrocApiApplication`) : clic droit sur la classe > `Refactor > Rename`.
+
+```
+troc-api/
+├── pom.xml                                  ← dépendances (Spring Web)
+└── src/
+    ├── main/java/fr/cours/troc/
+    │   └── TrocApplication.java             ← point d'entrée de l'application
+    ├── main/resources/application.properties ← configuration (séance 2)
+    └── test/java/fr/cours/troc/             ← tests (séance 4)
+```
+
+Dans ce projet, le code est rangé **par fonctionnalité** : tout ce qui concerne les utilisateurs ira dans un package `fr.cours.troc.user`, tout ce qui concerne les objets échangés dans `fr.cours.troc.item`, etc. Créez toujours ces packages **sous** `fr.cours.troc` : vous verrez au bloc 2 pourquoi Spring en a besoin.
+
+## Étape 3 — Vérifier que tout fonctionne
 
 Dans un terminal, à la racine du projet :
 

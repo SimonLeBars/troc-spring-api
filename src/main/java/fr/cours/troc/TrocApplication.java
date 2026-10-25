@@ -1,13 +1,13 @@
-package com.example.troc;
+package fr.cours.troc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TrocApiApplication {
+public class TrocApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TrocApiApplication.class, args);
+		SpringApplication.run(TrocApplication.class, args);
 	}
 
 }
