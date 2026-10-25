@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Cours Spring — Template vert Spring Framework</title>
+<style>
+  :root{
+    --bg: #FAFCF8;
+    --surface: #EEF3EA;
+    --surface-2: #E2EADB;
+    --green: #6DB33F;
+    --green-dark: #4B8A2E;
+    --text: #1C2419;
+    --text-muted: #5C6959;
+    --rule: #D9E2D2;
+    --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", sans-serif;
+    --font-code: "JetBrains Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:#000; font-family:var(--font-body);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .deck{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0 80px; }
+  .slide{
+    width:960px; height:540px; background:var(--bg);
+    position:relative; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--rule);
+  }
+  .slide .tag{
+    position:absolute; top:28px; left:40px; font-family:var(--font-code);
+    font-size:12px; color:var(--green-dark); letter-spacing:.02em;
+  }
+  .slide .pageno{
+    position:absolute; bottom:24px; right:32px; font-family:var(--font-code);
+    font-size:12px; color:var(--text-muted);
+  }
+  .bar{ position:absolute; left:0; top:0; width:6px; height:100%; background:var(--green); }
+
+  /* Slide 1 — Titre (bloc vert plein, logo-like) */
+  .s-title{ display:flex; }
+  .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
+  .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
+  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
+  .s-title h1{
+    font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px;
+    font-weight:600; max-width:420px;
+  }
+  .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
+  .s-title .meta{ position:absolute; bottom:36px; right:60px; display:flex; gap:24px; }
+  .s-title .meta div{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .s-title .meta span{ color:var(--green-dark); }
+
+  /* Slide 2 — Section (divider plein vert) */
+  .s-section{ background:var(--green); display:flex; align-items:center; padding:0 80px; }
+  .s-section .num{ font-family:var(--font-display); font-size:110px; color:rgba(255,255,255,.25); font-weight:700; margin-right:44px; }
+  .s-section h2{ font-family:var(--font-display); font-size:40px; margin:0; font-weight:600; max-width:520px; line-height:1.15; color:#fff; }
+  .s-section .list{ margin-top:18px; }
+  .s-section .list div{ color:rgba(255,255,255,.75); font-size:16px; margin-top:6px; }
+  .s-section .tag{ color:#EAF6E2; }
+  .s-section .pageno{ color:rgba(255,255,255,.6); }
+
+  /* Slide 3 — Contenu / points */
+  .s-content{ padding:70px 80px 40px; }
+  .s-content h3{ font-family:var(--font-display); font-size:30px; margin:0 0 30px; font-weight:600; }
+  .s-content ul{ list-style:none; margin:0; padding:0; }
+  .s-content li{
+    display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--rule);
+    font-size:17px; align-items:baseline;
+  }
+  .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
+  .s-content li b{ color:var(--text); font-weight:600; }
+  .s-content li span{ color:var(--text-muted); margin-left:6px; }
+
+  /* Slide 4 — Code */
+  .s-code{ padding:70px 80px 40px; }
+  .s-code h3{ font-family:var(--font-display); font-size:26px; margin:0 0 22px; font-weight:600; }
+  .s-code .win{
+    background:#1C2419; border:1px solid var(--rule); border-radius:4px; overflow:hidden;
+  }
+  .s-code .winbar{
+    background:#263323; padding:9px 16px; font-family:var(--font-code);
+    font-size:12px; color:#9FB393; border-bottom:1px solid #33422F;
+  }
+  .s-code pre{
+    margin:0; padding:22px 24px; font-family:var(--font-code); font-size:14.5px;
+    line-height:1.65; color:#EAF3E4; overflow:auto;
+  }
+  .s-code .kw{ color: #9FD88D; }
+  .s-code .an{ color: #6DB33F; }
+  .s-code .cm{ color: #6E7C68; }
+
+  /* Slide 5 — Clôture / synthèse */
+  .s-close{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 80px; }
+  .s-close h2{ font-family:var(--font-display); font-size:38px; margin:0 0 26px; font-weight:600; }
+  .s-close .grid{ display:flex; gap:40px; }
+  .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
+  .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
+  .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 1. Slide titre -->
+  <section class="slide s-title">
+    <div class="half">
+      <div class="course">JOUR 01 / 05</div>
+      <div class="leaf">Sp</div>
+    </div>
+    <div class="content">
+      <h1>SOLID, architecture en couches &amp; inversion de contrôle</h1>
+      <div class="sub">Poser les fondations avant d'introduire le conteneur Spring.</div>
+    </div>
+    <div class="meta">
+      <div>PRÉREQUIS <span>Java, POO, Maven</span></div>
+      <div>OUTILS <span>IntelliJ · JDK 25</span></div>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+
+  <!-- 2. Slide section (plein vert) -->
+  <section class="slide s-section">
+    <div class="tag">PLAN DU JOUR</div>
+    <div class="num">02</div>
+    <div>
+      <h2>Injection de dépendances &amp; externalisation</h2>
+      <div class="list">
+        <div>Properties &amp; profils</div>
+        <div>Constructeur vs setter vs champ</div>
+        <div>Premiers endpoints REST</div>
+      </div>
+    </div>
+    <div class="pageno">02</div>
+  </section>
+
+  <!-- 3. Slide contenu -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">JOUR 1 · SOLID</div>
+    <h3>Les 5 principes, en une phrase chacun</h3>
+    <ul>
+      <li><b>S</b> — Single Responsibility <span>une classe, une raison de changer</span></li>
+      <li><b>O</b> — Open/Closed <span>ouvert à l'extension, fermé à la modification</span></li>
+      <li><b>L</b> — Liskov Substitution <span>une sous-classe doit rester substituable</span></li>
+      <li><b>I</b> — Interface Segregation <span>préférer plusieurs interfaces ciblées</span></li>
+      <li><b>D</b> — Dependency Inversion <span>dépendre d'abstractions, pas d'implémentations</span></li>
+    </ul>
+    <div class="pageno">03</div>
+  </section>
+
+  <!-- 4. Slide code -->
+  <section class="slide s-code">
+    <div class="bar"></div>
+    <div class="tag">JOUR 2 · INJECTION PAR CONSTRUCTEUR</div>
+    <h3>Pattern recommandé côté Spring</h3>
+    <div class="win">
+      <div class="winbar">ProductService.java</div>
+      <pre><span class="an">@Service</span>
+<span class="kw">public class</span> ProductService {
+
+    <span class="kw">private final</span> ProductRepository repository;
+
+    <span class="cm">// une seule dépendance injectée, immuable</span>
+    <span class="kw">public</span> ProductService(ProductRepository repository) {
+        <span class="kw">this</span>.repository = repository;
+    }
+}</pre>
+    </div>
+    <div class="pageno">04</div>
+  </section>
+
+  <!-- 5. Slide clôture -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">JOUR 1 · SYNTHÈSE</div>
+    <h2>Ce qu'il faut retenir</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="k">CONCEPT CLÉ</div>
+        <div class="v">L'IoC déplace la création des objets vers le conteneur Spring.</div>
+      </div>
+      <div class="card">
+        <div class="k">À PRÉPARER</div>
+        <div class="v">Lire le chapitre sur @Configuration avant le jour 2.</div>
+      </div>
+      <div class="card">
+        <div class="k">TP</div>
+        <div class="v">Refactorer le projet de démo selon SOLID.</div>
+      </div>
+    </div>
+    <div class="pageno">05</div>
+  </section>
+
+</div>
+</body>
+</html>
