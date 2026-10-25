@@ -1,0 +1,23 @@
+meta {
+  name: Créer objet (Alice)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/items
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "tomates",
+    "quantity": 10,
+    "ownerId": 1
+  }
+}

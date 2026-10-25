@@ -189,7 +189,7 @@
     <h3>Où en est-on ?</h3>
     <ul>
       <li><b>Acquis</b> <span>injection par constructeur, beans Spring, GET et POST /users en mémoire</span></li>
-      <li><b>Il manque</b> <span>les légumes, les trocs, des URLs comme /users/42, des codes de statut justes</span></li>
+      <li><b>Il manque</b> <span>les objets, les trocs, des URLs comme /users/42, des codes de statut justes</span></li>
       <li><b>Il reste en dur</b> <span>les règles métier chiffrées, enfouies dans le code Java</span></li>
       <li class="hl"><b>Fin de séance</b> <span>CRUD users et items, proposer un troc, règles dans un fichier de configuration</span></li>
     </ul>
@@ -227,8 +227,8 @@
     <div class="win">
       <div class="winbar">item/ItemService.java</div>
 <pre><span class="kw">public</span> Item create(Item item) {
-<span class="bad">    <span class="kw">if</span> (items.countByOwner(item.getOwnerId()) &gt;= 20) {</span>
-        <span class="kw">throw new</span> IllegalStateException(<span class="kw">"Too many items"</span>);
+<span class="bad">    <span class="kw">if</span> (items.countByOwnerId(item.getOwnerId()) &gt;= 20) {</span>
+        <span class="kw">throw new</span> IllegalStateException(<span class="kw">"Trop d'objets"</span>);
     }
     <span class="kw">return</span> items.save(item);
 }</pre>
@@ -237,7 +237,7 @@
     <div class="pageno">04</div>
   </section>
   <aside class="notes">
-    <p>Règle métier choisie pour la séance : un utilisateur ne peut pas proposer plus de N légumes différents. C'est elle que les groupes externaliseront dans le TP bloc 1.</p>
+    <p>Règle métier choisie pour la séance : un utilisateur ne peut pas proposer plus de N objets différents. C'est elle que les groupes externaliseront dans le TP bloc 1.</p>
     <p>Demander à la salle : « qui décide de ce 20 ? » → le client, pas le développeur. Une valeur qui peut changer sans que le code change n'a rien à faire dans le code.</p>
     <p>Même raisonnement que l'évolution 2 de la séance 1 : on veut changer un comportement sans toucher aux classes.</p>
   </aside>
@@ -305,16 +305,18 @@ server.port=8080
 <pre><span class="an">@Service</span>
 <span class="kw">public class</span> ItemService {
     <span class="kw">private final</span> ItemRepository items;
+    <span class="kw">private final</span> UserRepository users;
     <span class="kw">private final int</span> maxPerUser;
 
-    <span class="kw">public</span> ItemService(ItemRepository items,
+    <span class="kw">public</span> ItemService(ItemRepository items, UserRepository users,
 <span class="good">                       <span class="an">@Value</span>(<span class="kw">"${troc.item.max-per-user:20}"</span>) <span class="kw">int</span> maxPerUser) {</span>
         <span class="kw">this</span>.items = items;
+        <span class="kw">this</span>.users = users;
         <span class="kw">this</span>.maxPerUser = maxPerUser;
     }
 
     <span class="kw">public</span> Item create(Item item) {
-        <span class="kw">if</span> (items.countByOwner(item.getOwnerId()) &gt;= maxPerUser) { ... }</pre>
+        <span class="kw">if</span> (items.countByOwnerId(item.getOwnerId()) &gt;= maxPerUser) { ... }</pre>
     </div>
     <div class="caption"><b>${clé:défaut}</b> : la valeur vient du fichier, 20 si la clé est absente. Spring convertit le texte en <b>int</b> tout seul.</div>
     <div class="pageno">06</div>
@@ -342,7 +344,8 @@ server.port=8080
 <span class="an">@Service</span>
 <span class="kw">public class</span> ItemService {
     <span class="kw">private final</span> ItemProperties props;              <span class="cm">// un bean comme un autre</span>
-    <span class="kw">public</span> ItemService(ItemRepository items, ItemProperties props) { ... }
+    <span class="kw">public</span> ItemService(ItemRepository items, UserRepository users,
+                       ItemProperties props) { ... }
     <span class="cm">// ... props.maxPerUser()</span>
 }</pre>
     </div>
@@ -566,7 +569,7 @@ server.port=8080
 
 <span class="kw">public</span> User findById(Long id) {                                <span class="cm">// UserService</span>
     <span class="kw">return</span> users.findById(id).orElseThrow(() -&gt;
-<span class="good">        <span class="kw">new</span> ResponseStatusException(HttpStatus.NOT_FOUND, <span class="kw">"User "</span> + id + <span class="kw">" not found"</span>));  <span class="cm">// 404</span></span>
+<span class="good">        <span class="kw">new</span> ResponseStatusException(HttpStatus.NOT_FOUND, <span class="kw">"Utilisateur "</span> + id + <span class="kw">" introuvable"</span>)); <span class="cm">// 404</span></span>
 }</pre>
     </div>
     <div class="pageno">14</div>
@@ -574,8 +577,8 @@ server.port=8080
   <aside class="notes">
     <p>Rappel de la séance 1 : notre POST /users renvoyait 200. Voici comment renvoyer le 201 attendu, avec l'en-tête Location qui indique où trouver la ressource créée.</p>
     <p>Trois outils : ResponseEntity quand le code ou les en-têtes dépendent du cas ; @ResponseStatus quand le code est toujours le même ; ResponseStatusException pour interrompre le traitement avec une erreur.</p>
-    <p>Limite assumée : ResponseStatusException dans le service mélange un peu web et métier. Le bonus @ControllerAdvice permet de lancer une exception métier (UserNotFoundException) et de la traduire en 404 côté web.</p>
-    <p>L'exemple suppose que le repository renvoie un Optional : à adapter selon ce que chaque groupe a écrit.</p>
+    <p>Limite assumée : ResponseStatusException dans le service mélange un peu web et métier. Le bonus @ControllerAdvice permet de lancer une exception métier (NotFoundException) et de la traduire en 404 côté web.</p>
+    <p>Le TP fait passer findById à Optional (bloc 1, étape 2.1) : le code de la diapo est celui que les étudiants écrivent.</p>
   </aside>
 
   <!-- ============ 15 · TESTER ============ -->
@@ -682,10 +685,10 @@ $ curl -i -X DELETE localhost:8080/users/2
       <text class="tk" x="18" y="24">POST /trades</text>
       <text class="tc" x="18" y="52">{</text>
       <text class="tc" x="30" y="70">"proposerId": 1,</text>
-      <text class="tc" x="30" y="88">"offeredItemId": 3,</text>
+      <text class="tc" x="30" y="88">"offeredItemId": 1,</text>
       <text class="tc" x="30" y="106">"offeredQuantity": 3,</text>
       <text class="tc" x="30" y="124">"recipientId": 2,</text>
-      <text class="tc" x="30" y="142">"requestedItemId": 7,</text>
+      <text class="tc" x="30" y="142">"requestedItemId": 2,</text>
       <text class="tc" x="30" y="160">"requestedQuantity": 4</text>
       <text class="tc" x="18" y="178">}</text>
 
@@ -695,7 +698,7 @@ $ curl -i -X DELETE localhost:8080/users/2
       <text class="t tb" x="338" y="30">TradeService vérifie</text>
       <text class="t tm" x="338" y="66">utilisateurs existants</text>
       <text class="tc" x="602" y="66" text-anchor="end">404</text>
-      <text class="t tm" x="338" y="100">légumes au bon propriétaire</text>
+      <text class="t tm" x="338" y="100">objets au bon propriétaire</text>
       <text class="tc" x="602" y="100" text-anchor="end">400</text>
       <text class="t tm" x="338" y="134">stock suffisant</text>
       <text class="tc" x="602" y="134" text-anchor="end">à vous</text>
@@ -718,6 +721,7 @@ $ curl -i -X DELETE localhost:8080/users/2
   <aside class="notes">
     <p>On retrouve le Trade de la diapo fil rouge de la séance 1, mais seulement sa première étape : « Proposé ».</p>
     <p>Chaque vérification qui échoue produit un code de statut différent. Pour le stock insuffisant, le code est laissé au choix des groupes (400, 409 ou 422) : c'est un choix technique à justifier, exactement ce qui est évalué.</p>
+    <p>Le TP ajoute deux vérifications en 400 qui ne figurent pas sur le schéma : troquer avec soi-même, quantités ≤ 0.</p>
     <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigerait avec Spring Security, qui reste un bonus de la séance 4.</p>
   </aside>
 

@@ -1,9 +1,12 @@
 package fr.cours.troc.user;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 // Évolution 2 : un stockage en mémoire qui affiche chaque opération dans la console.
@@ -14,14 +17,9 @@ public class LoggingUserRepository implements UserRepository {
     private final AtomicLong nextId = new AtomicLong(1);
     private final String prefix;
 
-    // Spring ne sait pas quelle String injecter : ce constructeur fournit un préfixe par défaut.
-    // En séance 2, le préfixe viendra du fichier de configuration.
-    public LoggingUserRepository() {
-        this("[USERS]");
-    }
-
     // Évolution 3 : le préfixe des logs est choisi par celui qui crée le repository.
-    public LoggingUserRepository(String prefix) {
+    // Séance 2 : Spring le lit dans application.properties, [USERS] si la clé est absente.
+    public LoggingUserRepository(@Value("${troc.user.log-prefix:[USERS]}") String prefix) {
         this.prefix = prefix;
     }
 
@@ -42,8 +40,14 @@ public class LoggingUserRepository implements UserRepository {
     }
 
     @Override
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         System.out.println(prefix + " findById " + id);
-        return users.get(id);
+        return Optional.ofNullable(users.get(id));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        System.out.println(prefix + " deleteById " + id);
+        users.remove(id);
     }
 }

@@ -65,8 +65,10 @@ Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-session1-initiali
 - **TP bloc 2 (noyau)** : endpoints pour proposer/consulter un troc (sans persistance ni double validation pour l'instant).
 - **Bonus** : gestion d'erreurs globale (`@ControllerAdvice`) ; validation des entrées (`@Valid`).
 
+Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/04-session2-tp-bloc1-crud-configuration.md`, `doc/tp/05-session2-tp-bloc2-proposer-troc.md`.
+
 ### À faire avant la session
-- [ ] Rédiger le support de TP (externalisation + endpoints CRUD + troc)
+- [x] Rédiger le support de TP (externalisation + endpoints CRUD + troc)
 - [x] Préparer la diapo théorie config/REST
 
 ---
