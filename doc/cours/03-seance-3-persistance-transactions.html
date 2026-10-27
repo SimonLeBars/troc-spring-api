@@ -172,7 +172,7 @@
     </div>
     <div class="meta">
       <div>PRÉREQUIS <span>POST /trades en mémoire</span></div>
-      <div>OUTILS <span>console H2 · curl</span></div>
+      <div>OUTILS <span>console H2 · Bruno</span></div>
       <div>STACK <span>Spring Data JDBC</span></div>
     </div>
     <div class="pageno">01</div>
@@ -190,7 +190,7 @@
     <ul>
       <li><b>Acquis</b> <span>CRUD users et items, POST /trades au statut PROPOSED, règles dans application.properties</span></li>
       <li><b>Le problème</b> <span>on redémarre l'application… et tout a disparu : les données vivent dans une List</span></li>
-      <li><b>Il manque</b> <span>la suite du troc : l'accepter, échanger les légumes, mettre les deux stocks à jour</span></li>
+      <li><b>Il manque</b> <span>la suite du troc : l'accepter, échanger les objets, mettre les deux stocks à jour</span></li>
       <li class="hl"><b>Fin de séance</b> <span>données en base H2, troc accepté ou refusé, échange exécuté en tout-ou-rien</span></li>
     </ul>
     <div class="pageno">02</div>
@@ -290,23 +290,27 @@
   <section class="slide s-code compare">
     <div class="bar"></div>
     <div class="tag">PERSISTANCE · MISE EN PLACE</div>
-    <h3>Brancher une base : deux dépendances, quatre lignes</h3>
+    <h3>Brancher une base : trois dépendances, quatre lignes</h3>
     <div class="cols">
       <div class="col" style="flex:1.2">
         <div class="label">POM.XML · DEPENDENCIES</div>
         <div class="win">
           <div class="winbar">pom.xml</div>
-<pre style="font-size:12px"><span class="cm">&lt;!-- Spring Data JDBC --&gt;</span>
+<pre style="font-size:12px;line-height:1.4"><span class="cm">&lt;!-- Spring Data JDBC --&gt;</span>
 &lt;dependency&gt;
   &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
   &lt;artifactId&gt;<span class="kw">spring-boot-starter-data-jdbc</span>&lt;/artifactId&gt;
 &lt;/dependency&gt;
-
 <span class="cm">&lt;!-- le moteur de base H2 --&gt;</span>
 &lt;dependency&gt;
   &lt;groupId&gt;com.h2database&lt;/groupId&gt;
   &lt;artifactId&gt;<span class="kw">h2</span>&lt;/artifactId&gt;
   &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+<span class="cm">&lt;!-- /h2-console : un module à part en Boot 4 --&gt;</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;<span class="kw">spring-boot-h2console</span>&lt;/artifactId&gt;
 &lt;/dependency&gt;</pre>
         </div>
       </div>
@@ -314,8 +318,8 @@
         <div class="label">SRC/MAIN/RESOURCES/APPLICATION.PROPERTIES</div>
         <div class="win">
           <div class="winbar">application.properties</div>
-<pre style="font-size:12px"><span class="cm"># une base dans un fichier du projet</span>
-<span class="good">spring.datasource.url=jdbc:h2:file:./data/troc</span>
+<pre style="font-size:12px;line-height:1.4;white-space:pre-wrap;word-break:break-all"><span class="cm"># une base dans un fichier du projet</span>
+<span class="good">spring.datasource.url=jdbc:h2:file:./data/troc;CASE_INSENSITIVE_IDENTIFIERS=TRUE</span>
 spring.datasource.username=sa
 spring.datasource.password=
 
@@ -335,7 +339,8 @@ spring.h2.console.enabled=true
   <aside class="notes">
     <p>H2 est une base écrite en Java, embarquée dans l'application : rien à installer. Le même code tournerait sur PostgreSQL en changeant la dépendance et l'URL (et, idéalement, en passant le mot de passe par variable d'environnement, cf. séance 2).</p>
     <p>spring.sql.init.mode=always : par défaut, Spring Boot n'exécute schema.sql que pour une base en mémoire. Avec une base fichier, il faut le demander.</p>
-    <p>Console H2 : avec Spring Boot 4, vérifier dans le support de TP si une dépendance supplémentaire est nécessaire pour /h2-console. Se connecter avec exactement la même URL JDBC que dans le fichier.</p>
+    <p>Console H2 : depuis Spring Boot 4, elle est dans un module séparé, spring-boot-h2console. Sans lui, /h2-console répond 404. Se connecter avec exactement la même URL JDBC que dans le fichier, option comprise.</p>
+    <p>CASE_INSENSITIVE_IDENTIFIERS=TRUE : Spring Data JDBC met les noms entre guillemets ("users"), donc sensibles à la casse, alors que H2 a rangé le CREATE TABLE users sans guillemets sous le nom USERS. Sans l'option : 500, « Table "users" not found (candidates are: "USERS") ». Option propre à H2 : le code Java, lui, reste compatible PostgreSQL.</p>
     <p>Ajouter data/ au .gitignore : la base n'a rien à faire dans git.</p>
   </aside>
 
@@ -344,7 +349,7 @@ spring.h2.console.enabled=true
     <div class="bar"></div>
     <div class="tag">PERSISTANCE · LE SCHÉMA</div>
     <h3>Trois tables, reliées par des clés étrangères</h3>
-    <svg viewBox="0 0 800 270" role="img" aria-label="Schéma relationnel : items.owner_id référence users.id ; trades référence deux fois users (proposeur, destinataire) et deux fois items (légume offert, légume demandé)">
+    <svg viewBox="0 0 800 270" role="img" aria-label="Schéma relationnel : items.owner_id référence users.id ; trades référence deux fois users (proposeur, destinataire) et deux fois items (objet offert, objet demandé)">
       <!-- users -->
       <rect class="box-accent" x="0" y="40" width="200" height="32" rx="3"/>
       <text class="t tb tw" x="12" y="61">users</text>
@@ -399,8 +404,8 @@ spring.h2.console.enabled=true
     <div class="pageno">07</div>
   </section>
   <aside class="notes">
-    <p>Toutes les flèches pointent vers une clé primaire : une clé étrangère dit « cette valeur doit exister là-bas ». Impossible d'enregistrer un légume dont le propriétaire n'existe pas, même avec un bug dans le code.</p>
-    <p>trades référence deux fois users et deux fois items : c'est normal, un troc a deux participants et deux légumes.</p>
+    <p>Toutes les flèches pointent vers une clé primaire : une clé étrangère dit « cette valeur doit exister là-bas ». Impossible d'enregistrer un objet dont le propriétaire n'existe pas, même avec un bug dans le code.</p>
+    <p>trades référence deux fois users et deux fois items : c'est normal, un troc a deux participants et deux objets.</p>
     <p>CHECK et UNIQUE : on y revient au checkpoint #1, ce sont des filets de sécurité qui serviront pendant l'expérience du bloc 2.</p>
   </aside>
 
@@ -574,22 +579,22 @@ spring.h2.console.enabled=true
     <div class="bar"></div>
     <div class="tag">TRANSACTIONS · LE PROBLÈME</div>
     <h3>Accepter un troc, c'est cinq écritures</h3>
-    <svg viewBox="0 0 800 236" role="img" aria-label="Les cinq écritures d'un troc ; si la deuxième échoue sans transaction, Alice a perdu ses tomates sans rien recevoir ; avec une transaction, tout est annulé">
-      <text class="tk" x="0" y="12">ALICE OFFRE 3 KG DE TOMATES · BOB OFFRE 4 COURGETTES</text>
+    <svg viewBox="0 0 800 236" role="img" aria-label="Les cinq écritures d'un troc ; si la troisième échoue sans transaction, Alice a perdu ses tomates sans rien recevoir ; avec une transaction, tout est annulé">
+      <text class="tk" x="0" y="12">ALICE OFFRE 3 TOMATES · BOB OFFRE 4 CAROTTES</text>
 
       <rect class="box-strong" x="0" y="24" width="470" height="36" rx="4"/>
       <text class="t" x="16" y="47">1 · débit des tomates d'Alice</text>
       <text class="tc" x="454" y="47" text-anchor="end">10 → 7</text>
 
-      <rect class="box-bad" x="0" y="66" width="470" height="36" rx="4"/>
-      <text class="t tbad" x="16" y="89">2 · débit des courgettes de Bob</text>
-      <text class="tc tbad" x="454" y="89" text-anchor="end">1 → −3 : refusé</text>
+      <rect class="box-strong" x="0" y="66" width="470" height="36" rx="4"/>
+      <text class="t" x="16" y="89">2 · crédit des tomates à Bob</text>
+      <text class="tc" x="454" y="89" text-anchor="end">0 → 3</text>
 
-      <rect class="box" x="0" y="108" width="470" height="36" rx="4"/>
-      <text class="t tm" x="16" y="131">3 · crédit des courgettes à Alice</text>
-      <text class="t tm" x="454" y="131" text-anchor="end">jamais exécutée</text>
+      <rect class="box-bad" x="0" y="108" width="470" height="36" rx="4"/>
+      <text class="t tbad" x="16" y="131">3 · débit des carottes de Bob</text>
+      <text class="tc tbad" x="454" y="131" text-anchor="end">1 → −3 : refusé</text>
       <rect class="box" x="0" y="150" width="470" height="36" rx="4"/>
-      <text class="t tm" x="16" y="173">4 · crédit des tomates à Bob</text>
+      <text class="t tm" x="16" y="173">4 · crédit des carottes à Alice</text>
       <text class="t tm" x="454" y="173" text-anchor="end">jamais exécutée</text>
       <rect class="box" x="0" y="192" width="470" height="36" rx="4"/>
       <text class="t tm" x="16" y="215">5 · troc → EXECUTED</text>
@@ -597,22 +602,23 @@ spring.h2.console.enabled=true
 
       <rect class="box-bad" x="500" y="24" width="300" height="96" rx="4"/>
       <text class="tk tbad" x="518" y="46">SANS TRANSACTION</text>
-      <text class="t" x="518" y="70">Alice a perdu 3 kg de tomates.</text>
-      <text class="t" x="518" y="90">Bob n'a rien reçu.</text>
+      <text class="t" x="518" y="70">Alice a donné 3 tomates…</text>
+      <text class="t" x="518" y="90">…et n'a rien reçu en échange.</text>
       <text class="t" x="518" y="110">Le troc est toujours PROPOSED.</text>
 
       <rect class="box-accent" x="500" y="132" width="300" height="96" rx="4"/>
       <text class="tk tw" x="518" y="154">AVEC TRANSACTION</text>
-      <text class="t tw" x="518" y="178">ROLLBACK : l'étape 1 est annulée,</text>
+      <text class="t tw" x="518" y="178">ROLLBACK : étapes 1 et 2 annulées,</text>
       <text class="t tw" x="518" y="198">la base revient exactement</text>
       <text class="t tw" x="518" y="218">à l'état d'avant.</text>
     </svg>
     <div class="pageno">13</div>
   </section>
   <aside class="notes">
-    <p>Pourquoi l'étape 2 échoue-t-elle ? Bob avait 5 courgettes à la proposition, il en a donné 4 ailleurs entre-temps. Le stock a changé entre la proposition et l'acceptation : il faut revérifier au moment d'exécuter.</p>
+    <p>Pourquoi l'étape 3 échoue-t-elle ? Bob avait 5 carottes à la proposition, il en a donné 4 ailleurs entre-temps. Le stock a changé entre la proposition et l'acceptation : il faut revérifier au moment d'exécuter.</p>
     <p>Ici c'est la contrainte CHECK (quantity &gt;= 0) qui refuse l'écriture. Dans un bon code, la vérification est faite avant toute écriture (diapo suivante) ; la contrainte est le filet si le code se trompe.</p>
     <p>Une panne réseau, un crash, un bug dans le crédit produiraient le même état incohérent. La transaction couvre tous ces cas, pas seulement ceux qu'on a prévus.</p>
+    <p>Ordre réel du code de référence : chaque transfert débite puis crédite (l'objet offert, puis l'objet demandé). C'est exactement ce qu'on observe dans l'expérience du bloc 2 : Alice à 7 tomates, une ligne « tomates » à 3 chez Bob, troc toujours PROPOSED.</p>
   </aside>
 
   <!-- ============ 14 · @TRANSACTIONAL ============ -->
@@ -632,19 +638,20 @@ spring.h2.console.enabled=true
     checkStock(offered,   trade.getOfferedQuantity());          <span class="cm">// 409, AVANT toute écriture</span>
     checkStock(requested, trade.getRequestedQuantity());
 
-    transfer(offered,   trade.getOfferedQuantity(),   trade.getRecipientId());
-    transfer(requested, trade.getRequestedQuantity(), trade.getProposerId());
+    itemService.transfer(offered,   trade.getOfferedQuantity(),   trade.getRecipientId());
+    itemService.transfer(requested, trade.getRequestedQuantity(), trade.getProposerId());
 
     trade.setStatus(TradeStatus.EXECUTED);
     <span class="kw">return</span> trades.save(trade);
 }</pre>
     </div>
-    <div class="caption"><b>transfer</b> : débiter le légume, créditer l'autre utilisateur. Une exception sort de la méthode ? <b>Rien</b> n'est enregistré.</div>
+    <div class="caption"><b>itemService.transfer</b> : débit de l'objet, crédit de l'autre. Une exception sort de la méthode ? <b>Rien</b> n'est enregistré.</div>
     <div class="pageno">14</div>
   </section>
   <aside class="notes">
     <p>L'annotation va sur le service : c'est lui qui connaît l'opération métier complète. Ni sur le contrôleur (trop haut), ni sur chaque méthode du repository (trop bas, chaque écriture aurait sa propre transaction).</p>
     <p>checkAcceptable et checkStock lancent des ResponseStatusException : ce sont des RuntimeException, donc elles déclenchent aussi le rollback. Ici, rien n'a encore été écrit, mais la règle reste la même.</p>
+    <p>transfer est dans ItemService (il manipule des objets) et appelle items.save directement : ItemService.update refuserait un stock qui tombe à 0. Pas besoin de @Transactional dessus : il rejoint la transaction ouverte par accept.</p>
     <p>Crédit : chercher la ligne (owner, name) avec findByOwnerIdAndName ; si elle existe on ajoute la quantité, sinon on crée une nouvelle ligne. Question à poser aux groupes : la création d'une ligne doit-elle respecter troc.item.max-per-user ? C'est un choix à justifier.</p>
   </aside>
 
@@ -762,6 +769,7 @@ spring.h2.console.enabled=true
     <div class="tag">CHECKPOINT #1 · PIÈGES COURANTS</div>
     <h3>Ça ne démarre pas : que dit la console ?</h3>
     <ul>
+      <li><b>Table "users" not found</b> <span>;CASE_INSENSITIVE_IDENTIFIERS=TRUE oublié dans l'URL</span></li>
       <li><b>Syntax error … USER</b> <span>mot réservé : table users et @Table("users")</span></li>
       <li><b>Column OWNERID not found</b> <span>ownerId → owner_id : la colonne doit suivre ce nom</span></li>
       <li><b>Table already exists</b> <span>IF NOT EXISTS oublié dans schema.sql</span></li>
@@ -782,7 +790,7 @@ spring.h2.console.enabled=true
     <div class="tag">CHECKPOINT #1 · CONTRAINTES ET INDEX</div>
     <h3>Le code vérifie, la base garantit</h3>
     <ul>
-      <li><b>FOREIGN KEY</b> <span>supprimer un utilisateur qui a des légumes est refusé : 409 ou suppression en cascade ?</span></li>
+      <li><b>FOREIGN KEY</b> <span>supprimer un utilisateur qui a des objets est refusé : 409 ou suppression en cascade ?</span></li>
       <li><b>CHECK ≥ 0</b> <span>aucun stock négatif, même si le code oublie une vérification</span></li>
       <li><b>UNIQUE</b> <span>une seule ligne « tomates » par utilisateur : le crédit ajoute à l'existante</span></li>
       <li><b>INDEX</b> <span>GET /trades?userId= lit trades par participant : à indexer</span></li>
@@ -791,7 +799,7 @@ spring.h2.console.enabled=true
     <div class="pageno">20</div>
   </section>
   <aside class="notes">
-    <p>FK : DELETE /users/1 alors qu'il possède des légumes → la base lève une exception d'intégrité → 500 si on ne fait rien. Aux groupes de choisir : vérifier et renvoyer 409, ou supprimer d'abord les légumes. Les deux se défendent.</p>
+    <p>FK : DELETE /users/1 alors qu'il possède des objets → la base lève une exception d'intégrité → 500 si on ne fait rien. Aux groupes de choisir : vérifier et renvoyer 409, ou supprimer d'abord ses objets. Les deux se défendent.</p>
     <p>Index : CREATE INDEX IF NOT EXISTS idx_trades_recipient ON trades(recipient_id); idem sur proposer_id. Un index accélère les lectures mais ralentit un peu les écritures : on indexe ce qu'on interroge. Selon le SGBD, une clé étrangère n'est pas indexée automatiquement (PostgreSQL ne le fait pas, H2 si).</p>
     <p>Transition vers le bloc 2 : la contrainte CHECK va servir de déclencheur dans l'expérience.</p>
   </aside>
@@ -812,13 +820,13 @@ spring.h2.console.enabled=true
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">Deux acceptations simultanées sur le même légume, index justifiés, une requête @Query.</div>
+        <div class="v">Deux acceptations simultanées sur le même objet, index justifiés, une requête @Query.</div>
       </div>
     </div>
     <div class="pageno">21</div>
   </section>
   <aside class="notes">
-    <p>Durée indicative : 60 à 75 min. Expérience détaillée dans le support : retirer temporairement @Transactional et la vérification du stock du destinataire, passer les courgettes de Bob à 1 (PUT /items/…), accepter → 500 (contrainte CHECK). Dans /h2-console, le stock d'Alice a baissé. Remettre @Transactional, recommencer : même 500, mais stock d'Alice intact. Remettre enfin la vérification : 409 propre.</p>
+    <p>Durée indicative : 60 à 75 min. Expérience détaillée dans le support : retirer temporairement @Transactional et la vérification du stock du destinataire, passer les carottes de Bob à 1 (requête Bruno « Réduire le stock de Bob »), accepter → 500 (contrainte CHECK). Dans /h2-console, le stock d'Alice a baissé. Remettre @Transactional, recommencer : même 500, mais stock d'Alice intact. Remettre enfin la vérification : 409 propre.</p>
     <p>À noter dans le rapport du projet : c'est une preuve concrète, reproductible, du rôle de la transaction.</p>
     <p>Bonus concurrence : deux acceptations en parallèle peuvent toutes deux passer la vérification de stock. Pistes : UPDATE conditionnel (… SET quantity = quantity - :qty WHERE id = :id AND quantity &gt;= :qty, avec @Modifying et @Query, en testant le nombre de lignes modifiées), ou verrouillage optimiste avec @Version.</p>
   </aside>
@@ -840,7 +848,7 @@ spring.h2.console.enabled=true
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">Concurrence sur un même légume, index, requêtes @Query.</div>
+        <div class="v">Concurrence sur un même objet, index, requêtes @Query.</div>
       </div>
       <div class="card">
         <div class="k">SÉANCE 4</div>
