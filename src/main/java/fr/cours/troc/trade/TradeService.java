@@ -5,6 +5,7 @@ import fr.cours.troc.item.ItemService;
 import fr.cours.troc.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -80,5 +81,52 @@ public class TradeService {
         trade.setRequestedItemId(request.requestedItemId());
         trade.setRequestedQuantity(request.requestedQuantity());
         return trades.save(trade);
+    }
+
+    // Séance 3 : le second accord. Débit et crédit des deux objets, puis changement de statut :
+    // tout est validé ensemble (COMMIT), ou rien du tout si une exception sort de la méthode (ROLLBACK).
+    @Transactional
+    public Trade accept(Long tradeId, Long userId) {
+        Trade trade = findById(tradeId);                                        // 404
+        checkAcceptable(trade, userId);                                         // 403 ou 409
+
+        Item offered = itemService.findById(trade.getOfferedItemId());
+        Item requested = itemService.findById(trade.getRequestedItemId());
+        // les stocks ont pu changer depuis la proposition : on revérifie, AVANT toute écriture
+        checkStock(offered, trade.getOfferedQuantity());                        // 409
+        checkStock(requested, trade.getRequestedQuantity());
+
+        itemService.transfer(offered, trade.getOfferedQuantity(), trade.getRecipientId());
+        itemService.transfer(requested, trade.getRequestedQuantity(), trade.getProposerId());
+        trade.setStatus(TradeStatus.EXECUTED);
+        return trades.save(trade);
+    }
+
+    // Une seule écriture : pas besoin de @Transactional, save() est déjà atomique.
+    public Trade reject(Long tradeId, Long userId) {
+        Trade trade = findById(tradeId);
+        checkAcceptable(trade, userId);
+        trade.setStatus(TradeStatus.REJECTED);
+        return trades.save(trade);
+    }
+
+    private void checkAcceptable(Trade trade, Long userId) {
+        // 403 : la requête est comprise, mais cet utilisateur n'a pas le droit de répondre
+        if (!Objects.equals(trade.getRecipientId(), userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Seul le destinataire (utilisateur " + trade.getRecipientId() + ") peut répondre à ce troc");
+        }
+        // 409 : le troc a déjà reçu une réponse
+        if (trade.getStatus() != TradeStatus.PROPOSED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Le troc " + trade.getId() + " est déjà " + trade.getStatus());
+        }
+    }
+
+    private void checkStock(Item item, int quantity) {
+        if (item.getQuantity() < quantity) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Stock insuffisant : l'objet " + item.getId() + " n'a plus que " + item.getQuantity() + " unités");
+        }
     }
 }

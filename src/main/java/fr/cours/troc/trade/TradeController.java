@@ -37,4 +37,15 @@ public class TradeController {
         Trade saved = tradeService.propose(request);
         return ResponseEntity.created(URI.create("/trades/" + saved.getId())).body(saved);
     }
+
+    // Actions métier sur un troc existant : des sous-ressources en POST.
+    @PostMapping("/{id}/accept")
+    public Trade accept(@PathVariable Long id, @RequestBody TradeDecisionRequest request) {
+        return tradeService.accept(id, request.userId());
+    }
+
+    @PostMapping("/{id}/reject")
+    public Trade reject(@PathVariable Long id, @RequestBody TradeDecisionRequest request) {
+        return tradeService.reject(id, request.userId());
+    }
 }

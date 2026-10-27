@@ -1,8 +1,13 @@
 package fr.cours.troc.trade;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("trades")
 public class Trade {
 
-    private Long id;
+    @Id
+    private Long id; // null → INSERT, sinon UPDATE
     private TradeStatus status;
     private Long proposerId;
     private Long offeredItemId;

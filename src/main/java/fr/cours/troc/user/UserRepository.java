@@ -1,15 +1,8 @@
 package fr.cours.troc.user;
 
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.repository.ListCrudRepository;
 
-public interface UserRepository {
-
-    User save(User user);
-
-    List<User> findAll();
-
-    Optional<User> findById(Long id);
-
-    void deleteById(Long id);
+// Séance 3 : plus d'implémentation à écrire, Spring Data JDBC la génère au démarrage.
+// save, findAll, findById, deleteById… sont fournies par ListCrudRepository.
+public interface UserRepository extends ListCrudRepository<User, Long> {
 }

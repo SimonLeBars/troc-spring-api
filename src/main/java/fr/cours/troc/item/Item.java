@@ -1,8 +1,13 @@
 package fr.cours.troc.item;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("items")
 public class Item {
 
-    private Long id;
+    @Id
+    private Long id; // null → INSERT, sinon UPDATE
     private String name;
     private int quantity;
     private Long ownerId;

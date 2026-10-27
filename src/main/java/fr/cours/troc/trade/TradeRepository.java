@@ -1,15 +1,10 @@
 package fr.cours.troc.trade;
 
+import org.springframework.data.repository.ListCrudRepository;
+
 import java.util.List;
-import java.util.Optional;
 
-public interface TradeRepository {
-
-    Trade save(Trade trade);
-
-    List<Trade> findAll();
-
-    Optional<Trade> findById(Long id);
+public interface TradeRepository extends ListCrudRepository<Trade, Long> {
 
     // trocs où l'utilisateur est proposeur OU destinataire
     List<Trade> findByProposerIdOrRecipientId(Long proposerId, Long recipientId);

@@ -84,7 +84,7 @@ Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/04-session2-
 - **Bonus** : gestion de la concurrence (deux trocs simultanés sur le même objet) ; requêtes personnalisées ; index.
 
 ### À faire avant la session
-- [ ] Rédiger le support de TP (Spring Data JDBC + transaction du workflow de troc)
+- [x] Rédiger le support de TP (Spring Data JDBC + transaction du workflow de troc)
 - [x] Préparer la diapo théorie transactions/PK-FK
 
 ---

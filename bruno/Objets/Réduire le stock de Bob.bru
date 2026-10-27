@@ -1,0 +1,23 @@
+meta {
+  name: Réduire le stock de Bob
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{baseUrl}}/items/2
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "carottes",
+    "quantity": 1,
+    "ownerId": 2
+  }
+}

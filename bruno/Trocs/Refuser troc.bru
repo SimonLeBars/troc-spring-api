@@ -1,0 +1,21 @@
+meta {
+  name: Refuser troc
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/trades/2/reject
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "userId": 2
+  }
+}

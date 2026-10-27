@@ -1,19 +1,17 @@
 package fr.cours.troc.item;
 
+import org.springframework.data.repository.ListCrudRepository;
+
 import java.util.List;
 import java.util.Optional;
 
-public interface ItemRepository {
+public interface ItemRepository extends ListCrudRepository<Item, Long> {
 
-    Item save(Item item);
-
-    List<Item> findAll();
-
-    Optional<Item> findById(Long id);
-
+    // requêtes déduites du nom de la méthode : WHERE owner_id = ?
     List<Item> findByOwnerId(Long ownerId);
 
     long countByOwnerId(Long ownerId);
 
-    void deleteById(Long id);
+    // WHERE owner_id = ? AND name = ? : au plus une ligne, grâce à UNIQUE (owner_id, name)
+    Optional<Item> findByOwnerIdAndName(Long ownerId, String name);
 }

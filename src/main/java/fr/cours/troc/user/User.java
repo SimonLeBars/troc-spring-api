@@ -1,8 +1,13 @@
 package fr.cours.troc.user;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("users")
 public class User {
 
-    private Long id;
+    @Id
+    private Long id; // null → INSERT, sinon UPDATE
     private String name;
 
     public Long getId() {
