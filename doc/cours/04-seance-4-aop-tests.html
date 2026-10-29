@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Séance 4 — Aspects & tests</title>
+<style>
+  :root{
+    --bg: #FAFCF8;
+    --surface: #EEF3EA;
+    --surface-2: #E2EADB;
+    --green: #6DB33F;
+    --green-dark: #4B8A2E;
+    --text: #1C2419;
+    --text-muted: #5C6959;
+    --rule: #D9E2D2;
+    --warn: #B5533C;
+    --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", sans-serif;
+    --font-code: "JetBrains Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:#000; font-family:var(--font-body);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .deck{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0 80px; }
+  .slide{
+    width:960px; height:540px; background:var(--bg);
+    position:relative; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--rule);
+  }
+  .slide .tag{
+    position:absolute; top:28px; left:40px; font-family:var(--font-code);
+    font-size:12px; color:var(--green-dark); letter-spacing:.02em;
+  }
+  .slide .pageno{
+    position:absolute; bottom:24px; right:32px; font-family:var(--font-code);
+    font-size:12px; color:var(--text-muted);
+  }
+  .bar{ position:absolute; left:0; top:0; width:6px; height:100%; background:var(--green); }
+
+  /* Titre */
+  .s-title{ display:flex; }
+  .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
+  .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
+  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
+  .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
+  .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
+  .s-title .meta{ position:absolute; bottom:36px; right:60px; display:flex; gap:24px; }
+  .s-title .meta div{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .s-title .meta span{ color:var(--green-dark); }
+
+  /* Section */
+  .s-section{ background:var(--green); display:flex; align-items:center; padding:0 80px; }
+  .s-section .num{ font-family:var(--font-display); font-size:110px; color:rgba(255,255,255,.25); font-weight:700; margin-right:44px; }
+  .s-section h2{ font-family:var(--font-display); font-size:40px; margin:0; font-weight:600; max-width:520px; line-height:1.15; color:#fff; }
+  .s-section .list{ margin-top:18px; }
+  .s-section .list div{ color:rgba(255,255,255,.75); font-size:16px; margin-top:6px; }
+  .s-section .tag{ color:#EAF6E2; }
+  .s-section .pageno{ color:rgba(255,255,255,.6); }
+
+  /* Contenu / points */
+  .s-content{ padding:70px 80px 40px; }
+  .s-content h3{ font-family:var(--font-display); font-size:30px; margin:0 0 30px; font-weight:600; }
+  .s-content ul{ list-style:none; margin:0; padding:0; }
+  .s-content li{ display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--rule); font-size:17px; align-items:baseline; }
+  .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
+  .s-content li b{ color:var(--text); font-weight:600; white-space:nowrap; }
+  .s-content li span{ color:var(--text-muted); margin-left:6px; }
+  /* [AJOUT] ligne mise en avant */
+  .s-content li.hl{ background:var(--surface); border-left:3px solid var(--green); padding-left:12px; margin-left:-15px; }
+  .s-content li.hl span{ color:var(--text); }
+
+  /* Code */
+  .s-code{ padding:70px 80px 40px; }
+  .s-code h3{ font-family:var(--font-display); font-size:26px; margin:0 0 22px; font-weight:600; }
+  .s-code .win{ background:#1C2419; border:1px solid var(--rule); border-radius:4px; overflow:hidden; }
+  .s-code .winbar{ background:#263323; padding:9px 16px; font-family:var(--font-code); font-size:12px; color:#9FB393; border-bottom:1px solid #33422F; }
+  .s-code pre{ margin:0; padding:22px 24px; font-family:var(--font-code); font-size:14.5px; line-height:1.65; color:#EAF3E4; overflow:auto; }
+  .s-code .kw{ color:#9FD88D; }
+  .s-code .an{ color:#6DB33F; }
+  .s-code .cm{ color:#6E7C68; }
+  /* [AJOUT] ligne de code signalée, légende sous la fenêtre, variante compacte */
+  .s-code .bad{ background:rgba(181,83,60,.32); display:inline-block; width:100%; }
+  .s-code .good{ background:rgba(109,179,63,.22); display:inline-block; width:100%; }
+  .s-code .caption{ margin-top:14px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-code .caption b{ color:var(--text); }
+  .s-code.dense pre{ font-size:13px; line-height:1.55; padding:16px 22px; }
+
+  /* [AJOUT] Avant / après côte à côte */
+  .s-code.compare{ padding:70px 56px 40px; }
+  .compare .cols{ display:flex; gap:20px; }
+  .compare .col{ flex:1; min-width:0; }
+  .compare .label{ font-family:var(--font-code); font-size:12px; margin-bottom:8px; color:var(--green-dark); }
+  .compare .label.before{ color:var(--warn); }
+  .compare pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
+
+  /* [AJOUT] Schéma SVG */
+  .s-diagram{ padding:70px 80px 40px; }
+  .s-diagram h3{ font-family:var(--font-display); font-size:26px; margin:0 0 18px; font-weight:600; }
+  .s-diagram svg{ display:block; width:100%; height:auto; }
+  .s-diagram .caption{ margin-top:12px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-diagram .caption b{ color:var(--text); }
+  svg .box{ fill:var(--surface); stroke:var(--rule); stroke-width:1; }
+  svg .box-strong{ fill:#fff; stroke:var(--green-dark); stroke-width:1.5; }
+  svg .box-accent{ fill:var(--green); stroke:none; }
+  svg .box-bad{ fill:#fff; stroke:var(--warn); stroke-width:1.5; }
+  svg .frame{ fill:none; stroke:var(--green); stroke-width:1.5; stroke-dasharray:6 5; }
+  svg .t{ font-family:var(--font-body); font-size:14px; fill:var(--text); }
+  svg .tb{ font-weight:600; font-size:15px; }
+  svg .tm{ fill:var(--text-muted); font-size:12.5px; }
+  svg .tc{ font-family:var(--font-code); font-size:12.5px; fill:var(--green-dark); }
+  svg .tw{ fill:#fff; }
+  svg .tk{ font-family:var(--font-code); font-size:11px; fill:var(--green-dark); letter-spacing:.04em; }
+  svg .tbad{ fill:var(--warn); }
+  svg .ln{ stroke:var(--green-dark); stroke-width:1.5; fill:none; }
+  svg .ln-dash{ stroke-dasharray:5 4; }
+  svg .ln-bad{ stroke:var(--warn); }
+  svg .sep{ stroke:var(--rule); stroke-width:1; }
+
+  /* Clôture / cartes */
+  .s-close{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 80px; }
+  .s-close h2{ font-family:var(--font-display); font-size:38px; margin:0 0 26px; font-weight:600; }
+  .s-close .grid{ display:flex; gap:40px; }
+  .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
+  .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
+  .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
+  /* [AJOUT] grille 4 cartes + citation */
+  .s-close .grid.four{ gap:24px; }
+  .s-close .grid.four .card{ width:182px; }
+  .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
+
+  /* [AJOUT] Notes orateur — touche N pour afficher/masquer */
+  .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
+          padding:14px 20px; font-size:14px; line-height:1.55; margin-top:-14px; }
+  .notes::before{ content:"NOTES ORATEUR"; display:block; font-family:var(--font-code); font-size:11px; color:var(--green); margin-bottom:6px; }
+  .notes p{ margin:0 0 6px; }
+  body.show-notes .notes{ display:block; }
+  .hint{ position:fixed; bottom:12px; left:16px; font-family:var(--font-code); font-size:11px; color:#5C6959; }
+  @media print{ .notes, .hint{ display:none !important; } body{ background:#fff; } .deck{ gap:0; padding:0; } }
+</style>
+</head>
+<body>
+
+<!-- Marqueurs de flèches partagés par tous les schémas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4B8A2E"/>
+    </marker>
+    <marker id="arr-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B5533C"/>
+    </marker>
+    <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FAFCF8" stroke="#4B8A2E" stroke-width="1.2"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="deck">
+
+  <!-- ============ 01 · TITRE ============ -->
+  <section class="slide s-title">
+    <div class="half">
+      <div class="course">JOUR 04 / 05</div>
+      <div class="leaf">Sp</div>
+    </div>
+    <div class="content">
+      <h1>Aspects &amp; tests</h1>
+      <div class="sub">Journaliser chaque troc sans toucher au métier, et prouver que les règles tiennent.</div>
+    </div>
+    <div class="meta">
+      <div>PRÉREQUIS <span>accept transactionnel</span></div>
+      <div>OUTILS <span>console · runner IntelliJ</span></div>
+      <div>STACK <span>Spring AOP · JUnit · Mockito</span></div>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+  <aside class="notes">
+    <p>Déroulé : 30 min de théorie d'un seul bloc (≈ 13 min AOP, 17 min tests), pause, TP bloc 1 (aspect), checkpoint #1 (10 min), TP bloc 2 (tests), checkpoint #2.</p>
+    <p>Séance dense : annoncer dès maintenant l'ordre de priorité (diapo 03). Les groupes dont accept ne fonctionne pas encore peuvent quand même écrire l'aspect : il se branche sur n'importe quelle méthode de TradeService.</p>
+  </aside>
+
+  <!-- ============ 02 · OÙ EN EST-ON ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">RAPPEL · SÉANCES 1 À 3</div>
+    <h3>Où en est-on ?</h3>
+    <ul>
+      <li><b>Acquis</b> <span>données en H2, accept et reject, échange des stocks en tout-ou-rien</span></li>
+      <li><b>Question 1</b> <span>qui a tenté quel troc, et pourquoi a-t-il échoué ? Aucune trace.</span></li>
+      <li><b>Question 2</b> <span>après une modification, tout marche encore ? On reteste à la main…</span></li>
+      <li class="hl"><b>Fin de séance</b> <span>chaque troc journalisé par un aspect, les règles protégées par des tests</span></li>
+    </ul>
+    <div class="pageno">02</div>
+  </section>
+  <aside class="notes">
+    <p>Question 1 : demander qui, dans la salle, saurait dire combien de trocs ont été refusés hier, et pourquoi. Personne : le code ne trace rien.</p>
+    <p>Question 2 : demander combien de commandes curl ils ont relancées à la main en séance 3 pour vérifier l'expérience du rollback. C'est exactement ce qu'un test automatise.</p>
+  </aside>
+
+  <!-- ============ 03 · PRIORITÉS ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">ORGANISATION · SÉANCE DENSE</div>
+    <h3>Aujourd'hui, par ordre de priorité</h3>
+    <ul>
+      <li><b>1 · Aspect de log</b> <span>le noyau : tout le monde le termine</span></li>
+      <li><b>2 · Tests unitaires</b> <span>les règles d'acceptation de TradeService, avec Mockito</span></li>
+      <li><b>3 · Test d'intégration</b> <span>l'API de bout en bout, avec MockMvc et une base de test</span></li>
+      <li><b>4 · En avance</b> <span>chronométrer avec @Around, tester le rollback, Spring Security</span></li>
+      <li class="hl"><b>Si le temps manque</b> <span>on coupe par le bas de la liste, jamais par le haut</span></li>
+    </ul>
+    <div class="pageno">03</div>
+  </section>
+  <aside class="notes">
+    <p>Diapo à annoncer explicitement, pour gérer les attentes : il est normal de ne pas finir le point 3 aujourd'hui. Le support de TP reste disponible pour la séance 5.</p>
+    <p>Un groupe bloqué sur l'aspect au bout de 45 min : l'aider en priorité, c'est le seul point non négociable.</p>
+  </aside>
+
+  <!-- ============ 04 · SECTION 01 ============ -->
+  <section class="slide s-section">
+    <div class="tag">THÉORIE · 30 MIN</div>
+    <div class="num">01</div>
+    <div>
+      <h2>Le code qui se répète partout</h2>
+      <div class="list">
+        <div>Les préoccupations transverses</div>
+        <div>Le vocabulaire de l'AOP</div>
+        <div>Écrire un aspect</div>
+        <div>Quand chaque advice s'exécute</div>
+      </div>
+    </div>
+    <div class="pageno">04</div>
+  </section>
+  <aside class="notes">
+    <p>Environ 13 minutes sur l'AOP, 17 sur les tests. L'AOP est un concept ponctuel : l'idée compte plus que la syntaxe, qui est dans le support.</p>
+  </aside>
+
+  <!-- ============ 05 · TRANSVERSE ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">AOP · LE PROBLÈME</div>
+    <h3>Certaines tâches traversent tous les services</h3>
+    <svg viewBox="0 0 800 236" role="img" aria-label="Trois services métier en colonnes, UserService, ItemService et TradeService ; trois bandes horizontales les traversent toutes : journalisation, transactions et sécurité">
+      <text class="tk" x="0" y="26">MÉTIER →</text>
+      <text class="tk" x="0" y="62">TRANSVERSE ↓</text>
+
+      <rect class="box" x="170" y="0" width="190" height="232" rx="4"/>
+      <text class="t tb" x="265" y="26" text-anchor="middle">UserService</text>
+      <text class="t tm" x="265" y="46" text-anchor="middle">créer, lister</text>
+
+      <rect class="box" x="380" y="0" width="190" height="232" rx="4"/>
+      <text class="t tb" x="475" y="26" text-anchor="middle">ItemService</text>
+      <text class="t tm" x="475" y="46" text-anchor="middle">stock, propriétaire</text>
+
+      <rect class="box" x="590" y="0" width="190" height="232" rx="4"/>
+      <text class="t tb" x="685" y="26" text-anchor="middle">TradeService</text>
+      <text class="t tm" x="685" y="46" text-anchor="middle">proposer, accepter</text>
+
+      <!-- bande 1 : journalisation -->
+      <text class="t tb" x="0" y="96">Journalisation</text>
+      <rect class="box-accent" x="160" y="74" width="630" height="38" rx="3"/>
+      <text class="tc tw" x="265" y="98" text-anchor="middle">log.info(…)</text>
+      <text class="tc tw" x="475" y="98" text-anchor="middle">log.info(…)</text>
+      <text class="tc tw" x="685" y="98" text-anchor="middle">log.info(…)</text>
+
+      <!-- bande 2 : transactions -->
+      <text class="t tb" x="0" y="148">Transactions</text>
+      <rect class="box-accent" x="160" y="126" width="630" height="38" rx="3" style="fill-opacity:.7"/>
+      <text class="tc tw" x="265" y="150" text-anchor="middle">BEGIN · COMMIT</text>
+      <text class="tc tw" x="475" y="150" text-anchor="middle">BEGIN · COMMIT</text>
+      <text class="tc tw" x="685" y="150" text-anchor="middle">BEGIN · COMMIT</text>
+
+      <!-- bande 3 : sécurité -->
+      <text class="t tb" x="0" y="196">Sécurité</text>
+      <text class="t tm" x="0" y="214">en avance</text>
+      <rect class="box-strong" x="160" y="178" width="630" height="38" rx="3" style="stroke-dasharray:6 5"/>
+      <text class="tc" x="265" y="202" text-anchor="middle">qui appelle ?</text>
+      <text class="tc" x="475" y="202" text-anchor="middle">qui appelle ?</text>
+      <text class="tc" x="685" y="202" text-anchor="middle">qui appelle ?</text>
+    </svg>
+    <div class="caption">Une <b>préoccupation transverse</b> coupe tous les services. L'AOP l'écrit une fois, à un seul endroit.</div>
+    <div class="pageno">05</div>
+  </section>
+  <aside class="notes">
+    <p>Lire le schéma à la verticale : chaque service a son métier. À l'horizontale : les mêmes tâches techniques reviennent partout, à l'identique.</p>
+    <p>Les transactions, on les a déjà réglées en séance 3 avec une annotation : c'était déjà de l'AOP, écrit par Spring. Aujourd'hui, on écrit le nôtre pour la journalisation.</p>
+    <p>AOP = Aspect-Oriented Programming, programmation orientée aspect. Un aspect, c'est une de ces bandes horizontales.</p>
+  </aside>
+
+  <!-- ============ 06 · AVANT / APRÈS ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">AOP · AVANT / APRÈS</div>
+    <h3>Le log noyé dans le métier, ou mis à part</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">AVANT · LOG MÉLANGÉ AU MÉTIER</div>
+        <div class="win">
+          <div class="winbar">trade/TradeService.java</div>
+<pre><span class="kw">public</span> Trade accept(Long id, Long userId) {
+<span class="bad">  log.info(<span class="kw">"accept {} by {}"</span>, id, userId);</span>
+<span class="bad">  <span class="kw">try</span> {</span>
+    Trade trade = findById(id);
+    <span class="cm">// … 12 lignes métier …</span>
+<span class="bad">    log.info(<span class="kw">"trade {} executed"</span>, id);</span>
+    <span class="kw">return</span> trades.save(trade);
+<span class="bad">  } <span class="kw">catch</span> (RuntimeException e) {</span>
+<span class="bad">    log.warn(<span class="kw">"trade {} : {}"</span>, id, e.getMessage());</span>
+<span class="bad">    <span class="kw">throw</span> e;</span>
+<span class="bad">  }</span>
+}
+<span class="cm">// × propose, reject, create, delete…</span></pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">APRÈS · LE MÉTIER SEUL</div>
+        <div class="win">
+          <div class="winbar">trade/TradeService.java</div>
+<pre><span class="an">@Transactional</span>
+<span class="kw">public</span> Trade accept(Long id, Long userId) {
+    Trade trade = findById(id);
+    checkAcceptable(trade, userId);
+    <span class="cm">// … 12 lignes métier …</span>
+    <span class="kw">return</span> trades.save(trade);
+}
+
+
+
+<span class="good"><span class="cm">// le log ? ailleurs, écrit une fois :</span></span>
+<span class="good"><span class="cm">// trade/TradeLoggingAspect.java</span></span>
+
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Principe <b>S</b> de SOLID : une classe, une seule raison de changer. Changer le format du log ne doit pas toucher au troc.</div>
+    <div class="pageno">06</div>
+  </section>
+  <aside class="notes">
+    <p>À gauche : 7 lignes sur 13 ne parlent pas de troc. Et il faudrait les recopier dans chaque méthode de chaque service. Un oubli, et une opération n'est plus tracée.</p>
+    <p>Lien séance 1 : le principe S (responsabilité unique). TradeService change si les règles du troc changent, pas si l'équipe exploitation veut un autre format de log.</p>
+    <p>Le log reste en SLF4J (Logger, LoggerFactory), fourni par Spring Boot : pas de System.out.println.</p>
+  </aside>
+
+  <!-- ============ 07 · VOCABULAIRE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">AOP · VOCABULAIRE</div>
+    <h3>Quatre mots, une phrase</h3>
+    <ul>
+      <li><b>Join point</b> <span>un endroit interceptable : chez Spring, l'appel d'une méthode d'un bean</span></li>
+      <li><b>Pointcut</b> <span>le filtre qui choisit les join points : « les méthodes de TradeService »</span></li>
+      <li><b>Advice</b> <span>le code à exécuter, et quand : avant, après, en cas d'erreur, autour</span></li>
+      <li><b>Aspect</b> <span>la classe qui regroupe pointcuts et advices</span></li>
+      <li class="hl"><b>En une phrase</b> <span>« avant (advice) chaque méthode de TradeService (pointcut), écrire une ligne de log »</span></li>
+    </ul>
+    <div class="pageno">07</div>
+  </section>
+  <aside class="notes">
+    <p>Les termes anglais sont gardés : ce sont ceux de la documentation et des annotations. Join point se traduit parfois « point de jonction », advice « greffon ».</p>
+    <p>Le plus utile à retenir : pointcut = où, advice = quoi et quand.</p>
+  </aside>
+
+  <!-- ============ 08 · L'ASPECT ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">AOP · DANS LE CODE</div>
+    <h3>Un aspect, c'est une classe annotée</h3>
+    <div class="win">
+      <div class="winbar">trade/TradeLoggingAspect.java</div>
+<pre style="font-size:11.5px;line-height:1.4;padding:10px 20px"><span class="good"><span class="an">@Aspect</span>                                            <span class="cm">// je contiens des advices</span></span>
+<span class="an">@Component</span>                                         <span class="cm">// un bean, comme les autres</span>
+<span class="kw">public class</span> TradeLoggingAspect {
+    <span class="kw">private static final</span> Logger log = LoggerFactory.getLogger(TradeLoggingAspect.<span class="kw">class</span>);
+
+<span class="good">    <span class="an">@Pointcut</span>(<span class="kw">"execution(* fr.cours.troc.trade.TradeService.*(..))"</span>)</span>
+    <span class="kw">void</span> tradeOperations() {}                       <span class="cm">// un nom pour le filtre</span>
+
+    <span class="an">@Before</span>(<span class="kw">"tradeOperations()"</span>)
+    <span class="kw">public void</span> logAttempt(JoinPoint jp) {
+        log.info(<span class="kw">"→ {} {}"</span>, jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
+    }
+    <span class="an">@AfterThrowing</span>(pointcut = <span class="kw">"tradeOperations()"</span>, throwing = <span class="kw">"ex"</span>)
+    <span class="kw">public void</span> logFailure(JoinPoint jp, RuntimeException ex) {
+        log.warn(<span class="kw">"✗ {} : {}"</span>, jp.getSignature().getName(), ex.getMessage());
+    }
+}</pre>
+    </div>
+    <div class="caption">Dépendance : <b>spring-boot-starter-aspectj</b>. Aucune ligne de TradeService n'a changé.</div>
+    <div class="pageno">08</div>
+  </section>
+  <aside class="notes">
+    <p>Lire le pointcut de gauche à droite : execution( type de retour · package.Classe · .méthode · (arguments) ). * = n'importe quoi, (..) = n'importe quels arguments. Donc : toutes les méthodes publiques de TradeService.</p>
+    <p>En console, un accept donne : « → accept [7, 2] », puis éventuellement « ✗ accept : 409 CONFLICT "Stock insuffisant" ».</p>
+    <p>Spring Boot 4 : le starter s'appelle spring-boot-starter-aspectj (anciennement spring-boot-starter-aop, nom encore présent dans beaucoup de tutoriels).</p>
+    <p>JoinPoint donne accès à la méthode appelée et à ses arguments : suffisant pour un log. Attention à ne pas journaliser de données sensibles (mots de passe, plus tard).</p>
+  </aside>
+
+  <!-- ============ 09 · QUAND ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">AOP · SOUS LE CAPOT</div>
+    <h3>Le même proxy que @Transactional</h3>
+    <svg viewBox="0 0 800 230" role="img" aria-label="Le contrôleur appelle le proxy généré par Spring ; @Before s'exécute avant la méthode accept, puis @AfterReturning en cas de succès ou @AfterThrowing en cas d'exception ; @Around englobe l'ensemble">
+      <rect class="box" x="0" y="82" width="140" height="64" rx="4"/>
+      <text class="t tb" x="70" y="110" text-anchor="middle">TradeController</text>
+      <text class="tc" x="70" y="130" text-anchor="middle">accept(7, 2)</text>
+      <line class="ln" x1="142" y1="114" x2="196" y2="114" marker-end="url(#arr)"/>
+
+      <rect class="frame" x="200" y="0" width="600" height="228" rx="6"/>
+      <text class="tk" x="218" y="24">PROXY GÉNÉRÉ PAR SPRING</text>
+      <text class="tk" x="782" y="24" text-anchor="end">@AROUND : ENGLOBE TOUT</text>
+
+      <rect class="box-strong" x="222" y="82" width="110" height="64" rx="4"/>
+      <text class="tc" x="277" y="110" text-anchor="middle" font-weight="600">@Before</text>
+      <text class="t tm" x="277" y="130" text-anchor="middle">trace l'appel</text>
+      <line class="ln" x1="334" y1="114" x2="366" y2="114" marker-end="url(#arr)"/>
+
+      <rect class="box-strong" x="370" y="72" width="170" height="84" rx="4"/>
+      <text class="tc" x="455" y="104" text-anchor="middle" font-weight="600">accept(…)</text>
+      <text class="t tm" x="455" y="124" text-anchor="middle">TradeService</text>
+      <text class="t tm" x="455" y="142" text-anchor="middle">inchangé</text>
+
+      <path class="ln" d="M542,100 C575,100 575,62 604,62" marker-end="url(#arr)"/>
+      <path class="ln ln-bad" d="M542,128 C575,128 575,170 604,170" marker-end="url(#arr-bad)"/>
+
+      <rect class="box-accent" x="608" y="36" width="172" height="54" rx="4"/>
+      <text class="tc tw" x="694" y="58" text-anchor="middle" font-weight="600">@AfterReturning</text>
+      <text class="t tw" x="694" y="78" text-anchor="middle" font-size="12.5">succès</text>
+
+      <rect class="box-bad" x="608" y="144" width="172" height="54" rx="4"/>
+      <text class="tc tbad" x="694" y="166" text-anchor="middle" font-weight="600">@AfterThrowing</text>
+      <text class="t tm" x="694" y="186" text-anchor="middle">exception</text>
+    </svg>
+    <div class="caption">Même mécanisme, <b>mêmes pièges</b> qu'en séance 3 : un appel interne (this.…) ou une méthode non publique n'est pas intercepté.</div>
+    <div class="pageno">09</div>
+  </section>
+  <aside class="notes">
+    <p>Rappel séance 3, diapo du proxy : le conteneur injecte un emballage autour de TradeService. @Transactional et notre aspect sont deux couches de ce même emballage.</p>
+    <p>@After (sans suffixe) s'exécute dans les deux cas, comme un finally. @Around englobe tout et décide lui-même d'appeler la méthode : c'est le bonus du jour.</p>
+    <p>Pour les curieux : « succès » dans le log ne veut pas forcément dire « commité ». Si notre aspect est à l'intérieur de la transaction, il journalise avant le COMMIT. L'ordre se règle avec @Order, hors programme.</p>
+  </aside>
+
+  <!-- ============ 10 · SECTION 02 ============ -->
+  <section class="slide s-section">
+    <div class="tag">THÉORIE · SUITE</div>
+    <div class="num">02</div>
+    <div>
+      <h2>Prouver que ça marche</h2>
+      <div class="list">
+        <div>Unitaire, intégration : la pyramide</div>
+        <div>Pourquoi l'injection rend testable</div>
+        <div>Un test unitaire avec Mockito</div>
+        <div>Un test d'intégration avec MockMvc</div>
+      </div>
+    </div>
+    <div class="pageno">10</div>
+  </section>
+  <aside class="notes">
+    <p>Un test, c'est du code qui vérifie du code, et qu'on relance en une seconde après chaque modification. C'est le filet de sécurité de la séance 5, en autonomie.</p>
+  </aside>
+
+  <!-- ============ 11 · PYRAMIDE ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">TESTS · STRATÉGIE</div>
+    <h3>Beaucoup de petits tests, quelques gros</h3>
+    <svg viewBox="0 0 800 236" role="img" aria-label="Pyramide des tests : à la base, de nombreux tests unitaires rapides sans Spring ; au milieu, quelques tests d'intégration avec tout le contexte et une base H2 en mémoire ; au sommet, des vérifications manuelles de bout en bout">
+      <polygon class="box" points="170,6 290,6 340,76 120,76"/>
+      <text class="t tb" x="230" y="47" text-anchor="middle">à la main</text>
+
+      <polygon class="box-strong" points="117,82 343,82 398,154 62,154"/>
+      <text class="t tb" x="230" y="124" text-anchor="middle">Intégration</text>
+
+      <polygon class="box-accent" points="58,160 402,160 460,232 0,232"/>
+      <text class="t tb tw" x="230" y="202" text-anchor="middle">Unitaires</text>
+
+      <line class="sep" x1="490" y1="6" x2="490" y2="76"/>
+      <text class="tk" x="504" y="30">BOUT EN BOUT · CURL</text>
+      <text class="t tm" x="504" y="52">l'application lancée, testée à la main</text>
+      <text class="t tm" x="504" y="70">lent, rare, non automatisé</text>
+
+      <line class="sep" x1="490" y1="82" x2="490" y2="154"/>
+      <text class="tk" x="504" y="106">@SPRINGBOOTTEST · MOCKMVC</text>
+      <text class="t tm" x="504" y="128">tout le contexte, base H2 en mémoire</text>
+      <text class="t tm" x="504" y="146">quelques secondes · quelques tests</text>
+
+      <line class="sep" x1="490" y1="160" x2="490" y2="232"/>
+      <text class="tk" x="504" y="184">JUNIT · MOCKITO</text>
+      <text class="t tm" x="504" y="206">une classe seule, sans Spring ni base</text>
+      <text class="t tm" x="504" y="224">millisecondes · beaucoup de tests</text>
+    </svg>
+    <div class="caption">Plus on monte, plus le test est <b>réaliste</b>, mais <b>lent</b> et difficile à diagnostiquer quand il échoue.</div>
+    <div class="pageno">11</div>
+  </section>
+  <aside class="notes">
+    <p>Un test unitaire qui échoue désigne une méthode. Un test d'intégration qui échoue peut venir du JSON, du contrôleur, du service, du SQL… C'est pour ça qu'on en veut moins, mais qu'il en faut.</p>
+    <p>Le sommet, c'est ce qu'ils font depuis la séance 2 avec curl et leurs fichiers de requêtes. Utile, mais personne ne le relance après chaque modification.</p>
+  </aside>
+
+  <!-- ============ 12 · INJECTION = TESTABLE ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">TESTS · RAPPEL SÉANCE 1</div>
+    <h3>L'injection par constructeur rend le service testable</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">SÉANCE 1 · COUPLAGE FORT</div>
+        <div class="win">
+          <div class="winbar">user/UserService.java</div>
+<pre><span class="kw">public class</span> UserService {
+<span class="bad">  <span class="kw">private final</span> UserRepository users</span>
+<span class="bad">      = <span class="kw">new</span> InMemoryUserRepository();</span>
+  <span class="cm">// …</span>
+}
+
+<span class="cm">// Pour tester, impossible de choisir</span>
+<span class="cm">// le repository : le service le crée</span>
+<span class="cm">// lui-même. Test = vrai stockage.</span>
+
+
+</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">AUJOURD'HUI · ON INJECTE UN FAUX</div>
+        <div class="win">
+          <div class="winbar">user/UserServiceTest.java</div>
+<pre><span class="an">@Test</span>
+<span class="kw">void</span> createKeepsName() {
+<span class="good">  <span class="kw">var</span> fake = mock(UserRepository.<span class="kw">class</span>);</span>
+  when(fake.save(any()))
+      .thenAnswer(call -&gt; call.getArgument(0));
+
+<span class="good">  <span class="kw">var</span> service = <span class="kw">new</span> UserService(fake);</span>
+  User user = service.create(<span class="kw">new</span> User(<span class="kw">"Alice"</span>));
+
+  assertEquals(<span class="kw">"Alice"</span>, user.getName());
+}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Le service ne sait pas qu'il parle à un <b>faux repository</b> : il ne dépend que de l'interface. Mockito écrit le faux pour nous.</div>
+    <div class="pageno">12</div>
+  </section>
+  <aside class="notes">
+    <p>C'est l'argument gardé depuis la séance 1 : « impossible à tester ». Le voici. Avec new InMemoryUserRepository() dans le service, aucun moyen de lui glisser autre chose.</p>
+    <p>Pourquoi Mockito et pas un FakeUserRepository écrit à la main ? Depuis la séance 3, UserRepository étend ListCrudRepository : une dizaine de méthodes à implémenter pour n'en utiliser qu'une. mock() génère l'implémentation, when(…) programme la réponse. Mockito est inclus dans spring-boot-starter-test.</p>
+    <p>Aucune trace de Spring dans ce test : pas de contexte, pas de base. Il s'exécute en quelques millisecondes. Signatures (create, constructeur de User) à adapter au code du groupe.</p>
+  </aside>
+
+  <!-- ============ 13 · TEST UNITAIRE ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">TESTS · UNITAIRE</div>
+    <h3>Tester une règle : stock insuffisant, rien n'est écrit</h3>
+    <div class="win">
+      <div class="winbar">src/test/java/fr/cours/troc/trade/TradeServiceTest.java</div>
+<pre style="font-size:11.5px;line-height:1.4;padding:10px 20px"><span class="an">@ExtendWith</span>(MockitoExtension.<span class="kw">class</span>)
+<span class="kw">class</span> TradeServiceTest {
+    <span class="an">@Mock</span> TradeRepository trades;
+    <span class="an">@Mock</span> ItemService itemService;
+<span class="good">    <span class="an">@InjectMocks</span> TradeService service;          <span class="cm">// construit avec les mocks ci-dessus</span></span>
+
+    <span class="an">@Test</span>
+    <span class="kw">void</span> acceptRefusedWhenStockTooLow() {
+        <span class="cm">// given : Bob n'a plus qu'1 courgette, le troc en demande 4</span>
+        when(trades.findById(7L)).thenReturn(Optional.of(proposedTrade(10L, 3, 20L, 4)));
+        when(itemService.findById(10L)).thenReturn(<span class="kw">new</span> Item(10L, 1L, <span class="kw">"tomates"</span>, 10));
+        when(itemService.findById(20L)).thenReturn(<span class="kw">new</span> Item(20L, 2L, <span class="kw">"courgettes"</span>, 1));
+        <span class="cm">// when / then</span>
+        <span class="kw">var</span> ex = assertThrows(ResponseStatusException.<span class="kw">class</span>, () -&gt; service.accept(7L, 2L));
+        assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+<span class="good">        verify(trades, never()).save(any());          <span class="cm">// rien n'a été écrit</span></span>
+    }
+}</pre>
+    </div>
+    <div class="caption"><b>Given / when / then</b> : la situation, l'action, le résultat attendu. proposedTrade est une petite méthode utilitaire du test.</div>
+    <div class="pageno">13</div>
+  </section>
+  <aside class="notes">
+    <p>Le scénario est celui de l'expérience de la séance 3 : Bob a donné ses courgettes ailleurs entre la proposition et l'acceptation.</p>
+    <p>verify(…, never()) vérifie un comportement, pas seulement un résultat : aucune écriture n'a eu lieu. C'est la preuve que checkStock est bien appelé avant toute écriture.</p>
+    <p>@InjectMocks appelle le constructeur de TradeService en lui passant les mocks : c'est l'injection par constructeur, faite par Mockito au lieu de Spring. Les dépendances non déclarées en @Mock (un record de propriétés, par exemple) reçoivent null : à déclarer si la méthode testée s'en sert.</p>
+    <p>Mockito est strict : un when(…) jamais utilisé fait échouer le test. C'est voulu, ça signale un test qui ne teste pas ce qu'il croit.</p>
+  </aside>
+
+  <!-- ============ 14 · TEST D'INTÉGRATION ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">TESTS · INTÉGRATION</div>
+    <h3>Tester l'API entière, sans lancer de serveur</h3>
+    <div class="win">
+      <div class="winbar">src/test/java/fr/cours/troc/user/UserApiTest.java</div>
+<pre style="font-size:11.5px;line-height:1.4;padding:10px 20px"><span class="good"><span class="an">@SpringBootTest</span>                      <span class="cm">// démarre tout le contexte Spring</span></span>
+<span class="an">@AutoConfigureMockMvc</span>                <span class="cm">// fournit un faux client HTTP</span>
+<span class="an">@ActiveProfiles</span>(<span class="kw">"test"</span>)              <span class="cm">// application-test.properties : base H2 en mémoire</span>
+<span class="an">@Transactional</span>                       <span class="cm">// chaque test est annulé à la fin</span>
+<span class="kw">class</span> UserApiTest {
+<span class="good">    <span class="an">@Autowired</span> MockMvc mvc;          <span class="cm">// JUnit crée cette classe, pas Spring : on demande l'injection</span></span>
+
+    <span class="an">@Test</span>
+    <span class="kw">void</span> createdUserIsListed() <span class="kw">throws</span> Exception {
+        mvc.perform(post(<span class="kw">"/users"</span>).contentType(MediaType.APPLICATION_JSON)
+                                  .content(<span class="kw">"{\"name\": \"Alice\"}"</span>))
+           .andExpect(status().isCreated())
+           .andExpect(jsonPath(<span class="kw">"$.id"</span>).isNumber());
+        mvc.perform(get(<span class="kw">"/users"</span>))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath(<span class="kw">"$[*].name"</span>, hasItem(<span class="kw">"Alice"</span>)));
+    }
+}</pre>
+    </div>
+    <div class="caption">Contrôleur, JSON, service, repository, SQL : <b>toute la chaîne</b> est traversée, comme avec curl.</div>
+    <div class="pageno">14</div>
+  </section>
+  <aside class="notes">
+    <p>@Autowired : jusqu'ici on n'en avait jamais eu besoin, l'injection par constructeur suffisait. Ici c'est JUnit, pas Spring, qui crée l'objet de test : il faut marquer explicitement ce qu'on veut recevoir. C'est l'usage courant dans les tests, et le seul endroit du cours où on l'utilise.</p>
+    <p>Spring Boot 4 : @AutoConfigureMockMvc est obligatoire avec @SpringBootTest, et vient de la dépendance de test spring-boot-starter-webmvc-test. Vérifier qu'elle est dans le pom.xml (start.spring.io l'ajoute normalement).</p>
+    <p>@Transactional sur une classe de test : Spring fait un ROLLBACK à la fin de chaque test au lieu d'un COMMIT. Les tests ne se polluent pas entre eux. Ça marche avec MockMvc parce que la requête s'exécute dans le même thread.</p>
+    <p>Adapter le code de statut attendu (201 ou 200) à ce que le groupe a choisi en séance 2.</p>
+  </aside>
+
+  <!-- ============ 15 · QUE TESTER OÙ ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">TESTS · QUE TESTER, ET OÙ ?</div>
+    <h3>Chaque chose à son étage</h3>
+    <ul>
+      <li><b>Règles métier</b> <span>stock insuffisant, mauvais destinataire, troc déjà exécuté → unitaire</span></li>
+      <li><b>Le contrat HTTP</b> <span>URL, JSON, codes de statut 201, 404, 409 → intégration</span></li>
+      <li><b>Les contraintes SQL</b> <span>FK, CHECK, UNIQUE réellement appliquées → intégration</span></li>
+      <li><b>La transaction</b> <span>échec au milieu, stocks intacts : l'expérience de la séance 3 → intégration</span></li>
+      <li class="hl"><b>Pour le projet</b> <span>chaque test porte le nom de la règle qu'il protège</span></li>
+    </ul>
+    <div class="pageno">15</div>
+  </section>
+  <aside class="notes">
+    <p>Critère de notation « détail des choix techniques » : pouvoir dire pourquoi tel test est unitaire et tel autre d'intégration est exactement ce qu'on attend.</p>
+    <p>Un bon nom : acceptRefusedWhenStockTooLow. Un mauvais : test1. Quand il passe au rouge dans six mois, le nom doit dire ce qui est cassé.</p>
+    <p>Le test du rollback est un excellent bonus : il transforme l'expérience manuelle de la séance 3 en preuve reproductible.</p>
+  </aside>
+
+  <!-- ============ 16 · CONSIGNE TP 1 ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">TP · BLOC 1</div>
+    <h2>TP bloc 1 : tracer chaque troc</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="k">À FAIRE</div>
+        <div class="v">Ajouter spring-boot-starter-aspectj. Écrire TradeLoggingAspect : chaque appel à TradeService, chaque échec.</div>
+      </div>
+      <div class="card">
+        <div class="k">À VÉRIFIER</div>
+        <div class="v">Proposer, accepter, puis accepter sans stock : la console raconte l'histoire, ligne par ligne.</div>
+      </div>
+      <div class="card">
+        <div class="k">CHECKPOINT #1</div>
+        <div class="v">Quand tout le monde a globalement fini : pourquoi un log n'apparaît pas, puis préparer les tests.</div>
+      </div>
+    </div>
+    <div class="pageno">16</div>
+  </section>
+  <aside class="notes">
+    <p>Durée indicative : 45 à 60 min, plus court que d'habitude pour laisser de la place aux tests. Ajouter @AfterReturning (succès, avec le statut du troc retourné) fait partie du noyau dans le support.</p>
+    <p>Répartition possible dans un groupe de 4 : deux sur l'aspect, deux qui préparent déjà la base de test (application-test.properties, dépendances), voir diapo 19.</p>
+  </aside>
+
+  <!-- ============ 17 · SECTION CHECKPOINT ============ -->
+  <section class="slide s-section">
+    <div class="tag">CHECKPOINT #1 · 10 MIN</div>
+    <div class="num">03</div>
+    <div>
+      <h2>Vers les tests</h2>
+      <div class="list">
+        <div>Le log n'apparaît pas : pourquoi ?</div>
+        <div>Une base rien que pour les tests</div>
+        <div>Organiser et lancer ses tests</div>
+      </div>
+    </div>
+    <div class="pageno">17</div>
+  </section>
+  <aside class="notes">
+    <p>Faire remonter les blocages des groupes avant de projeter la diapo suivante.</p>
+  </aside>
+
+  <!-- ============ 18 · PIÈGES AOP ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">CHECKPOINT #1 · PIÈGES COURANTS</div>
+    <h3>Le log n'apparaît pas : pourquoi ?</h3>
+    <ul>
+      <li><b>Pointcut faux</b> <span>une faute dans le package : aucune erreur, aucun log. Le piège n° 1.</span></li>
+      <li><b>Pas de @Component</b> <span>l'aspect n'est pas un bean : Spring ne le connaît pas</span></li>
+      <li><b>@Aspect introuvable</b> <span>dépendance spring-boot-starter-aspectj absente du pom.xml</span></li>
+      <li><b>Appel interne</b> <span>this.transfer() depuis accept() ne traverse pas le proxy</span></li>
+      <li class="hl"><b>Pour vérifier</b> <span>un point d'arrêt dans l'advice, application lancée en debug</span></li>
+    </ul>
+    <div class="pageno">18</div>
+  </section>
+  <aside class="notes">
+    <p>Pointcut faux : le plus traître, car tout démarre normalement. Vérifier le package complet (fr.cours.troc.trade) et le nom de la classe, à la majuscule près. IntelliJ Ultimate affiche une icône dans la marge des méthodes interceptées ; en Community, le point d'arrêt reste le plus sûr.</p>
+    <p>Appel interne : si un groupe veut tracer transfer(), il faut qu'elle soit appelée depuis un autre bean. Sinon, accepter de ne tracer que les méthodes appelées par le contrôleur, ce qui est en général le bon niveau.</p>
+  </aside>
+
+  <!-- ============ 19 · PRÉPARER LES TESTS ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">CHECKPOINT #1 · TRANSITION</div>
+    <h3>Une base rien que pour les tests</h3>
+    <ul>
+      <li><b>Base séparée</b> <span>src/test/resources/application-test.properties → jdbc:h2:mem:troc-test</span></li>
+      <li><b>Dépendances</b> <span>spring-boot-starter-test et spring-boot-starter-webmvc-test, en scope test</span></li>
+      <li><b>Emplacement</b> <span>src/test/java, dans le même package que la classe testée</span></li>
+      <li><b>Lancer</b> <span>flèche verte d'IntelliJ, ou ./mvnw test dans le terminal</span></li>
+      <li class="hl"><b>La règle</b> <span>tous les tests au vert avant chaque commit</span></li>
+    </ul>
+    <div class="pageno">19</div>
+  </section>
+  <aside class="notes">
+    <p>Sans base séparée, les tests d'intégration écrivent dans ./data/troc : les données de démonstration se retrouvent mélangées aux données de test. Le profil test (séance 2, ordre de priorité des sources) surcharge seulement l'URL ; le reste d'application.properties s'applique toujours.</p>
+    <p>Piège : un fichier nommé application.properties dans src/test/resources remplace entièrement celui de main (mêmes nom et chemin sur le classpath). D'où le choix d'un profil.</p>
+    <p>Même package : le test peut accéder aux méthodes package-private, et IntelliJ range les tests à côté de leur classe.</p>
+  </aside>
+
+  <!-- ============ 20 · CONSIGNE TP 2 ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">TP · BLOC 2</div>
+    <h2>TP bloc 2 : protéger les règles</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="k">À FAIRE</div>
+        <div class="v">TradeServiceTest : trois règles d'acceptation. Puis un test d'intégration sur /users ou /trades.</div>
+      </div>
+      <div class="card">
+        <div class="k">L'EXPÉRIENCE</div>
+        <div class="v">Supprimer l'appel à checkStock : quel test passe au rouge, et que dit-il ? Puis le remettre.</div>
+      </div>
+      <div class="card">
+        <div class="k">EN AVANCE ?</div>
+        <div class="v">Tester le rollback de la séance 3, chronométrer avec @Around, découvrir Spring Security.</div>
+      </div>
+    </div>
+    <div class="pageno">20</div>
+  </section>
+  <aside class="notes">
+    <p>Durée indicative : 60 à 75 min. Les trois règles suggérées dans le support : stock insuffisant (409, rien d'écrit), mauvais destinataire (403), troc déjà exécuté (409). Plus le cas nominal si le temps le permet.</p>
+    <p>L'expérience montre l'intérêt du test : une régression introduite volontairement est détectée en une seconde, avec un message qui pointe la règle cassée.</p>
+    <p>Spring Security : ajouter la dépendance suffit à tout verrouiller (401 partout) ; c'est une surprise instructive, à réserver aux groupes vraiment en avance. Le support donne une configuration minimale.</p>
+  </aside>
+
+  <!-- ============ 21 · BONUS @AROUND ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">TP · EN AVANCE</div>
+    <h3>@Around : l'advice qui décide d'appeler la méthode</h3>
+    <div class="win">
+      <div class="winbar">trade/TradeLoggingAspect.java</div>
+<pre><span class="an">@Around</span>(<span class="kw">"tradeOperations()"</span>)
+<span class="kw">public</span> Object timed(ProceedingJoinPoint jp) <span class="kw">throws</span> Throwable {
+    <span class="kw">long</span> start = System.nanoTime();
+    <span class="kw">try</span> {
+<span class="good">        <span class="kw">return</span> jp.proceed();                    <span class="cm">// appelle la vraie méthode</span></span>
+    } <span class="kw">finally</span> {
+        <span class="kw">long</span> ms = (System.nanoTime() - start) / 1_000_000;
+        log.info(<span class="kw">"⏱ {} : {} ms"</span>, jp.getSignature().getName(), ms);
+    }
+}</pre>
+    </div>
+    <div class="caption">Oublier <b>proceed()</b> : la méthode n'est jamais exécutée, sans aucune erreur. Le plus puissant des advices, et le plus dangereux.</div>
+    <div class="pageno">21</div>
+  </section>
+  <aside class="notes">
+    <p>Diapo pour les groupes en avance, à montrer individuellement plutôt qu'à toute la salle.</p>
+    <p>@Around peut aussi modifier les arguments, la valeur de retour, ou avaler une exception. C'est exactement comme ça que @Transactional est écrit : BEGIN, proceed(), puis COMMIT ou ROLLBACK.</p>
+    <p>Prolongement possible : une annotation maison @Timed et un pointcut @annotation(fr.cours.troc.Timed), pour choisir méthode par méthode.</p>
+  </aside>
+
+  <!-- ============ 22 · SYNTHÈSE ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">JOUR 4 · SYNTHÈSE</div>
+    <h2>Ce qu'il faut retenir</h2>
+    <div class="quote">Écrire une fois ce qui se répète, prouver ce qui compte.</div>
+    <div class="grid four">
+      <div class="card">
+        <div class="k">CONCEPT CLÉ</div>
+        <div class="v">Le proxy ajoute du comportement sans toucher au métier ; l'injection rend le métier testable.</div>
+      </div>
+      <div class="card">
+        <div class="k">OBJECTIF DU JOUR</div>
+        <div class="v">Chaque troc journalisé, règles d'acceptation testées, un test d'intégration vert.</div>
+      </div>
+      <div class="card">
+        <div class="k">EN AVANCE ?</div>
+        <div class="v">Rollback testé, @Around chronométré, premiers pas avec Spring Security.</div>
+      </div>
+      <div class="card">
+        <div class="k">SÉANCE 5</div>
+        <div class="v">Autonomie en groupe sur le projet. Supports et tests sont vos filets.</div>
+      </div>
+    </div>
+    <div class="pageno">22</div>
+  </section>
+  <aside class="notes">
+    <p>Diapo projetée pendant le TP bloc 2 et reprise au checkpoint #2 pour le bilan.</p>
+    <p>Annonce séance 5 : pas d'intervenant présent, les groupes sont autonomes. Rappeler où trouver les supports, les critères de notation, et qu'un projet qui passe ses tests avant chaque commit est un projet qu'on peut modifier sans peur à plusieurs.</p>
+    <p>Fil des quatre séances : IoC (séance 1) → configuration (2) → transactions par proxy (3) → aspects et tests (4). Tout repose sur le conteneur et l'injection par constructeur.</p>
+  </aside>
+
+</div>
+<div class="hint">N : notes orateur</div>
+<script>
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey) {
+      document.body.classList.toggle('show-notes');
+    }
+  });
+</script>
+</body>
+</html>

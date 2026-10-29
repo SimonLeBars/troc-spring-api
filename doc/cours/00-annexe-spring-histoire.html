@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Annexe — Spring, Spring Boot &amp; leur histoire</title>
+<style>
+  :root{
+    --bg: #FAFCF8;
+    --surface: #EEF3EA;
+    --surface-2: #E2EADB;
+    --green: #6DB33F;
+    --green-dark: #4B8A2E;
+    --text: #1C2419;
+    --text-muted: #5C6959;
+    --rule: #D9E2D2;
+    --warn: #B5533C;
+    --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", sans-serif;
+    --font-code: "JetBrains Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:#000; font-family:var(--font-body);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .deck{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0 80px; }
+  .slide{
+    width:960px; height:540px; background:var(--bg);
+    position:relative; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--rule);
+  }
+  .slide .tag{
+    position:absolute; top:28px; left:40px; font-family:var(--font-code);
+    font-size:12px; color:var(--green-dark); letter-spacing:.02em;
+  }
+  .slide .pageno{
+    position:absolute; bottom:24px; right:32px; font-family:var(--font-code);
+    font-size:12px; color:var(--text-muted);
+  }
+  .bar{ position:absolute; left:0; top:0; width:6px; height:100%; background:var(--green); }
+
+  /* Titre */
+  .s-title{ display:flex; }
+  .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
+  .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
+  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
+  .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
+  .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
+  .s-title .meta{ position:absolute; bottom:36px; right:60px; display:flex; gap:24px; }
+  .s-title .meta div{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .s-title .meta span{ color:var(--green-dark); }
+
+  /* Section */
+  .s-section{ background:var(--green); display:flex; align-items:center; padding:0 80px; }
+  .s-section .num{ font-family:var(--font-display); font-size:110px; color:rgba(255,255,255,.25); font-weight:700; margin-right:44px; }
+  .s-section h2{ font-family:var(--font-display); font-size:40px; margin:0; font-weight:600; max-width:520px; line-height:1.15; color:#fff; }
+  .s-section .list{ margin-top:18px; }
+  .s-section .list div{ color:rgba(255,255,255,.75); font-size:16px; margin-top:6px; }
+  .s-section .tag{ color:#EAF6E2; }
+  .s-section .pageno{ color:rgba(255,255,255,.6); }
+
+  /* Contenu / points */
+  .s-content{ padding:70px 80px 40px; }
+  .s-content h3{ font-family:var(--font-display); font-size:30px; margin:0 0 30px; font-weight:600; }
+  .s-content ul{ list-style:none; margin:0; padding:0; }
+  .s-content li{ display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--rule); font-size:17px; align-items:baseline; }
+  .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
+  .s-content li b{ color:var(--text); font-weight:600; white-space:nowrap; }
+  .s-content li span{ color:var(--text-muted); margin-left:6px; }
+  .s-content li.hl{ background:var(--surface); border-left:3px solid var(--green); padding-left:12px; margin-left:-15px; }
+  .s-content li.hl span{ color:var(--text); }
+
+  /* Code */
+  .s-code{ padding:70px 80px 40px; }
+  .s-code h3{ font-family:var(--font-display); font-size:26px; margin:0 0 22px; font-weight:600; }
+  .s-code .win{ background:#1C2419; border:1px solid var(--rule); border-radius:4px; overflow:hidden; }
+  .s-code .winbar{ background:#263323; padding:9px 16px; font-family:var(--font-code); font-size:12px; color:#9FB393; border-bottom:1px solid #33422F; }
+  .s-code pre{ margin:0; padding:22px 24px; font-family:var(--font-code); font-size:14.5px; line-height:1.65; color:#EAF3E4; overflow:auto; }
+  .s-code .kw{ color:#9FD88D; }
+  .s-code .an{ color:#6DB33F; }
+  .s-code .cm{ color:#6E7C68; }
+  .s-code .bad{ background:rgba(181,83,60,.32); display:inline-block; width:100%; }
+  .s-code .good{ background:rgba(109,179,63,.22); display:inline-block; width:100%; }
+  .s-code .caption{ margin-top:14px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-code .caption b{ color:var(--text); }
+  .s-code.dense pre{ font-size:13px; line-height:1.55; padding:16px 22px; }
+
+  /* Avant / après côte à côte */
+  .s-code.compare{ padding:70px 56px 40px; }
+  .compare .cols{ display:flex; gap:20px; }
+  .compare .col{ flex:1; min-width:0; }
+  .compare .label{ font-family:var(--font-code); font-size:12px; margin-bottom:8px; color:var(--green-dark); }
+  .compare .label.before{ color:var(--warn); }
+  .compare pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
+
+  /* Schéma SVG */
+  .s-diagram{ padding:70px 80px 40px; }
+  .s-diagram h3{ font-family:var(--font-display); font-size:26px; margin:0 0 18px; font-weight:600; }
+  .s-diagram svg{ display:block; width:100%; height:auto; }
+  .s-diagram .caption{ margin-top:12px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-diagram .caption b{ color:var(--text); }
+  svg .box{ fill:var(--surface); stroke:var(--rule); stroke-width:1; }
+  svg .box-strong{ fill:#fff; stroke:var(--green-dark); stroke-width:1.5; }
+  svg .box-accent{ fill:var(--green); stroke:none; }
+  svg .box-bad{ fill:#fff; stroke:var(--warn); stroke-width:1.5; }
+  svg .frame{ fill:none; stroke:var(--green); stroke-width:1.5; stroke-dasharray:6 5; }
+  svg .t{ font-family:var(--font-body); font-size:14px; fill:var(--text); }
+  svg .tb{ font-weight:600; font-size:15px; }
+  svg .tm{ fill:var(--text-muted); font-size:12.5px; }
+  svg .tc{ font-family:var(--font-code); font-size:12.5px; fill:var(--green-dark); }
+  svg .tw{ fill:#fff; }
+  svg .tk{ font-family:var(--font-code); font-size:11px; fill:var(--green-dark); letter-spacing:.04em; }
+  svg .tbad{ fill:var(--warn); }
+  svg .ln{ stroke:var(--green-dark); stroke-width:1.5; fill:none; }
+  svg .ln-dash{ stroke-dasharray:5 4; }
+  svg .ln-bad{ stroke:var(--warn); }
+  svg .sep{ stroke:var(--rule); stroke-width:1; }
+
+  /* Clôture / cartes */
+  .s-close{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 80px; }
+  .s-close h2{ font-family:var(--font-display); font-size:38px; margin:0 0 26px; font-weight:600; }
+  .s-close .grid{ display:flex; gap:40px; }
+  .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
+  .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
+  .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-close .grid.four{ gap:24px; }
+  .s-close .grid.four .card{ width:182px; }
+  .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
+
+  /* Notes orateur — touche N pour afficher/masquer */
+  .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
+          padding:14px 20px; font-size:14px; line-height:1.55; margin-top:-14px; }
+  .notes::before{ content:"NOTES ORATEUR"; display:block; font-family:var(--font-code); font-size:11px; color:var(--green); margin-bottom:6px; }
+  .notes p{ margin:0 0 6px; }
+  body.show-notes .notes{ display:block; }
+  .hint{ position:fixed; bottom:12px; left:16px; font-family:var(--font-code); font-size:11px; color:#5C6959; }
+  @media print{ .notes, .hint{ display:none !important; } body{ background:#fff; } .deck{ gap:0; padding:0; } }
+</style>
+</head>
+<body>
+
+<!-- Marqueurs de flèches partagés par tous les schémas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4B8A2E"/>
+    </marker>
+    <marker id="arr-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B5533C"/>
+    </marker>
+    <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FAFCF8" stroke="#4B8A2E" stroke-width="1.2"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="deck">
+
+  <!-- ============ 01 · TITRE ============ -->
+  <section class="slide s-title">
+    <div class="half">
+      <div class="course">ANNEXE</div>
+      <div class="leaf">Sp</div>
+    </div>
+    <div class="content">
+      <h1>Spring, Spring Boot &amp; leur histoire</h1>
+      <div class="sub">Ce qu'est Spring, d'où il vient, et ce qui a changé ces dernières années, côté Java comme côté Spring.</div>
+    </div>
+    <div class="meta">
+      <div>LECTURE <span>libre, hors séance</span></div>
+      <div>VERSIONS <span>Java 25 · Boot 4.1</span></div>
+      <div>À JOUR <span>octobre 2026</span></div>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+  <aside class="notes">
+    <p>Support annexe : à lire en autonomie, ou à piocher pendant les séances quand une question d'histoire ou de version arrive (« pourquoi mon tuto importe javax ? »).</p>
+    <p>Trois parties : ce que sont Spring et Spring Boot, une histoire rapide de Java et de Spring, puis les évolutions récentes.</p>
+  </aside>
+
+  <!-- ============ 02 · SECTION 01 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 01</div>
+    <div class="num">01</div>
+    <div>
+      <h2>Spring et Spring Boot : qui fait quoi ?</h2>
+      <div class="list">
+        <div>Le framework et son écosystème</div>
+        <div>Ce que Spring Boot ajoute</div>
+        <div>Spring sans Boot, Spring avec Boot</div>
+      </div>
+    </div>
+    <div class="pageno">02</div>
+  </section>
+  <aside class="notes">
+    <p>Confusion fréquente chez les étudiants : « Spring » et « Spring Boot » sont souvent employés l'un pour l'autre. Ce ne sont pas des concurrents, l'un est construit sur l'autre.</p>
+  </aside>
+
+  <!-- ============ 03 · LES COUCHES ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 01 · VUE D'ENSEMBLE</div>
+    <h3>Un framework, un écosystème, et Boot par-dessus</h3>
+    <svg viewBox="0 0 800 330" role="img" aria-label="Votre code repose sur Spring Boot, qui configure Spring Framework et les projets de l'écosystème, le tout sur la JVM">
+      <rect class="box" x="0" y="0" width="800" height="40" rx="4"/>
+      <text class="t tb" x="20" y="26">Votre code</text>
+      <text class="tc" x="780" y="25" text-anchor="end">UserController · UserService · UserRepository</text>
+
+      <rect class="box-accent" x="0" y="52" width="800" height="62" rx="4"/>
+      <text class="t tb tw" x="20" y="80">Spring Boot</text>
+      <text class="t tw" x="20" y="100" font-size="12.5">assemble et configure le reste à votre place</text>
+      <text class="t tw" x="780" y="90" text-anchor="end" font-size="13">starters · auto-configuration · serveur embarqué · Actuator</text>
+
+      <rect class="box-strong" x="0" y="126" width="800" height="96" rx="4"/>
+      <text class="t tb" x="20" y="150">Spring Framework</text>
+      <text class="t tm" x="160" y="150">le cœur, depuis 2004</text>
+      <rect class="box" x="20" y="162" width="140" height="44" rx="4"/>
+      <text class="tc" x="90" y="189" text-anchor="middle">IoC / DI</text>
+      <rect class="box" x="175" y="162" width="140" height="44" rx="4"/>
+      <text class="tc" x="245" y="189" text-anchor="middle">AOP</text>
+      <rect class="box" x="330" y="162" width="140" height="44" rx="4"/>
+      <text class="tc" x="400" y="189" text-anchor="middle">Web MVC</text>
+      <rect class="box" x="485" y="162" width="140" height="44" rx="4"/>
+      <text class="tc" x="555" y="189" text-anchor="middle">Transactions</text>
+      <rect class="box" x="640" y="162" width="140" height="44" rx="4"/>
+      <text class="tc" x="710" y="189" text-anchor="middle">Accès données</text>
+
+      <text class="tk" x="0" y="246">PROJETS DE L'ÉCOSYSTÈME · CONSTRUITS SUR LE FRAMEWORK</text>
+      <rect class="box" x="0" y="256" width="152" height="36" rx="4"/>
+      <text class="t tb" x="76" y="279" text-anchor="middle" font-size="14">Spring Data</text>
+      <rect class="box" x="162" y="256" width="152" height="36" rx="4"/>
+      <text class="t tb" x="238" y="279" text-anchor="middle" font-size="14">Spring Security</text>
+      <rect class="box" x="324" y="256" width="152" height="36" rx="4"/>
+      <text class="t tb" x="400" y="279" text-anchor="middle" font-size="14">Spring Cloud</text>
+      <rect class="box" x="486" y="256" width="152" height="36" rx="4"/>
+      <text class="t tb" x="562" y="279" text-anchor="middle" font-size="14">Spring Batch</text>
+      <rect class="box" x="648" y="256" width="152" height="36" rx="4"/>
+      <text class="t tb" x="724" y="279" text-anchor="middle" font-size="14">Spring AI</text>
+
+      <rect class="box" x="0" y="302" width="800" height="26" rx="4"/>
+      <text class="t tm" x="400" y="320" text-anchor="middle">JVM · Java 17 minimum pour Spring Boot 4, Java 25 dans ce cours</text>
+    </svg>
+    <div class="pageno">03</div>
+  </section>
+  <aside class="notes">
+    <p>Spring Framework : le conteneur IoC de la séance 1, plus des modules (AOP en séance 4, Web MVC pour nos contrôleurs, transactions en séance 3).</p>
+    <p>Les projets de l'écosystème sont des bibliothèques séparées qui s'appuient sur le framework. Dans le cours : Spring Data JDBC (séance 3), Spring Security en bonus (séance 4).</p>
+    <p>Spring Boot n'ajoute presque aucun concept nouveau : il choisit des réglages par défaut raisonnables et branche tout automatiquement.</p>
+  </aside>
+
+  <!-- ============ 04 · CE QUE BOOT AJOUTE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 01 · SPRING BOOT</div>
+    <h3>Ce que Spring Boot ajoute</h3>
+    <ul>
+      <li><b>Starters</b> <span>une dépendance tire tout le nécessaire, en versions compatibles</span></li>
+      <li><b>Auto-configuration</b> <span>Spring Web présent ? Boot configure serveur et JSON tout seul</span></li>
+      <li><b>Serveur embarqué</b> <span>Tomcat est inclus : on lance un main, rien à installer</span></li>
+      <li><b>JAR exécutable</b> <span>java -jar troc-api.jar, en local comme en production</span></li>
+      <li><b>Configuration externe</b> <span>application.properties, variables, profils (séance 2)</span></li>
+      <li class="hl"><b>Actuator</b> <span>/actuator/health, métriques : l'appli prête pour la prod</span></li>
+    </ul>
+    <div class="pageno">04</div>
+  </section>
+  <aside class="notes">
+    <p>Principe général : « convention plutôt que configuration ». Boot fait un choix par défaut, on ne configure que ce qui diffère.</p>
+    <p>L'auto-configuration n'est pas magique : elle regarde ce qui est présent sur le classpath et dans la configuration, et crée des beans en conséquence. On peut toujours remplacer un bean auto-configuré par le sien.</p>
+    <p>Actuator n'est pas utilisé dans le TP ; c'est une piste de bonus facile (une dépendance à ajouter).</p>
+  </aside>
+
+  <!-- ============ 05 · SANS / AVEC BOOT ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 01 · DEUX ÉPOQUES</div>
+    <h3>Le même câblage, en 2005 et aujourd'hui</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">SPRING SEUL · CONFIGURATION XML</div>
+        <div class="win">
+          <div class="winbar">applicationContext.xml</div>
+<pre><span class="kw">&lt;beans&gt;</span>
+  <span class="kw">&lt;bean</span> id="userRepository"
+        class="…InMemoryUserRepository"<span class="kw">/&gt;</span>
+
+  <span class="kw">&lt;bean</span> id="userService"
+        class="…UserService"<span class="kw">&gt;</span>
+    <span class="kw">&lt;constructor-arg</span> ref="userRepository"<span class="kw">/&gt;</span>
+  <span class="kw">&lt;/bean&gt;</span>
+<span class="kw">&lt;/beans&gt;</span>
+
+<span class="cm">&lt;!-- + web.xml, un Tomcat à installer,</span>
+<span class="cm">     un WAR à déployer dessus --&gt;</span></pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">SPRING BOOT · ANNOTATIONS</div>
+        <div class="win">
+          <div class="winbar">TrocApplication.java · …</div>
+<pre><span class="an">@SpringBootApplication</span>
+<span class="kw">public class</span> TrocApplication {
+  <span class="kw">public static void</span> main(String[] args) {
+    SpringApplication.run(
+        TrocApplication.<span class="kw">class</span>, args);
+  }
+}
+
+<span class="an">@Repository</span>
+<span class="kw">public class</span> InMemoryUserRepository ...
+
+<span class="an">@Service</span>
+<span class="kw">public class</span> UserService { ... }</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Même conteneur IoC des deux côtés : Boot ne remplace pas Spring, il <b>supprime la configuration répétitive</b>.</div>
+    <div class="pageno">05</div>
+  </section>
+  <aside class="notes">
+    <p>Le XML de gauche décrit exactement ce que fait le scan d'annotations : déclarer deux beans et injecter l'un dans l'autre par le constructeur. C'est l'ApplicationContext de la séance 1, écrit à la main.</p>
+    <p>On croise encore ce XML dans de vieux projets d'entreprise. Il fonctionne toujours avec les versions actuelles de Spring.</p>
+  </aside>
+
+  <!-- ============ 06 · SECTION 02 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 02</div>
+    <div class="num">02</div>
+    <div>
+      <h2>Une histoire rapide</h2>
+      <div class="list">
+        <div>Trente ans de Java</div>
+        <div>Pourquoi Spring est né : les EJB</div>
+        <div>Vingt ans de Spring</div>
+      </div>
+    </div>
+    <div class="pageno">06</div>
+  </section>
+  <aside class="notes">
+    <p>Objectif : comprendre pourquoi Spring ressemble à ce qu'il est, pas retenir des dates.</p>
+  </aside>
+
+  <!-- ============ 07 · FRISE JAVA ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · JAVA</div>
+    <h3>Trente ans de Java en neuf dates</h3>
+    <svg viewBox="0 0 800 262" role="img" aria-label="Frise chronologique de Java, de Java 1.0 en 1996 à Java 26 et 27 en 2026">
+      <line class="ln" x1="10" y1="150" x2="792" y2="150" marker-end="url(#arr)"/>
+
+      <!-- 1996 (haut) -->
+      <line class="sep" x1="80" y1="122" x2="80" y2="143"/>
+      <circle class="box-strong" cx="80" cy="150" r="6"/>
+      <text class="tc" x="80" y="62" text-anchor="middle" font-weight="600" font-size="13">1996</text>
+      <text class="t tb" x="80" y="82" text-anchor="middle">Java 1.0 (Sun)</text>
+      <text class="t tm" x="80" y="100" text-anchor="middle">tourne sur</text>
+      <text class="t tm" x="80" y="116" text-anchor="middle">toute JVM</text>
+
+      <!-- 1999 (bas) -->
+      <line class="sep" x1="160" y1="157" x2="160" y2="178"/>
+      <circle class="box-strong" cx="160" cy="150" r="6"/>
+      <text class="tc" x="160" y="196" text-anchor="middle" font-weight="600" font-size="13">1999</text>
+      <text class="t tb" x="160" y="216" text-anchor="middle">J2EE · EJB</text>
+      <text class="t tm" x="160" y="234" text-anchor="middle">le Java</text>
+      <text class="t tm" x="160" y="250" text-anchor="middle">d'entreprise</text>
+
+      <!-- 2004 (haut) -->
+      <line class="sep" x1="240" y1="122" x2="240" y2="143"/>
+      <circle class="box-strong" cx="240" cy="150" r="6"/>
+      <text class="tc" x="240" y="62" text-anchor="middle" font-weight="600" font-size="13">2004</text>
+      <text class="t tb" x="240" y="82" text-anchor="middle">Java 5</text>
+      <text class="t tm" x="240" y="100" text-anchor="middle">génériques,</text>
+      <text class="t tm" x="240" y="116" text-anchor="middle">annotations</text>
+
+      <!-- 2014 (bas) -->
+      <line class="sep" x1="320" y1="157" x2="320" y2="178"/>
+      <circle class="box-strong" cx="320" cy="150" r="6"/>
+      <text class="tc" x="320" y="196" text-anchor="middle" font-weight="600" font-size="13">2014</text>
+      <text class="t tb" x="320" y="216" text-anchor="middle">Java 8</text>
+      <text class="t tm" x="320" y="234" text-anchor="middle">lambdas,</text>
+      <text class="t tm" x="320" y="250" text-anchor="middle">streams</text>
+
+      <!-- 2018 (haut) -->
+      <line class="sep" x1="400" y1="122" x2="400" y2="143"/>
+      <circle class="box-strong" cx="400" cy="150" r="6"/>
+      <text class="tc" x="400" y="62" text-anchor="middle" font-weight="600" font-size="13">2018</text>
+      <text class="t tb" x="400" y="82" text-anchor="middle">Java 11 LTS</text>
+      <text class="t tm" x="400" y="100" text-anchor="middle">une version</text>
+      <text class="t tm" x="400" y="116" text-anchor="middle">tous les 6 mois</text>
+
+      <!-- 2021 (bas) -->
+      <line class="sep" x1="480" y1="157" x2="480" y2="178"/>
+      <circle class="box-strong" cx="480" cy="150" r="6"/>
+      <text class="tc" x="480" y="196" text-anchor="middle" font-weight="600" font-size="13">2021</text>
+      <text class="t tb" x="480" y="216" text-anchor="middle">Java 17 LTS</text>
+      <text class="t tm" x="480" y="234" text-anchor="middle">records, sealed,</text>
+      <text class="t tm" x="480" y="250" text-anchor="middle">text blocks</text>
+
+      <!-- 2023 (haut) -->
+      <line class="sep" x1="560" y1="122" x2="560" y2="143"/>
+      <circle class="box-strong" cx="560" cy="150" r="6"/>
+      <text class="tc" x="560" y="62" text-anchor="middle" font-weight="600" font-size="13">2023</text>
+      <text class="t tb" x="560" y="82" text-anchor="middle">Java 21 LTS</text>
+      <text class="t tm" x="560" y="100" text-anchor="middle">threads</text>
+      <text class="t tm" x="560" y="116" text-anchor="middle">virtuels</text>
+
+      <!-- 2025 (bas, mis en avant) -->
+      <line class="sep" x1="640" y1="159" x2="640" y2="178"/>
+      <circle class="box-accent" cx="640" cy="150" r="8"/>
+      <text class="tc" x="640" y="196" text-anchor="middle" font-weight="600" font-size="13">2025</text>
+      <text class="t tb" x="640" y="216" text-anchor="middle">Java 25 LTS</text>
+      <text class="t tm" x="640" y="234" text-anchor="middle">la version</text>
+      <text class="t tm" x="640" y="250" text-anchor="middle">du cours</text>
+
+      <!-- 2026 (haut) -->
+      <line class="sep" x1="720" y1="122" x2="720" y2="143"/>
+      <circle class="box-strong" cx="720" cy="150" r="6"/>
+      <text class="tc" x="720" y="62" text-anchor="middle" font-weight="600" font-size="13">2026</text>
+      <text class="t tb" x="720" y="82" text-anchor="middle">Java 26 · 27</text>
+      <text class="t tm" x="720" y="100" text-anchor="middle">versions</text>
+      <text class="t tm" x="720" y="116" text-anchor="middle">intermédiaires</text>
+    </svg>
+    <div class="caption">Depuis 2018 : une version tous les six mois, et une <b>LTS</b> (support long) tous les deux ans. Les entreprises passent d'une LTS à l'autre.</div>
+    <div class="pageno">07</div>
+  </section>
+  <aside class="notes">
+    <p>Java 5 (2004) est la date clé pour Spring : sans annotations dans le langage, pas de @Service ni de @Repository. Spring a donc commencé en XML.</p>
+    <p>2010 : Oracle rachète Sun et devient le gardien de Java. Le développement se fait en open source dans OpenJDK ; Oracle, Eclipse (Temurin), Amazon, Azul… distribuent des JDK construits à partir de ce même code.</p>
+    <p>Java 26 est sorti en mars 2026, Java 27 en septembre 2026. Ce sont des versions à support court : la prochaine LTS attendue est Java 29, en septembre 2027.</p>
+  </aside>
+
+  <!-- ============ 08 · POURQUOI SPRING ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · LE CONTEXTE</div>
+    <h3>Pourquoi Spring est né</h3>
+    <ul>
+      <li><b>J2EE, fin des années 90</b> <span>le code métier s'écrit en EJB, exécutés par un serveur lourd</span></li>
+      <li><b>Tester ?</b> <span>quasi impossible sans démarrer tout le serveur</span></li>
+      <li><b>2002, Rod Johnson</b> <span>un livre qui propose de faire plus simple, avec du code à l'appui</span></li>
+      <li><b>L'idée</b> <span>des objets Java ordinaires (POJO), assemblés par un conteneur léger</span></li>
+      <li class="hl"><b>Le cœur du projet</b> <span>l'inversion de contrôle, exactement celle de la séance 1</span></li>
+    </ul>
+    <div class="pageno">08</div>
+  </section>
+  <aside class="notes">
+    <p>Un EJB de l'époque imposait plusieurs interfaces techniques, un descripteur XML et un serveur d'application pour simplement exister. Le code métier était noyé dans le code technique.</p>
+    <p>POJO = Plain Old Java Object : une classe Java normale, sans héritage ni interface imposés par un framework. Notre UserService en est un.</p>
+    <p>J2EE n'a pas disparu : devenu Java EE puis Jakarta EE, il fournit des standards (Servlet, Bean Validation…) que Spring utilise lui-même. Tomcat, le serveur embarqué par Boot, implémente la norme Servlet de Jakarta EE.</p>
+  </aside>
+
+  <!-- ============ 09 · UN EJB ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · ENTERPRISE JAVABEANS</div>
+    <h3>Un EJB, concrètement</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">EJB 2 · LE MÊME SERVICE VERS 2002</div>
+        <div class="win">
+          <div class="winbar">UserService · UserServiceHome · UserServiceBean</div>
+<pre style="font-size:11.5px;line-height:1.55;padding:14px 14px"><span class="kw">public interface</span> UserService <span class="kw">extends</span> EJBObject {
+  User findById(Long id) <span class="kw">throws</span> RemoteException;
+}
+<span class="kw">public interface</span> UserServiceHome <span class="kw">extends</span> EJBHome {
+  UserService create() <span class="kw">throws</span> CreateException, ...;
+}
+<span class="kw">public class</span> UserServiceBean <span class="kw">implements</span> SessionBean {
+<span class="good">  <span class="kw">public</span> User findById(Long id) { ... }</span>
+<span class="bad">  <span class="kw">public void</span> ejbCreate() { }</span>
+<span class="bad">  <span class="kw">public void</span> ejbRemove() { }</span>
+<span class="bad">  <span class="kw">public void</span> ejbActivate() { }</span>
+<span class="bad">  <span class="kw">public void</span> ejbPassivate() { }</span>
+<span class="bad">  <span class="kw">public void</span> setSessionContext(SessionContext c) { }</span>
+}</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">SPRING · UN SIMPLE POJO</div>
+        <div class="win">
+          <div class="winbar">UserService.java</div>
+<pre style="font-size:11.5px;line-height:1.55;padding:14px 14px"><span class="an">@Service</span>
+<span class="kw">public class</span> UserService {
+
+  <span class="kw">private final</span> UserRepository users;
+
+  <span class="kw">public</span> UserService(UserRepository users) {
+    <span class="kw">this</span>.users = users;
+  }
+
+<span class="good">  <span class="kw">public</span> User findById(Long id) { ... }</span>
+}
+
+
+
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Un <b>EJB</b> (Enterprise JavaBean) : un composant métier exécuté par un serveur d'application. Deux interfaces, une classe, un fichier XML… pour <b>une seule ligne utile</b>, en vert.</div>
+    <div class="pageno">09</div>
+  </section>
+  <aside class="notes">
+    <p>Définition : un EJB est un composant Java côté serveur, défini par la norme J2EE. Il ne s'exécute pas seul : il est déployé dans un serveur d'application (WebLogic, WebSphere, JBoss…) qui contient un « conteneur EJB ». Ce conteneur lui fournit gratuitement des services techniques : transactions, sécurité, appels à distance depuis une autre machine, réutilisation des instances.</p>
+    <p>L'idée était bonne (le conteneur gère la technique, le développeur écrit le métier), c'est ce que fait Spring aujourd'hui. Le problème était le prix à payer : chaque composant implémentait des interfaces imposées (les méthodes en rouge, presque toujours vides), se déclarait dans un fichier ejb-jar.xml, et ne pouvait être testé qu'une fois déployé sur le serveur.</p>
+    <p>Trois sortes d'EJB : session (un service, comme ici), entity (une donnée persistée en base, ancêtre lointain de nos entités) et message-driven (traitement de messages).</p>
+    <p>Côté client, pas d'injection : on allait chercher l'EJB soi-même dans un annuaire (JNDI), puis on appelait home.create(). C'est exactement l'inverse de l'inversion de contrôle de la séance 1.</p>
+    <p>Suite de l'histoire : EJB 3 (2006) s'est fortement simplifié en s'inspirant de Spring et Hibernate (annotations @Stateless, classes ordinaires). Les EJB existent toujours dans Jakarta EE, sous le nom Jakarta Enterprise Beans, mais on en écrit rarement dans un nouveau projet.</p>
+  </aside>
+
+  <!-- ============ 10 · FRISE SPRING ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · SPRING</div>
+    <h3>Vingt ans de Spring en neuf dates</h3>
+    <svg viewBox="0 0 800 262" role="img" aria-label="Frise chronologique de Spring, du livre de Rod Johnson en 2002 à Spring Boot 4.1 en 2026">
+      <line class="ln" x1="10" y1="150" x2="792" y2="150" marker-end="url(#arr)"/>
+
+      <!-- 2002 (haut) -->
+      <line class="sep" x1="80" y1="122" x2="80" y2="143"/>
+      <circle class="box-strong" cx="80" cy="150" r="6"/>
+      <text class="tc" x="80" y="62" text-anchor="middle" font-weight="600" font-size="13">2002</text>
+      <text class="t tb" x="80" y="82" text-anchor="middle">Rod Johnson</text>
+      <text class="t tm" x="80" y="100" text-anchor="middle">une alternative</text>
+      <text class="t tm" x="80" y="116" text-anchor="middle">aux EJB</text>
+
+      <!-- 2004 (bas) -->
+      <line class="sep" x1="160" y1="157" x2="160" y2="178"/>
+      <circle class="box-strong" cx="160" cy="150" r="6"/>
+      <text class="tc" x="160" y="196" text-anchor="middle" font-weight="600" font-size="13">2004</text>
+      <text class="t tb" x="160" y="216" text-anchor="middle">Spring 1.0</text>
+      <text class="t tm" x="160" y="234" text-anchor="middle">conteneur IoC,</text>
+      <text class="t tm" x="160" y="250" text-anchor="middle">config en XML</text>
+
+      <!-- 2007 (haut) -->
+      <line class="sep" x1="240" y1="122" x2="240" y2="143"/>
+      <circle class="box-strong" cx="240" cy="150" r="6"/>
+      <text class="tc" x="240" y="62" text-anchor="middle" font-weight="600" font-size="13">2007</text>
+      <text class="t tb" x="240" y="82" text-anchor="middle">Spring 2.5</text>
+      <text class="t tm" x="240" y="100" text-anchor="middle">premières</text>
+      <text class="t tm" x="240" y="116" text-anchor="middle">annotations</text>
+
+      <!-- 2009 (bas) -->
+      <line class="sep" x1="320" y1="157" x2="320" y2="178"/>
+      <circle class="box-strong" cx="320" cy="150" r="6"/>
+      <text class="tc" x="320" y="196" text-anchor="middle" font-weight="600" font-size="13">2009</text>
+      <text class="t tb" x="320" y="216" text-anchor="middle">Spring 3.0</text>
+      <text class="t tm" x="320" y="234" text-anchor="middle">config en Java,</text>
+      <text class="t tm" x="320" y="250" text-anchor="middle">REST</text>
+
+      <!-- 2014 (haut, mis en avant) -->
+      <line class="sep" x1="400" y1="122" x2="400" y2="141"/>
+      <circle class="box-accent" cx="400" cy="150" r="8"/>
+      <text class="tc" x="400" y="62" text-anchor="middle" font-weight="600" font-size="13">2014</text>
+      <text class="t tb" x="400" y="82" text-anchor="middle">Spring Boot 1.0</text>
+      <text class="t tm" x="400" y="100" text-anchor="middle">une API qui tourne</text>
+      <text class="t tm" x="400" y="116" text-anchor="middle">en quelques minutes</text>
+
+      <!-- 2017 (bas) -->
+      <line class="sep" x1="480" y1="157" x2="480" y2="178"/>
+      <circle class="box-strong" cx="480" cy="150" r="6"/>
+      <text class="tc" x="480" y="196" text-anchor="middle" font-weight="600" font-size="13">2017</text>
+      <text class="t tb" x="480" y="216" text-anchor="middle">Spring 5</text>
+      <text class="t tm" x="480" y="234" text-anchor="middle">programmation</text>
+      <text class="t tm" x="480" y="250" text-anchor="middle">réactive</text>
+
+      <!-- 2022 (haut) -->
+      <line class="sep" x1="560" y1="122" x2="560" y2="143"/>
+      <circle class="box-strong" cx="560" cy="150" r="6"/>
+      <text class="tc" x="560" y="62" text-anchor="middle" font-weight="600" font-size="13">2022</text>
+      <text class="t tb" x="560" y="82" text-anchor="middle">Spring 6 · Boot 3</text>
+      <text class="t tm" x="560" y="100" text-anchor="middle">Java 17,</text>
+      <text class="t tm" x="560" y="116" text-anchor="middle">javax → jakarta</text>
+
+      <!-- 2025 (bas) -->
+      <line class="sep" x1="640" y1="157" x2="640" y2="178"/>
+      <circle class="box-strong" cx="640" cy="150" r="6"/>
+      <text class="tc" x="640" y="196" text-anchor="middle" font-weight="600" font-size="13">2025</text>
+      <text class="t tb" x="640" y="216" text-anchor="middle">Spring 7 · Boot 4</text>
+      <text class="t tm" x="640" y="234" text-anchor="middle">JSpecify,</text>
+      <text class="t tm" x="640" y="250" text-anchor="middle">Jackson 3</text>
+
+      <!-- 2026 (haut, mis en avant) -->
+      <line class="sep" x1="720" y1="122" x2="720" y2="141"/>
+      <circle class="box-accent" cx="720" cy="150" r="8"/>
+      <text class="tc" x="720" y="62" text-anchor="middle" font-weight="600" font-size="13">2026</text>
+      <text class="t tb" x="720" y="82" text-anchor="middle">Boot 4.1</text>
+      <text class="t tm" x="720" y="100" text-anchor="middle">la version</text>
+      <text class="t tm" x="720" y="116" text-anchor="middle">du cours</text>
+    </svg>
+    <div class="caption">Plus de vingt ans, et toujours la même idée au centre : <b>le conteneur IoC</b>. Seule la façon de le configurer a changé : XML, puis annotations, puis Boot.</div>
+    <div class="pageno">10</div>
+  </section>
+  <aside class="notes">
+    <p>Spring 2.5 (2007) introduit @Component et @Autowired : il a fallu attendre Java 5 pour que ce soit possible.</p>
+    <p>Spring 3.0 (2009) apporte la configuration en classes Java (@Configuration, @Bean), alternative au XML, et le support REST dans Spring MVC.</p>
+    <p>Les propriétaires successifs : Interface21, renommée SpringSource, rachetée par VMware (2009), passée chez Pivotal (2013), revenue chez VMware (2019), elle-même rachetée par Broadcom (2023). Spring reste open source.</p>
+    <p>Spring Boot 4.1 est sorti en juin 2026 ; c'est la version utilisée dans le cours.</p>
+  </aside>
+
+  <!-- ============ 11 · SECTION 03 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 03</div>
+    <div class="num">03</div>
+    <div>
+      <h2>Les dernières grosses évolutions</h2>
+      <div class="list">
+        <div>Java moderne : de Java 8 à Java 25</div>
+        <div>Spring Boot 3 : le grand saut de 2022</div>
+        <div>Spring Boot 4 et 4.1</div>
+        <div>Quelle version choisir ?</div>
+      </div>
+    </div>
+    <div class="pageno">11</div>
+  </section>
+  <aside class="notes">
+    <p>Partie la plus utile au quotidien : elle explique pourquoi un tutoriel trouvé en ligne ne compile pas tel quel.</p>
+  </aside>
+
+  <!-- ============ 12 · JAVA MODERNE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · JAVA MODERNE</div>
+    <h3>Ce que Java a gagné depuis Java 8</h3>
+    <ul>
+      <li><b>var · Java 10</b> <span>le type d'une variable locale est déduit</span></li>
+      <li><b>switch · Java 14</b> <span>un switch qui renvoie une valeur, sans break</span></li>
+      <li><b>Text blocks · Java 15</b> <span>des chaînes multilignes, pratiques pour SQL et JSON</span></li>
+      <li><b>Records · Java 16</b> <span>une classe de données immuable en une ligne</span></li>
+      <li><b>Threads virtuels · Java 21</b> <span>des milliers de requêtes en parallèle, à moindre coût</span></li>
+      <li class="hl"><b>main compact · Java 25</b> <span>void main() sans classe : Java plus simple à apprendre</span></li>
+    </ul>
+    <div class="pageno">12</div>
+  </section>
+  <aside class="notes">
+    <p>Les records sont déjà utilisés dans le cours : ItemProperties et ProposeTradeRequest en séance 2. Les text blocks seront pratiques pour les requêtes SQL de la séance 3.</p>
+    <p>Threads virtuels : Spring Boot les active avec une seule propriété, spring.threads.virtual.enabled=true. Pas nécessaire pour le projet, mais bon sujet de bonus ou de présentation.</p>
+    <p>Java 25 finalise aussi les imports de modules et les corps de constructeurs flexibles (du code avant l'appel à super), moins utiles dans notre contexte.</p>
+  </aside>
+
+  <!-- ============ 13 · JAVA MODERNE EN CODE ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · JAVA MODERNE</div>
+    <h3>Java moderne, appliqué au troc</h3>
+    <div class="win">
+      <div class="winbar">exemples · fil rouge</div>
+<pre style="font-size:12px;line-height:1.45;padding:14px 22px"><span class="cm">// Java 16 · record : constructeur, accesseurs, equals, toString générés</span>
+<span class="kw">public record</span> Item(Long id, String name, <span class="kw">int</span> quantity, Long ownerId) { }
+
+<span class="cm">// Java 10 · var : le type List&lt;Item&gt; est déduit</span>
+<span class="kw">var</span> items = itemService.findAll(ownerId);
+
+<span class="cm">// Java 14 · switch expression : il renvoie une valeur</span>
+String label = <span class="kw">switch</span> (trade.getStatus()) {
+    <span class="kw">case</span> PROPOSED -&gt; <span class="kw">"en attente"</span>;
+    <span class="kw">case</span> ACCEPTED -&gt; <span class="kw">"validé"</span>;
+    <span class="kw">case</span> EXECUTED -&gt; <span class="kw">"exécuté"</span>;
+};
+
+<span class="cm">// Java 15 · text block : une chaîne sur plusieurs lignes (séance 3)</span>
+String sql = <span class="kw">"""
+    SELECT * FROM item
+    WHERE owner_id = ?
+    """</span>;</pre>
+    </div>
+    <div class="pageno">13</div>
+  </section>
+  <aside class="notes">
+    <p>Le switch expression oblige à traiter tous les cas de l'enum : si on ajoute un statut à TradeStatus sans mettre à jour le switch, le code ne compile plus. C'est une sécurité.</p>
+    <p>Un record ne convient pas à tout : il est immuable, donc pas de setters. Parfait pour une requête ou une configuration, à réfléchir pour une entité dont l'état change (le statut d'un Trade).</p>
+  </aside>
+
+  <!-- ============ 14 · SPRING BOOT 3 ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · SPRING BOOT 3 · NOVEMBRE 2022</div>
+    <h3>Spring Boot 3 : le grand saut de 2022</h3>
+    <ul>
+      <li><b>Java 17 minimum</b> <span>fin de Java 8 et 11 pour les projets Spring récents</span></li>
+      <li><b>javax.* → jakarta.*</b> <span>les imports Jakarta EE changent de nom de paquet</span></li>
+      <li><b>Images natives</b> <span>compilation GraalVM : démarrage en quelques millisecondes</span></li>
+      <li><b>Observabilité</b> <span>métriques et traces unifiées avec Micrometer</span></li>
+      <li><b>Boot 3.2 (2023)</b> <span>threads virtuels et nouveau client HTTP RestClient</span></li>
+    </ul>
+    <div class="pageno">14</div>
+  </section>
+  <aside class="notes">
+    <p>Le changement javax → jakarta vient du transfert de Java EE à la fondation Eclipse, qui n'avait pas le droit de garder le nom de paquet javax. Concrètement : import javax.servlet… devient import jakarta.servlet…</p>
+    <p>Réflexe à donner aux étudiants : un tutoriel qui importe javax.* date d'avant 2022 (Spring Boot 2). L'idée reste valable, le code est à adapter.</p>
+    <p>Les images natives ne sont pas utilisées dans le cours ; c'est ce qui permet à Spring de rivaliser avec des frameworks comme Quarkus ou Micronaut sur le temps de démarrage.</p>
+  </aside>
+
+  <!-- ============ 15 · SPRING BOOT 4 ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · SPRING 7 &amp; BOOT 4 · NOVEMBRE 2025</div>
+    <h3>Spring Boot 4 et 4.1 : la génération actuelle</h3>
+    <ul>
+      <li><b>JSpecify</b> <span>@Nullable standardisé : l'IDE signale les null oubliés</span></li>
+      <li><b>Jackson 3</b> <span>nouvelle version de la conversion JSON par défaut</span></li>
+      <li><b>Boot modularisé</b> <span>découpé en modules fins : on n'embarque que l'utile</span></li>
+      <li><b>Versions d'API</b> <span>@GetMapping(version = "2") : versionner une API REST</span></li>
+      <li><b>Résilience</b> <span>@Retryable et @ConcurrencyLimit intégrés au cœur</span></li>
+      <li class="hl"><b>Boot 4.1 · juin 2026</b> <span>gRPC, OpenTelemetry, plus de réglages Jackson</span></li>
+    </ul>
+    <div class="pageno">15</div>
+  </section>
+  <aside class="notes">
+    <p>Spring Boot 4 garde Java 17 comme minimum, mais supporte pleinement Java 25. Il passe aussi sur Jakarta EE 11 et Tomcat 11.</p>
+    <p>Jackson 3 : la partie principale change de paquet (tools.jackson au lieu de com.fasterxml.jackson). Les annotations courantes comme @JsonProperty gardent leur paquet. Encore un piège classique avec les tutoriels plus anciens.</p>
+    <p>Le versioning d'API et les clients HTTP déclaratifs (une interface Java annotée qui devient un client REST) sont de bonnes pistes de bonus pour les groupes en avance.</p>
+    <p>@Retryable relance automatiquement une méthode qui a échoué : intéressant à évoquer en séance 4, car il repose sur l'AOP.</p>
+  </aside>
+
+  <!-- ============ 16 · QUELLE VERSION ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · CHOISIR SES VERSIONS</div>
+    <h3>Quelle version choisir ?</h3>
+    <svg viewBox="0 0 800 280" role="img" aria-label="Versions de Java et de Spring Boot de 2021 à 2027, avec les règles de compatibilité">
+      <text class="tk" x="178" y="20" text-anchor="middle">2021</text>
+      <text class="tk" x="274" y="20" text-anchor="middle">2022</text>
+      <text class="tk" x="370" y="20" text-anchor="middle">2023</text>
+      <text class="tk" x="466" y="20" text-anchor="middle">2024</text>
+      <text class="tk" x="562" y="20" text-anchor="middle">2025</text>
+      <text class="tk" x="658" y="20" text-anchor="middle">2026</text>
+      <text class="tk" x="754" y="20" text-anchor="middle">2027</text>
+      <line class="sep" x1="0" y1="32" x2="800" y2="32"/>
+
+      <!-- Java -->
+      <text class="t tb" x="0" y="80">Java</text>
+      <text class="t tm" x="0" y="98">LTS tous les 2 ans</text>
+      <rect class="box-strong" x="136" y="62" width="84" height="36" rx="18"/>
+      <text class="tc" x="178" y="85" text-anchor="middle">17 LTS</text>
+      <rect class="box-strong" x="328" y="62" width="84" height="36" rx="18"/>
+      <text class="tc" x="370" y="85" text-anchor="middle">21 LTS</text>
+      <rect class="box-accent" x="520" y="62" width="84" height="36" rx="18"/>
+      <text class="tc tw" x="562" y="85" text-anchor="middle" font-weight="600">25 LTS</text>
+      <rect class="box" x="616" y="62" width="84" height="36" rx="18"/>
+      <text class="tc" x="658" y="85" text-anchor="middle">26 · 27</text>
+      <rect class="frame" x="712" y="62" width="84" height="36" rx="18"/>
+      <text class="tc" x="754" y="85" text-anchor="middle">29 LTS</text>
+      <text class="t tm" x="754" y="116" text-anchor="middle" font-size="11">prévue</text>
+
+      <line class="sep" x1="0" y1="128" x2="800" y2="128"/>
+
+      <!-- Spring Boot -->
+      <text class="t tb" x="0" y="164">Spring Boot</text>
+      <text class="t tm" x="0" y="182">~2 versions par an</text>
+      <rect class="box-strong" x="232" y="146" width="84" height="36" rx="18"/>
+      <text class="tc" x="274" y="169" text-anchor="middle">3.0</text>
+      <rect class="box" x="328" y="146" width="84" height="36" rx="18"/>
+      <text class="tc" x="370" y="169" text-anchor="middle">3.1 · 3.2</text>
+      <rect class="box" x="424" y="146" width="84" height="36" rx="18"/>
+      <text class="tc" x="466" y="169" text-anchor="middle">3.3 · 3.4</text>
+      <rect class="box-strong" x="520" y="146" width="84" height="36" rx="18"/>
+      <text class="tc" x="562" y="169" text-anchor="middle">3.5 · 4.0</text>
+      <rect class="box-accent" x="616" y="146" width="84" height="36" rx="18"/>
+      <text class="tc tw" x="658" y="169" text-anchor="middle" font-weight="600">4.1</text>
+
+      <line class="sep" x1="0" y1="206" x2="800" y2="206"/>
+
+      <text class="tk" x="0" y="232">COMPATIBILITÉ</text>
+      <text class="t tm tbad" x="0" y="258">Boot 2.x : Java 8+, plus maintenu</text>
+      <text class="t tm" x="270" y="258">Boot 3.x : Java 17+</text>
+      <text class="t tm" x="540" y="258">Boot 4.x : Java 17+, 25 conseillé</text>
+    </svg>
+    <div class="caption">Le cours : <b>Java 25 LTS</b> (support long) + <b>Spring Boot 4.1</b> (dernière génération). Deux versions en vert : celles à préférer pour un projet qui démarre aujourd'hui.</div>
+    <div class="pageno">16</div>
+  </section>
+  <aside class="notes">
+    <p>LTS = Long-Term Support : des correctifs de sécurité pendant des années. Les versions intermédiaires (26, 27) ne sont maintenues que six mois, jusqu'à la suivante.</p>
+    <p>Spring Boot sort une version mineure environ tous les six mois. Chaque version est maintenue gratuitement pendant une durée limitée, puis il faut monter de version (ou payer un support commercial).</p>
+    <p>Le choix des versions est un bon exemple de « choix technique à justifier » pour l'évaluation : pourquoi une LTS plutôt que la toute dernière version de Java ?</p>
+  </aside>
+
+  <!-- ============ 17 · SYNTHÈSE ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">ANNEXE · SYNTHÈSE</div>
+    <h2>Ce qu'il faut retenir</h2>
+    <div class="grid four">
+      <div class="card">
+        <div class="k">SPRING</div>
+        <div class="v">Un conteneur IoC et des modules (web, AOP, transactions), plus tout un écosystème.</div>
+      </div>
+      <div class="card">
+        <div class="k">SPRING BOOT</div>
+        <div class="v">Construit sur Spring : starters, auto-configuration, serveur embarqué.</div>
+      </div>
+      <div class="card">
+        <div class="k">L'HISTOIRE</div>
+        <div class="v">Né en 2002-2004 contre la lourdeur des EJB. Même idée depuis : l'IoC.</div>
+      </div>
+      <div class="card">
+        <div class="k">AUJOURD'HUI</div>
+        <div class="v">Java 25 LTS, Spring 7, Boot 4.1. Un tuto en javax.* ? Il date d'avant 2022.</div>
+      </div>
+    </div>
+    <div class="pageno">17</div>
+  </section>
+  <aside class="notes">
+    <p>Pour aller plus loin : les notes de version officielles de Spring Boot (wiki GitHub du projet) et les notes de version de chaque JDK sur jdk.java.net.</p>
+  </aside>
+
+</div>
+<div class="hint">N : notes orateur</div>
+<script>
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey) {
+      document.body.classList.toggle('show-notes');
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Séance 2 — Configuration & REST</title>
+<style>
+  :root{
+    --bg: #FAFCF8;
+    --surface: #EEF3EA;
+    --surface-2: #E2EADB;
+    --green: #6DB33F;
+    --green-dark: #4B8A2E;
+    --text: #1C2419;
+    --text-muted: #5C6959;
+    --rule: #D9E2D2;
+    --warn: #B5533C;
+    --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", sans-serif;
+    --font-code: "JetBrains Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:#000; font-family:var(--font-body);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .deck{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0 80px; }
+  .slide{
+    width:960px; height:540px; background:var(--bg);
+    position:relative; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--rule);
+  }
+  .slide .tag{
+    position:absolute; top:28px; left:40px; font-family:var(--font-code);
+    font-size:12px; color:var(--green-dark); letter-spacing:.02em;
+  }
+  .slide .pageno{
+    position:absolute; bottom:24px; right:32px; font-family:var(--font-code);
+    font-size:12px; color:var(--text-muted);
+  }
+  .bar{ position:absolute; left:0; top:0; width:6px; height:100%; background:var(--green); }
+
+  /* Titre */
+  .s-title{ display:flex; }
+  .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
+  .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
+  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
+  .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
+  .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
+  .s-title .meta{ position:absolute; bottom:36px; right:60px; display:flex; gap:24px; }
+  .s-title .meta div{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .s-title .meta span{ color:var(--green-dark); }
+
+  /* Section */
+  .s-section{ background:var(--green); display:flex; align-items:center; padding:0 80px; }
+  .s-section .num{ font-family:var(--font-display); font-size:110px; color:rgba(255,255,255,.25); font-weight:700; margin-right:44px; }
+  .s-section h2{ font-family:var(--font-display); font-size:40px; margin:0; font-weight:600; max-width:520px; line-height:1.15; color:#fff; }
+  .s-section .list{ margin-top:18px; }
+  .s-section .list div{ color:rgba(255,255,255,.75); font-size:16px; margin-top:6px; }
+  .s-section .tag{ color:#EAF6E2; }
+  .s-section .pageno{ color:rgba(255,255,255,.6); }
+
+  /* Contenu / points */
+  .s-content{ padding:70px 80px 40px; }
+  .s-content h3{ font-family:var(--font-display); font-size:30px; margin:0 0 30px; font-weight:600; }
+  .s-content ul{ list-style:none; margin:0; padding:0; }
+  .s-content li{ display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--rule); font-size:17px; align-items:baseline; }
+  .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
+  .s-content li b{ color:var(--text); font-weight:600; white-space:nowrap; }
+  .s-content li span{ color:var(--text-muted); margin-left:6px; }
+  /* [AJOUT] ligne mise en avant */
+  .s-content li.hl{ background:var(--surface); border-left:3px solid var(--green); padding-left:12px; margin-left:-15px; }
+  .s-content li.hl span{ color:var(--text); }
+
+  /* Code */
+  .s-code{ padding:70px 80px 40px; }
+  .s-code h3{ font-family:var(--font-display); font-size:26px; margin:0 0 22px; font-weight:600; }
+  .s-code .win{ background:#1C2419; border:1px solid var(--rule); border-radius:4px; overflow:hidden; }
+  .s-code .winbar{ background:#263323; padding:9px 16px; font-family:var(--font-code); font-size:12px; color:#9FB393; border-bottom:1px solid #33422F; }
+  .s-code pre{ margin:0; padding:22px 24px; font-family:var(--font-code); font-size:14.5px; line-height:1.65; color:#EAF3E4; overflow:auto; }
+  .s-code .kw{ color:#9FD88D; }
+  .s-code .an{ color:#6DB33F; }
+  .s-code .cm{ color:#6E7C68; }
+  /* [AJOUT] ligne de code signalée, légende sous la fenêtre, variante compacte */
+  .s-code .bad{ background:rgba(181,83,60,.32); display:inline-block; width:100%; }
+  .s-code .good{ background:rgba(109,179,63,.22); display:inline-block; width:100%; }
+  .s-code .caption{ margin-top:14px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-code .caption b{ color:var(--text); }
+  .s-code.dense pre{ font-size:13px; line-height:1.55; padding:16px 22px; }
+
+  /* [AJOUT] Avant / après côte à côte */
+  .s-code.compare{ padding:70px 56px 40px; }
+  .compare .cols{ display:flex; gap:20px; }
+  .compare .col{ flex:1; min-width:0; }
+  .compare .label{ font-family:var(--font-code); font-size:12px; margin-bottom:8px; color:var(--green-dark); }
+  .compare .label.before{ color:var(--warn); }
+  .compare pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
+
+  /* [AJOUT] Schéma SVG */
+  .s-diagram{ padding:70px 80px 40px; }
+  .s-diagram h3{ font-family:var(--font-display); font-size:26px; margin:0 0 18px; font-weight:600; }
+  .s-diagram svg{ display:block; width:100%; height:auto; }
+  .s-diagram .caption{ margin-top:12px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-diagram .caption b{ color:var(--text); }
+  svg .box{ fill:var(--surface); stroke:var(--rule); stroke-width:1; }
+  svg .box-strong{ fill:#fff; stroke:var(--green-dark); stroke-width:1.5; }
+  svg .box-accent{ fill:var(--green); stroke:none; }
+  svg .box-bad{ fill:#fff; stroke:var(--warn); stroke-width:1.5; }
+  svg .frame{ fill:none; stroke:var(--green); stroke-width:1.5; stroke-dasharray:6 5; }
+  svg .t{ font-family:var(--font-body); font-size:14px; fill:var(--text); }
+  svg .tb{ font-weight:600; font-size:15px; }
+  svg .tm{ fill:var(--text-muted); font-size:12.5px; }
+  svg .tc{ font-family:var(--font-code); font-size:12.5px; fill:var(--green-dark); }
+  svg .tw{ fill:#fff; }
+  svg .tk{ font-family:var(--font-code); font-size:11px; fill:var(--green-dark); letter-spacing:.04em; }
+  svg .tbad{ fill:var(--warn); }
+  svg .ln{ stroke:var(--green-dark); stroke-width:1.5; fill:none; }
+  svg .ln-dash{ stroke-dasharray:5 4; }
+  svg .ln-bad{ stroke:var(--warn); }
+  svg .sep{ stroke:var(--rule); stroke-width:1; }
+
+  /* Clôture / cartes */
+  .s-close{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 80px; }
+  .s-close h2{ font-family:var(--font-display); font-size:38px; margin:0 0 26px; font-weight:600; }
+  .s-close .grid{ display:flex; gap:40px; }
+  .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
+  .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
+  .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
+  /* [AJOUT] grille 4 cartes + citation */
+  .s-close .grid.four{ gap:24px; }
+  .s-close .grid.four .card{ width:182px; }
+  .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
+
+  /* [AJOUT] Notes orateur — touche N pour afficher/masquer */
+  .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
+          padding:14px 20px; font-size:14px; line-height:1.55; margin-top:-14px; }
+  .notes::before{ content:"NOTES ORATEUR"; display:block; font-family:var(--font-code); font-size:11px; color:var(--green); margin-bottom:6px; }
+  .notes p{ margin:0 0 6px; }
+  body.show-notes .notes{ display:block; }
+  .hint{ position:fixed; bottom:12px; left:16px; font-family:var(--font-code); font-size:11px; color:#5C6959; }
+  @media print{ .notes, .hint{ display:none !important; } body{ background:#fff; } .deck{ gap:0; padding:0; } }
+</style>
+</head>
+<body>
+
+<!-- Marqueurs de flèches partagés par tous les schémas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4B8A2E"/>
+    </marker>
+    <marker id="arr-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B5533C"/>
+    </marker>
+    <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FAFCF8" stroke="#4B8A2E" stroke-width="1.2"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="deck">
+
+  <!-- ============ 01 · TITRE ============ -->
+  <section class="slide s-title">
+    <div class="half">
+      <div class="course">JOUR 02 / 05</div>
+      <div class="leaf">Sp</div>
+    </div>
+    <div class="content">
+      <h1>Configuration &amp; REST</h1>
+      <div class="sub">Sortir les règles métier du code, et apprendre à l'API à parler HTTP correctement.</div>
+    </div>
+    <div class="meta">
+      <div>PRÉREQUIS <span>GET / POST /users</span></div>
+      <div>OUTILS <span>curl · client HTTP</span></div>
+      <div>STACK <span>Spring Boot 4.1</span></div>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+  <aside class="notes">
+    <p>Déroulé : 30 min de théorie d'un seul bloc, pause, TP bloc 1, checkpoint #1 (10 min, avec la transition vers les trocs), TP bloc 2, checkpoint #2.</p>
+    <p>Avant de commencer : faire lever la main aux groupes dont GET / POST /users ne tourne pas encore. Ils démarrent le bloc 1 par là, c'est la base commune.</p>
+  </aside>
+
+  <!-- ============ 02 · OÙ EN EST-ON ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">RAPPEL · SÉANCE 1</div>
+    <h3>Où en est-on ?</h3>
+    <ul>
+      <li><b>Acquis</b> <span>injection par constructeur, beans Spring, GET et POST /users en mémoire</span></li>
+      <li><b>Il manque</b> <span>les objets, les trocs, des URLs comme /users/42, des codes de statut justes</span></li>
+      <li><b>Il reste en dur</b> <span>les règles métier chiffrées, enfouies dans le code Java</span></li>
+      <li class="hl"><b>Fin de séance</b> <span>CRUD users et items, proposer un troc, règles dans un fichier de configuration</span></li>
+    </ul>
+    <div class="pageno">02</div>
+  </section>
+  <aside class="notes">
+    <p>Rappel de 2 minutes, pas plus. Faire le lien avec la diapo « Une API REST, concrètement » de la séance 1 : on avait annoncé que les verbes, paramètres et codes de statut seraient vus aujourd'hui.</p>
+    <p>Les données restent en mémoire toute la séance : la base H2 arrive en séance 3.</p>
+  </aside>
+
+  <!-- ============ 03 · SECTION 01 ============ -->
+  <section class="slide s-section">
+    <div class="tag">THÉORIE · 30 MIN</div>
+    <div class="num">01</div>
+    <div>
+      <h2>Externaliser la configuration</h2>
+      <div class="list">
+        <div>Le problème des valeurs en dur</div>
+        <div>application.properties</div>
+        <div>@Value et @ConfigurationProperties</div>
+        <div>D'où vient la valeur ?</div>
+      </div>
+    </div>
+    <div class="pageno">03</div>
+  </section>
+  <aside class="notes">
+    <p>Environ 10 minutes sur cette partie, 20 sur REST.</p>
+  </aside>
+
+  <!-- ============ 04 · VALEUR EN DUR ============ -->
+  <section class="slide s-code">
+    <div class="bar"></div>
+    <div class="tag">CONFIGURATION · LE PROBLÈME</div>
+    <h3>Une règle métier enfouie dans le code</h3>
+    <div class="win">
+      <div class="winbar">item/ItemService.java</div>
+<pre><span class="kw">public</span> Item create(Item item) {
+<span class="bad">    <span class="kw">if</span> (items.countByOwnerId(item.getOwnerId()) &gt;= 20) {</span>
+        <span class="kw">throw new</span> IllegalStateException(<span class="kw">"Trop d'objets"</span>);
+    }
+    <span class="kw">return</span> items.save(item);
+}</pre>
+    </div>
+    <div class="caption"><b>Pourquoi 20 ?</b> Personne ne le sait dans six mois. Et si le client veut 50 en production et 3 pour les tests, il faut modifier le code, recompiler et redéployer.</div>
+    <div class="pageno">04</div>
+  </section>
+  <aside class="notes">
+    <p>Règle métier choisie pour la séance : un utilisateur ne peut pas proposer plus de N objets différents. C'est elle que les groupes externaliseront dans le TP bloc 1.</p>
+    <p>Demander à la salle : « qui décide de ce 20 ? » → le client, pas le développeur. Une valeur qui peut changer sans que le code change n'a rien à faire dans le code.</p>
+    <p>Même raisonnement que l'évolution 2 de la séance 1 : on veut changer un comportement sans toucher aux classes.</p>
+  </aside>
+
+  <!-- ============ 05 · APPLICATION.PROPERTIES ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">CONFIGURATION · LE FICHIER</div>
+    <h3>Un fichier pour tous les réglages</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label">SRC/MAIN/RESOURCES/APPLICATION.PROPERTIES</div>
+        <div class="win">
+          <div class="winbar">application.properties</div>
+<pre>spring.application.name=troc-api
+server.port=8080
+
+<span class="cm"># règles métier du troc</span>
+<span class="good">troc.item.max-per-user=20</span>
+<span class="good">troc.trade.max-pending=3</span>
+
+
+
+
+
+
+</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">OU, ÉQUIVALENT : APPLICATION.YML</div>
+        <div class="win">
+          <div class="winbar">application.yml</div>
+<pre><span class="kw">spring</span>:
+  <span class="kw">application</span>:
+    <span class="kw">name</span>: troc-api
+<span class="kw">server</span>:
+  <span class="kw">port</span>: 8080
+
+<span class="cm"># règles métier du troc</span>
+<span class="kw">troc</span>:
+  <span class="kw">item</span>:
+    <span class="kw">max-per-user</span>: 20
+  <span class="kw">trade</span>:
+    <span class="kw">max-pending</span>: 3</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Les clés <b>spring.*</b> et <b>server.*</b> sont lues par Spring Boot ; les clés <b>troc.*</b> sont les nôtres. Un seul des deux formats suffit : le cours garde <b>.properties</b>.</div>
+    <div class="pageno">05</div>
+  </section>
+  <aside class="notes">
+    <p>Le fichier existe déjà dans le projet généré à la séance 1, il était vide (ou ne contenait que spring.application.name).</p>
+    <p>Préfixer ses propres clés (ici troc.) évite toute collision avec les clés de Spring. Les tirets (max-per-user) sont la convention recommandée.</p>
+    <p>Deuxième règle, troc.trade.max-pending : nombre maximum de trocs en attente par utilisateur. Elle servira au TP bloc 2.</p>
+  </aside>
+
+  <!-- ============ 06 · @VALUE ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">CONFIGURATION · @VALUE</div>
+    <h3>Lire une valeur : @Value</h3>
+    <div class="win">
+      <div class="winbar">item/ItemService.java</div>
+<pre><span class="an">@Service</span>
+<span class="kw">public class</span> ItemService {
+    <span class="kw">private final</span> ItemRepository items;
+    <span class="kw">private final</span> UserRepository users;
+    <span class="kw">private final int</span> maxPerUser;
+
+    <span class="kw">public</span> ItemService(ItemRepository items, UserRepository users,
+<span class="good">                       <span class="an">@Value</span>(<span class="kw">"${troc.item.max-per-user:20}"</span>) <span class="kw">int</span> maxPerUser) {</span>
+        <span class="kw">this</span>.items = items;
+        <span class="kw">this</span>.users = users;
+        <span class="kw">this</span>.maxPerUser = maxPerUser;
+    }
+
+    <span class="kw">public</span> Item create(Item item) {
+        <span class="kw">if</span> (items.countByOwnerId(item.getOwnerId()) &gt;= maxPerUser) { ... }</pre>
+    </div>
+    <div class="caption"><b>${clé:défaut}</b> : la valeur vient du fichier, 20 si la clé est absente. Spring convertit le texte en <b>int</b> tout seul.</div>
+    <div class="pageno">06</div>
+  </section>
+  <aside class="notes">
+    <p>La valeur arrive par le constructeur, exactement comme le repository : c'est de l'injection de dépendances. Une valeur de configuration est une dépendance comme une autre.</p>
+    <p>Si la clé est absente et qu'il n'y a pas de valeur par défaut, l'application refuse de démarrer, avec un message explicite (même comportement qu'un bean introuvable en séance 1).</p>
+    <p>Une faute de frappe dans la clé ne provoque aucune erreur à la compilation : c'est la limite de @Value, et la transition vers la diapo suivante.</p>
+  </aside>
+
+  <!-- ============ 07 · @CONFIGURATIONPROPERTIES ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">CONFIGURATION · @CONFIGURATIONPROPERTIES</div>
+    <h3>Regrouper des réglages : @ConfigurationProperties</h3>
+    <div class="win">
+      <div class="winbar">item/ItemProperties.java · TrocApplication.java · item/ItemService.java</div>
+<pre><span class="an">@ConfigurationProperties</span>(<span class="kw">"troc.item"</span>)                <span class="cm">// préfixe des clés</span>
+<span class="kw">public record</span> ItemProperties(<span class="kw">int</span> maxPerUser) { }     <span class="cm">// max-per-user → maxPerUser</span>
+
+<span class="an">@SpringBootApplication</span>
+<span class="an">@ConfigurationPropertiesScan</span>                         <span class="cm">// détecte les @ConfigurationProperties</span>
+<span class="kw">public class</span> TrocApplication { ... }
+
+<span class="an">@Service</span>
+<span class="kw">public class</span> ItemService {
+    <span class="kw">private final</span> ItemProperties props;              <span class="cm">// un bean comme un autre</span>
+    <span class="kw">public</span> ItemService(ItemRepository items, UserRepository users,
+                       ItemProperties props) { ... }
+    <span class="cm">// ... props.maxPerUser()</span>
+}</pre>
+    </div>
+    <div class="caption"><b>@Value</b> pour une valeur isolée ; <b>@ConfigurationProperties</b> dès qu'un groupe de réglages apparaît : typé, rangé dans sa fonctionnalité, injecté par constructeur.</div>
+    <div class="pageno">07</div>
+  </section>
+  <aside class="notes">
+    <p>Le record déclare la forme des réglages ; Spring lit toutes les clés troc.item.* et remplit le record. La conversion de max-per-user en maxPerUser est automatique.</p>
+    <p>Rangement par fonctionnalité, comme le reste du projet : ItemProperties dans item/, TradeProperties dans trade/.</p>
+    <p>Avantage pratique : une seule classe à lire pour connaître tous les réglages d'une fonctionnalité, et l'IDE propose l'autocomplétion dans le code.</p>
+  </aside>
+
+  <!-- ============ 08 · PRIORITÉ ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">CONFIGURATION · LES SOURCES</div>
+    <h3>D'où vient la valeur ? La plus haute gagne</h3>
+    <svg viewBox="0 0 800 250" role="img" aria-label="Cinq sources de configuration, de la plus prioritaire à la moins prioritaire : ligne de commande, variables d'environnement, fichier de profil, application.properties, valeur par défaut">
+      <line class="ln" x1="16" y1="240" x2="16" y2="6" marker-end="url(#arr)"/>
+      <text class="t tm" x="38" y="125" text-anchor="middle" transform="rotate(-90 38 125)">priorité</text>
+
+      <rect class="box-accent" x="60" y="0" width="740" height="42" rx="4"/>
+      <text class="t tb tw" x="80" y="26">1 · Ligne de commande</text>
+      <text class="t tw" x="380" y="26" font-family="JetBrains Mono, Consolas, monospace" font-size="12.5">--troc.item.max-per-user=50</text>
+
+      <rect class="box-strong" x="60" y="50" width="740" height="42" rx="4"/>
+      <text class="t tb" x="80" y="76">2 · Variable d'environnement</text>
+      <text class="tc" x="380" y="76">TROC_ITEM_MAXPERUSER=50</text>
+
+      <rect class="box-strong" x="60" y="100" width="740" height="42" rx="4"/>
+      <text class="t tb" x="80" y="126">3 · Fichier de profil</text>
+      <text class="tc" x="380" y="126">application-dev.properties</text>
+
+      <rect class="box-strong" x="60" y="150" width="740" height="42" rx="4"/>
+      <text class="t tb" x="80" y="176">4 · Fichier principal</text>
+      <text class="tc" x="380" y="176">application.properties</text>
+
+      <rect class="box" x="60" y="200" width="740" height="42" rx="4"/>
+      <text class="t tb" x="80" y="226">5 · Valeur par défaut</text>
+      <text class="tc" x="380" y="226">@Value("${troc.item.max-per-user:20}")</text>
+    </svg>
+    <div class="caption">Le <b>même JAR</b> tourne en développement, en test et en production : seule la configuration change. Les secrets (mot de passe de la base) n'ont rien à faire dans le code, ni dans git.</div>
+    <div class="pageno">08</div>
+  </section>
+  <aside class="notes">
+    <p>Liste simplifiée : Spring Boot connaît d'autres sources, mais ces cinq couvrent 99 % des besoins.</p>
+    <p>Variable d'environnement : majuscules, points remplacés par des underscores, tirets supprimés. Dans IntelliJ, elle se règle dans la configuration de lancement (Environment variables).</p>
+    <p>Fichier de profil : activé avec spring.profiles.active=dev. C'était un bonus de la séance 1, certains groupes l'ont déjà fait.</p>
+    <p>Usage dans le TP bloc 2 : relancer avec TROC_TRADE_MAXPENDING=1 pour provoquer facilement l'erreur « trop de trocs en attente ».</p>
+  </aside>
+
+  <!-- ============ 09 · SECTION 02 ============ -->
+  <section class="slide s-section">
+    <div class="tag">THÉORIE · SUITE</div>
+    <div class="num">02</div>
+    <div>
+      <h2>Parler HTTP correctement</h2>
+      <div class="list">
+        <div>Chemin, paramètres, corps</div>
+        <div>Concevoir ses URLs</div>
+        <div>Les codes de statut</div>
+        <div>Tester son API</div>
+      </div>
+    </div>
+    <div class="pageno">09</div>
+  </section>
+  <aside class="notes">
+    <p>On reprend là où la diapo « Une API REST, concrètement » s'était arrêtée : verbe, ressource, réponse.</p>
+  </aside>
+
+  <!-- ============ 10 · ANATOMIE D'UNE REQUÊTE ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">REST · ANATOMIE D'UNE REQUÊTE</div>
+    <h3>Trois façons de transmettre une information</h3>
+    <svg viewBox="0 0 800 262" role="img" aria-label="Une variable de chemin correspond à @PathVariable, un paramètre de requête à @RequestParam, un corps JSON à @RequestBody">
+      <rect class="box" x="0" y="0" width="360" height="70" rx="4"/>
+      <text class="tc" x="20" y="42" font-size="16">GET /items/<tspan fill="#6DB33F" font-weight="700">7</tspan></text>
+      <line class="ln" x1="362" y1="35" x2="426" y2="35" marker-end="url(#arr)"/>
+      <rect class="box-strong" x="430" y="0" width="370" height="70" rx="4"/>
+      <text class="tc" x="450" y="30" font-size="14" font-weight="600">@PathVariable Long id</text>
+      <text class="t tm" x="450" y="52">identifie UNE ressource précise</text>
+
+      <rect class="box" x="0" y="95" width="360" height="70" rx="4"/>
+      <text class="tc" x="20" y="137" font-size="16">GET /items?<tspan fill="#6DB33F" font-weight="700">ownerId=42</tspan></text>
+      <line class="ln" x1="362" y1="130" x2="426" y2="130" marker-end="url(#arr)"/>
+      <rect class="box-strong" x="430" y="95" width="370" height="70" rx="4"/>
+      <text class="tc" x="450" y="125" font-size="14" font-weight="600">@RequestParam Long ownerId</text>
+      <text class="t tm" x="450" y="147">filtre ou option sur une liste, souvent facultatif</text>
+
+      <rect class="box" x="0" y="190" width="360" height="70" rx="4"/>
+      <text class="tc" x="20" y="218" font-size="16">POST /items</text>
+      <text class="tc" x="20" y="244"><tspan fill="#6DB33F" font-weight="700">{ "name": "tomates", "quantity": 10 }</tspan></text>
+      <line class="ln" x1="362" y1="225" x2="426" y2="225" marker-end="url(#arr)"/>
+      <rect class="box-strong" x="430" y="190" width="370" height="70" rx="4"/>
+      <text class="tc" x="450" y="220" font-size="14" font-weight="600">@RequestBody Item item</text>
+      <text class="t tm" x="450" y="242">les données envoyées, converties depuis le JSON</text>
+    </svg>
+    <div class="caption">Le verbe et le chemin se déclarent avec <b>@GetMapping</b>, <b>@PostMapping</b>, <b>@PutMapping</b>, <b>@DeleteMapping</b>.</div>
+    <div class="pageno">10</div>
+  </section>
+  <aside class="notes">
+    <p>Règle simple pour choisir : si l'information désigne la ressource, elle va dans le chemin ; si elle affine une liste, en paramètre ; si ce sont des données à enregistrer, dans le corps.</p>
+    <p>@RequestBody a déjà été vu en séance 1 sur POST /users. Les deux nouveautés sont @PathVariable et @RequestParam.</p>
+    <p>Un GET n'a pas de corps : tout passe par le chemin et les paramètres.</p>
+  </aside>
+
+  <!-- ============ 11 · ITEMCONTROLLER ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">REST · DANS LE CODE</div>
+    <h3>Les trois annotations dans un contrôleur</h3>
+    <div class="win">
+      <div class="winbar">item/ItemController.java</div>
+<pre style="font-size:12px;line-height:1.5;padding:14px 22px"><span class="an">@RestController</span>
+<span class="an">@RequestMapping</span>(<span class="kw">"/items"</span>)                               <span class="cm">// préfixe commun à toutes les méthodes</span>
+<span class="kw">public class</span> ItemController {
+    <span class="cm">// ... constructeur : ItemService injecté, comme en séance 1</span>
+
+    <span class="an">@GetMapping</span>(<span class="kw">"/{id}"</span>)                                  <span class="cm">// GET /items/7</span>
+    <span class="kw">public</span> Item findById(<span class="an">@PathVariable</span> Long id) { <span class="kw">return</span> itemService.findById(id); }
+
+    <span class="an">@GetMapping</span>                                          <span class="cm">// GET /items?ownerId=42</span>
+    <span class="kw">public</span> List&lt;Item&gt; findAll(<span class="an">@RequestParam</span>(required = <span class="kw">false</span>) Long ownerId) {
+        <span class="kw">return</span> itemService.findAll(ownerId);                 <span class="cm">// ownerId null = tous</span>
+    }
+
+    <span class="an">@PostMapping</span>                                         <span class="cm">// POST /items + JSON</span>
+    <span class="kw">public</span> Item create(<span class="an">@RequestBody</span> Item item) { <span class="kw">return</span> itemService.create(item); }
+}</pre>
+    </div>
+    <div class="caption">Le nom du paramètre Java fait le lien : <b>{id}</b> ↔ <b>Long id</b>, <b>?ownerId=</b> ↔ <b>Long ownerId</b>.</div>
+    <div class="pageno">11</div>
+  </section>
+  <aside class="notes">
+    <p>@RequestMapping sur la classe évite de répéter /items sur chaque méthode. Proposer aux groupes de faire la même chose sur UserController.</p>
+    <p>Par défaut, un @RequestParam est obligatoire : sans required = false, GET /items sans paramètre renverrait 400.</p>
+    <p>Si on appelle GET /items/abc, Spring ne peut pas convertir « abc » en Long : réponse 400 automatique, sans une ligne de code.</p>
+  </aside>
+
+  <!-- ============ 12 · CONCEVOIR SES URLS ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">REST · CONCEPTION</div>
+    <h3>Concevoir ses URLs</h3>
+    <ul>
+      <li><b>Des noms, pas des verbes</b> <span>/items et non /getItems : l'action est portée par le verbe HTTP</span></li>
+      <li><b>Au pluriel</b> <span>/users/42 se lit « l'élément 42 de la collection users »</span></li>
+      <li><b>Un verbe par intention</b> <span>GET lit · POST crée · PUT remplace · DELETE supprime</span></li>
+      <li><b>Les filtres en paramètres</b> <span>/items?ownerId=42 plutôt que /items/owner/42</span></li>
+      <li class="hl"><b>Une action métier ?</b> <span>proposer un troc, c'est créer une ressource : POST /trades</span></li>
+    </ul>
+    <div class="pageno">12</div>
+  </section>
+  <aside class="notes">
+    <p>Contre-exemples à citer à l'oral : POST /createUser, GET /deleteUser?id=3. Le second est dangereux : un GET doit pouvoir être rejoué sans effet de bord (un navigateur ou un robot peut le déclencher).</p>
+    <p>PUT remplace la ressource entière ; PATCH (modification partielle) existe aussi, mais n'est pas demandé dans le TP.</p>
+    <p>La dernière ligne prépare le bloc 2 : même une action métier se modélise comme une ressource qu'on crée.</p>
+  </aside>
+
+  <!-- ============ 13 · CODES DE STATUT ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">REST · CODES DE STATUT</div>
+    <h3>Le code de statut : la réponse en un nombre</h3>
+    <svg viewBox="0 0 800 250" role="img" aria-label="Codes 2xx pour un succès, 4xx pour une erreur du client, 5xx pour une erreur du serveur, avec des exemples tirés du troc">
+      <rect class="box-accent" x="0" y="0" width="250" height="44" rx="4"/>
+      <text class="t tb tw" x="18" y="28">2xx · ça a marché</text>
+      <rect class="box" x="0" y="54" width="250" height="190" rx="4"/>
+      <text class="tc" x="18" y="84" font-weight="600">200 OK</text>
+      <text class="t tm" x="18" y="103">lecture, mise à jour</text>
+      <text class="tc" x="18" y="140" font-weight="600">201 Created</text>
+      <text class="t tm" x="18" y="159">utilisateur créé</text>
+      <text class="tc" x="18" y="196" font-weight="600">204 No Content</text>
+      <text class="t tm" x="18" y="215">supprimé, rien à renvoyer</text>
+
+      <rect class="box-strong" x="275" y="0" width="250" height="44" rx="4"/>
+      <text class="t tb" x="293" y="28">4xx · erreur du client</text>
+      <rect class="box" x="275" y="54" width="250" height="190" rx="4"/>
+      <text class="tc" x="293" y="84" font-weight="600">400 Bad Request</text>
+      <text class="t tm" x="293" y="103">JSON mal formé, quantité négative</text>
+      <text class="tc" x="293" y="140" font-weight="600">404 Not Found</text>
+      <text class="t tm" x="293" y="159">GET /users/42 : inconnu</text>
+      <text class="tc" x="293" y="196" font-weight="600">409 Conflict</text>
+      <text class="t tm" x="293" y="215">trop de trocs en attente</text>
+
+      <rect class="box-bad" x="550" y="0" width="250" height="44" rx="4"/>
+      <text class="t tb tbad" x="568" y="28">5xx · erreur du serveur</text>
+      <rect class="box" x="550" y="54" width="250" height="190" rx="4"/>
+      <text class="tc tbad" x="568" y="84" font-weight="600">500 Internal Server Error</text>
+      <text class="t tm" x="568" y="103">exception non rattrapée</text>
+      <text class="t tm" x="568" y="140">Jamais un choix volontaire :</text>
+      <text class="t tm" x="568" y="159">c'est un bug à corriger.</text>
+    </svg>
+    <div class="caption">Le code dit <b>ce qui s'est passé</b>, le corps JSON donne <b>les détails</b>. Un client doit pouvoir réagir sans lire le message.</div>
+    <div class="pageno">13</div>
+  </section>
+  <aside class="notes">
+    <p>Il en existe des dizaines ; ces sept suffisent pour tout le projet.</p>
+    <p>Distinction utile : 4xx = le client doit changer sa requête ; 5xx = la même requête pourrait marcher plus tard, c'est le serveur qui a un problème.</p>
+    <p>400 ou 409 ? 400 : la requête est invalide en elle-même. 409 : la requête est valide, mais l'état actuel des données l'empêche. Le choix fait partie des choix techniques à justifier à l'évaluation.</p>
+  </aside>
+
+  <!-- ============ 14 · CHOISIR SON CODE ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">REST · CODES DE STATUT EN SPRING</div>
+    <h3>Choisir son code de statut</h3>
+    <div class="win">
+      <div class="winbar">user/UserController.java · user/UserService.java</div>
+<pre style="font-size:12px;line-height:1.5;padding:14px 22px"><span class="an">@PostMapping</span>                                                 <span class="cm">// UserController</span>
+<span class="kw">public</span> ResponseEntity&lt;User&gt; create(<span class="an">@RequestBody</span> User user) {
+    User saved = userService.create(user);
+<span class="good">    <span class="kw">return</span> ResponseEntity.created(URI.create(<span class="kw">"/users/"</span> + saved.getId()))   <span class="cm">// 201 + Location</span></span>
+                         .body(saved);
+}
+
+<span class="an">@DeleteMapping</span>(<span class="kw">"/{id}"</span>)
+<span class="good"><span class="an">@ResponseStatus</span>(HttpStatus.NO_CONTENT)                          <span class="cm">// 204, sans corps</span></span>
+<span class="kw">public void</span> delete(<span class="an">@PathVariable</span> Long id) { userService.delete(id); }
+
+<span class="kw">public</span> User findById(Long id) {                                <span class="cm">// UserService</span>
+    <span class="kw">return</span> users.findById(id).orElseThrow(() -&gt;
+<span class="good">        <span class="kw">new</span> ResponseStatusException(HttpStatus.NOT_FOUND, <span class="kw">"Utilisateur "</span> + id + <span class="kw">" introuvable"</span>)); <span class="cm">// 404</span></span>
+}</pre>
+    </div>
+    <div class="pageno">14</div>
+  </section>
+  <aside class="notes">
+    <p>Rappel de la séance 1 : notre POST /users renvoyait 200. Voici comment renvoyer le 201 attendu, avec l'en-tête Location qui indique où trouver la ressource créée.</p>
+    <p>Trois outils : ResponseEntity quand le code ou les en-têtes dépendent du cas ; @ResponseStatus quand le code est toujours le même ; ResponseStatusException pour interrompre le traitement avec une erreur.</p>
+    <p>Limite assumée : ResponseStatusException dans le service mélange un peu web et métier. Le bonus @ControllerAdvice permet de lancer une exception métier (NotFoundException) et de la traduire en 404 côté web.</p>
+    <p>Le TP fait passer findById à Optional (bloc 1, étape 2.1) : le code de la diapo est celui que les étudiants écrivent.</p>
+  </aside>
+
+  <!-- ============ 15 · TESTER ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">REST · TESTER SON API</div>
+    <h3>Vérifier le code, pas seulement le JSON</h3>
+    <div class="win">
+      <div class="winbar">terminal</div>
+<pre>$ curl -i -X POST localhost:8080/users \
+       -H <span class="kw">"Content-Type: application/json"</span> \
+       -d <span class="kw">'{"name": "Bob"}'</span>
+
+<span class="good">HTTP/1.1 201</span>
+Location: /users/2
+Content-Type: application/json
+
+{"id":2,"name":"Bob"}
+
+$ curl -i -X DELETE localhost:8080/users/2
+<span class="good">HTTP/1.1 204</span></pre>
+    </div>
+    <div class="caption"><b>-i</b> affiche le code et les en-têtes : sans lui, impossible de voir la différence entre un 200 et un 201.</div>
+    <div class="pageno">15</div>
+  </section>
+  <aside class="notes">
+    <p>Le serveur embarqué n'affiche pas de libellé après le code (« 201 » et non « 201 Created ») : c'est normal.</p>
+    <p>Sous Windows PowerShell, curl peut être un alias d'une autre commande : utiliser curl.exe, ou plus simplement un client HTTP graphique (Bruno, Postman, ou celui d'IntelliJ s'il est disponible dans leur édition).</p>
+    <p>Bonne pratique pour les groupes : garder un fichier de requêtes de test dans le projet. Il servira encore en séance 3 et pour la démo finale.</p>
+  </aside>
+
+  <!-- ============ 16 · CONSIGNE TP 1 ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">TP · BLOC 1</div>
+    <h2>TP bloc 1 : users et items, de bout en bout</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="k">À FAIRE</div>
+        <div class="v">CRUD complet sur /users et /items (en mémoire), puis sortir max-per-user dans application.properties.</div>
+      </div>
+      <div class="card">
+        <div class="k">À VÉRIFIER</div>
+        <div class="v">Chaque endpoint testé avec curl -i ou un client HTTP : le bon code, pas seulement le bon JSON.</div>
+      </div>
+      <div class="card">
+        <div class="k">CHECKPOINT #1</div>
+        <div class="v">Quand tout le monde a globalement fini : les pièges courants, puis on attaque les trocs.</div>
+      </div>
+    </div>
+    <div class="pageno">16</div>
+  </section>
+  <aside class="notes">
+    <p>Durée indicative : 60 à 75 min. Le détail des endpoints attendus (verbes, chemins, codes) est dans le support de TP.</p>
+    <p>Suggestion d'organisation pour les groupes de 4 : deux personnes sur user/, deux sur item/. Le découpage par fonctionnalité s'y prête.</p>
+    <p>Les groupes en avance attaquent les bonus : @ControllerAdvice, puis @Valid.</p>
+  </aside>
+
+  <!-- ============ 17 · SECTION CHECKPOINT ============ -->
+  <section class="slide s-section">
+    <div class="tag">CHECKPOINT #1 · 10 MIN</div>
+    <div class="num">03</div>
+    <div>
+      <h2>Vers les trocs</h2>
+      <div class="list">
+        <div>Les pièges REST / JSON du bloc 1</div>
+        <div>Proposer un troc</div>
+        <div>Ce que le client envoie ≠ ce qu'on stocke</div>
+      </div>
+    </div>
+    <div class="pageno">17</div>
+  </section>
+  <aside class="notes">
+    <p>Commencer par faire remonter les blocages des groupes, puis valider avec la diapo suivante. Garder la transition vers les trocs sous 5 minutes.</p>
+  </aside>
+
+  <!-- ============ 18 · PIÈGES ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">CHECKPOINT #1 · PIÈGES COURANTS</div>
+    <h3>Ça ne marche pas : que dit la réponse ?</h3>
+    <ul>
+      <li><b>415 Unsupported Media Type</b> <span>en-tête Content-Type: application/json oublié</span></li>
+      <li><b>400 Bad Request</b> <span>JSON mal formé, ou /items/abc au lieu d'un nombre</span></li>
+      <li><b>405 Method Not Allowed</b> <span>bon chemin, mauvais verbe : méthode non mappée</span></li>
+      <li><b>Un champ arrive à null</b> <span>nom JSON ≠ nom Java, ou setter manquant</span></li>
+      <li><b>Un champ manque en sortie</b> <span>getter manquant : seul ce qui est exposé est converti</span></li>
+    </ul>
+    <div class="pageno">18</div>
+  </section>
+  <aside class="notes">
+    <p>Message à faire passer : le code de statut est le premier outil de diagnostic. Lire le code avant de relire son propre code.</p>
+    <p>La conversion JSON ↔ Java est faite par la bibliothèque Jackson, incluse avec Spring Web. Elle passe par les getters et setters (ou le constructeur d'un record).</p>
+    <p>Penser aussi à la console de l'application : Spring y journalise la raison précise d'un 400.</p>
+  </aside>
+
+  <!-- ============ 19 · PROPOSER UN TROC ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">CHECKPOINT #1 · OBJECTIF DU BLOC 2</div>
+    <h3>Proposer un troc : POST /trades</h3>
+    <svg viewBox="0 0 800 290" role="img" aria-label="Une requête POST /trades est vérifiée par TradeService puis crée un Trade au statut PROPOSED, avec une réponse 201">
+      <rect class="box" x="0" y="0" width="280" height="206" rx="4"/>
+      <text class="tk" x="18" y="24">POST /trades</text>
+      <text class="tc" x="18" y="52">{</text>
+      <text class="tc" x="30" y="70">"proposerId": 1,</text>
+      <text class="tc" x="30" y="88">"offeredItemId": 1,</text>
+      <text class="tc" x="30" y="106">"offeredQuantity": 3,</text>
+      <text class="tc" x="30" y="124">"recipientId": 2,</text>
+      <text class="tc" x="30" y="142">"requestedItemId": 2,</text>
+      <text class="tc" x="30" y="160">"requestedQuantity": 4</text>
+      <text class="tc" x="18" y="178">}</text>
+
+      <line class="ln" x1="282" y1="103" x2="316" y2="103" marker-end="url(#arr)"/>
+
+      <rect class="box-strong" x="320" y="0" width="300" height="206" rx="4"/>
+      <text class="t tb" x="338" y="30">TradeService vérifie</text>
+      <text class="t tm" x="338" y="66">utilisateurs existants</text>
+      <text class="tc" x="602" y="66" text-anchor="end">404</text>
+      <text class="t tm" x="338" y="100">objets au bon propriétaire</text>
+      <text class="tc" x="602" y="100" text-anchor="end">400</text>
+      <text class="t tm" x="338" y="134">stock suffisant</text>
+      <text class="tc" x="602" y="134" text-anchor="end">à vous</text>
+      <text class="t tm" x="338" y="168">trocs en attente &lt; max-pending</text>
+      <text class="tc" x="602" y="168" text-anchor="end">409</text>
+
+      <line class="ln" x1="622" y1="103" x2="656" y2="103" marker-end="url(#arr)"/>
+
+      <rect class="box-accent" x="660" y="0" width="140" height="206" rx="4"/>
+      <text class="t tb tw" x="730" y="86" text-anchor="middle">201 Created</text>
+      <text class="t tw" x="730" y="112" text-anchor="middle">Trade</text>
+      <text class="t tw" x="730" y="132" text-anchor="middle" font-size="12.5">statut PROPOSED</text>
+
+      <line class="sep" x1="0" y1="232" x2="800" y2="232"/>
+      <text class="tk" x="0" y="260">PAS ENCORE</text>
+      <text class="t tm" x="0" y="282">la double validation et la mise à jour des stocks : séance 3, avec les transactions</text>
+    </svg>
+    <div class="pageno">19</div>
+  </section>
+  <aside class="notes">
+    <p>On retrouve le Trade de la diapo fil rouge de la séance 1, mais seulement sa première étape : « Proposé ».</p>
+    <p>Chaque vérification qui échoue produit un code de statut différent. Pour le stock insuffisant, le code est laissé au choix des groupes (400, 409 ou 422) : c'est un choix technique à justifier, exactement ce qui est évalué.</p>
+    <p>Le TP ajoute deux vérifications en 400 qui ne figurent pas sur le schéma : troquer avec soi-même, quantités ≤ 0.</p>
+    <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigerait avec Spring Security, qui reste un bonus de la séance 4.</p>
+  </aside>
+
+  <!-- ============ 20 · REQUÊTE ≠ ENTITÉ ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">CHECKPOINT #1 · REQUÊTE ET ENTITÉ</div>
+    <h3>Ce que le client envoie ≠ ce que le serveur garde</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label">LA REQUÊTE · CE QUE LE CLIENT CHOISIT</div>
+        <div class="win">
+          <div class="winbar">trade/ProposeTradeRequest.java</div>
+<pre><span class="kw">public record</span> ProposeTradeRequest(
+    Long proposerId,
+    Long offeredItemId,
+    <span class="kw">int</span> offeredQuantity,
+    Long recipientId,
+    Long requestedItemId,
+    <span class="kw">int</span> requestedQuantity
+) { }
+
+<span class="cm">// dans TradeController</span>
+<span class="an">@PostMapping</span>
+<span class="kw">public</span> ResponseEntity&lt;Trade&gt; propose(
+    <span class="an">@RequestBody</span> ProposeTradeRequest request)</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">L'ENTITÉ · CE QUE LE SERVEUR DÉCIDE</div>
+        <div class="win">
+          <div class="winbar">trade/Trade.java</div>
+<pre><span class="kw">public class</span> Trade {
+<span class="good">  <span class="kw">private</span> Long id;            <span class="cm">// attribué ici</span></span>
+<span class="good">  <span class="kw">private</span> TradeStatus status; <span class="cm">// PROPOSED</span></span>
+  <span class="kw">private</span> Long proposerId;
+  <span class="kw">private</span> Long offeredItemId;
+  <span class="kw">private int</span> offeredQuantity;
+  <span class="cm">// ... idem côté destinataire</span>
+}
+
+<span class="kw">public enum</span> TradeStatus {
+  PROPOSED  <span class="cm">// la suite en séance 3</span>
+}
+
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Le client ne choisit ni l'<b>id</b> ni le <b>statut</b> : un record dédié à la requête l'en empêche.</div>
+    <div class="pageno">20</div>
+  </section>
+  <aside class="notes">
+    <p>Si on recevait directement un Trade, un client pourrait envoyer "status": "EXECUTED" et sauter toutes les règles métier.</p>
+    <p>Le record est idéal pour une requête : immuable, court, et Jackson sait le remplir à partir du JSON.</p>
+    <p>Le service reçoit la requête et construit le Trade lui-même, après ses vérifications.</p>
+  </aside>
+
+  <!-- ============ 21 · CONSIGNE TP 2 ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">TP · BLOC 2</div>
+    <h2>TP bloc 2 : proposer un troc</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="k">À FAIRE</div>
+        <div class="v">POST /trades, GET /trades/{id} et GET /trades?userId=…, avec un TradeService et ses règles.</div>
+      </div>
+      <div class="card">
+        <div class="k">CONFIGURATION</div>
+        <div class="v">max-pending dans TradeProperties. Relancez avec TROC_TRADE_MAXPENDING=1 et provoquez le 409.</div>
+      </div>
+      <div class="card">
+        <div class="k">EN AVANCE ?</div>
+        <div class="v">@ControllerAdvice pour centraliser les erreurs, @Valid pour valider les entrées.</div>
+      </div>
+    </div>
+    <div class="pageno">21</div>
+  </section>
+  <aside class="notes">
+    <p>Durée indicative : 60 à 75 min. Le TradeService dépend de UserService (ou UserRepository) et de ItemService : la dépendance entre fonctionnalités annoncée en séance 1 devient réelle.</p>
+    <p>Le test avec la variable d'environnement montre concrètement la diapo « D'où vient la valeur ? » : même code, comportement différent.</p>
+  </aside>
+
+  <!-- ============ 22 · SYNTHÈSE ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">JOUR 2 · SYNTHÈSE</div>
+    <h2>Ce qu'il faut retenir</h2>
+    <div class="grid four">
+      <div class="card">
+        <div class="k">CONCEPT CLÉ</div>
+        <div class="v">La config s'injecte comme un bean. L'URL désigne, le verbe agit, le code répond.</div>
+      </div>
+      <div class="card">
+        <div class="k">OBJECTIF DU JOUR</div>
+        <div class="v">CRUD users et items, POST /trades, règles métier dans application.properties.</div>
+      </div>
+      <div class="card">
+        <div class="k">EN AVANCE ?</div>
+        <div class="v">Bonus : erreurs centralisées (@ControllerAdvice), validation des entrées (@Valid).</div>
+      </div>
+      <div class="card">
+        <div class="k">SÉANCE 3</div>
+        <div class="v">Une vraie base H2, et le troc exécuté en tout-ou-rien.</div>
+      </div>
+    </div>
+    <div class="pageno">22</div>
+  </section>
+  <aside class="notes">
+    <p>Diapo projetée pendant le TP bloc 2 et reprise au checkpoint #2 pour le bilan.</p>
+    <p>Annonce séance 3 : les données vont enfin survivre au redémarrage de l'application. Les repositories en mémoire seront remplacés sans toucher aux services : c'est la promesse de la séance 1 qui se réalise.</p>
+  </aside>
+
+</div>
+<div class="hint">N : notes orateur</div>
+<script>
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey) {
+      document.body.classList.toggle('show-notes');
+    }
+  });
+</script>
+</body>
+</html>

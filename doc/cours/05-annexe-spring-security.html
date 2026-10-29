@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Annexe — Spring Security &amp; JWT</title>
+<style>
+  :root{
+    --bg: #FAFCF8;
+    --surface: #EEF3EA;
+    --surface-2: #E2EADB;
+    --green: #6DB33F;
+    --green-dark: #4B8A2E;
+    --text: #1C2419;
+    --text-muted: #5C6959;
+    --rule: #D9E2D2;
+    --warn: #B5533C;
+    --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", sans-serif;
+    --font-code: "JetBrains Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:#000; font-family:var(--font-body);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .deck{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0 80px; }
+  .slide{
+    width:960px; height:540px; background:var(--bg);
+    position:relative; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--rule);
+  }
+  .slide .tag{
+    position:absolute; top:28px; left:40px; font-family:var(--font-code);
+    font-size:12px; color:var(--green-dark); letter-spacing:.02em;
+  }
+  .slide .pageno{
+    position:absolute; bottom:24px; right:32px; font-family:var(--font-code);
+    font-size:12px; color:var(--text-muted);
+  }
+  .bar{ position:absolute; left:0; top:0; width:6px; height:100%; background:var(--green); }
+
+  /* Titre */
+  .s-title{ display:flex; }
+  .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
+  .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
+  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
+  .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
+  .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
+  .s-title .meta{ position:absolute; bottom:36px; right:60px; display:flex; gap:24px; }
+  .s-title .meta div{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .s-title .meta span{ color:var(--green-dark); }
+
+  /* Section */
+  .s-section{ background:var(--green); display:flex; align-items:center; padding:0 80px; }
+  .s-section .num{ font-family:var(--font-display); font-size:110px; color:rgba(255,255,255,.25); font-weight:700; margin-right:44px; }
+  .s-section h2{ font-family:var(--font-display); font-size:40px; margin:0; font-weight:600; max-width:520px; line-height:1.15; color:#fff; }
+  .s-section .list{ margin-top:18px; }
+  .s-section .list div{ color:rgba(255,255,255,.75); font-size:16px; margin-top:6px; }
+  .s-section .tag{ color:#EAF6E2; }
+  .s-section .pageno{ color:rgba(255,255,255,.6); }
+
+  /* Contenu / points */
+  .s-content{ padding:70px 80px 40px; }
+  .s-content h3{ font-family:var(--font-display); font-size:30px; margin:0 0 30px; font-weight:600; }
+  .s-content ul{ list-style:none; margin:0; padding:0; }
+  .s-content li{ display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--rule); font-size:17px; align-items:baseline; }
+  .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
+  .s-content li b{ color:var(--text); font-weight:600; white-space:nowrap; }
+  .s-content li span{ color:var(--text-muted); margin-left:6px; }
+  .s-content li.hl{ background:var(--surface); border-left:3px solid var(--green); padding-left:12px; margin-left:-15px; }
+  .s-content li.hl span{ color:var(--text); }
+
+  /* Code */
+  .s-code{ padding:70px 80px 40px; }
+  .s-code h3{ font-family:var(--font-display); font-size:26px; margin:0 0 22px; font-weight:600; }
+  .s-code .win{ background:#1C2419; border:1px solid var(--rule); border-radius:4px; overflow:hidden; }
+  .s-code .winbar{ background:#263323; padding:9px 16px; font-family:var(--font-code); font-size:12px; color:#9FB393; border-bottom:1px solid #33422F; }
+  .s-code pre{ margin:0; padding:22px 24px; font-family:var(--font-code); font-size:14.5px; line-height:1.65; color:#EAF3E4; overflow:auto; }
+  .s-code .kw{ color:#9FD88D; }
+  .s-code .an{ color:#6DB33F; }
+  .s-code .cm{ color:#6E7C68; }
+  .s-code .bad{ background:rgba(181,83,60,.32); display:inline-block; width:100%; }
+  .s-code .good{ background:rgba(109,179,63,.22); display:inline-block; width:100%; }
+  .s-code .caption{ margin-top:14px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-code .caption b{ color:var(--text); }
+  .s-code.dense pre{ font-size:13px; line-height:1.55; padding:16px 22px; }
+
+  /* Avant / après côte à côte */
+  .s-code.compare{ padding:70px 56px 40px; }
+  .compare .cols{ display:flex; gap:20px; }
+  .compare .col{ flex:1; min-width:0; }
+  .compare .label{ font-family:var(--font-code); font-size:12px; margin-bottom:8px; color:var(--green-dark); }
+  .compare .label.before{ color:var(--warn); }
+  .compare pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
+
+  /* Schéma SVG */
+  .s-diagram{ padding:70px 80px 40px; }
+  .s-diagram h3{ font-family:var(--font-display); font-size:26px; margin:0 0 18px; font-weight:600; }
+  .s-diagram svg{ display:block; width:100%; height:auto; }
+  .s-diagram .caption{ margin-top:12px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-diagram .caption b{ color:var(--text); }
+  svg .box{ fill:var(--surface); stroke:var(--rule); stroke-width:1; }
+  svg .box-strong{ fill:#fff; stroke:var(--green-dark); stroke-width:1.5; }
+  svg .box-accent{ fill:var(--green); stroke:none; }
+  svg .box-bad{ fill:#fff; stroke:var(--warn); stroke-width:1.5; }
+  svg .frame{ fill:none; stroke:var(--green); stroke-width:1.5; stroke-dasharray:6 5; }
+  svg .t{ font-family:var(--font-body); font-size:14px; fill:var(--text); }
+  svg .tb{ font-weight:600; font-size:15px; }
+  svg .tm{ fill:var(--text-muted); font-size:12.5px; }
+  svg .tc{ font-family:var(--font-code); font-size:12.5px; fill:var(--green-dark); }
+  svg .tw{ fill:#fff; }
+  svg .tk{ font-family:var(--font-code); font-size:11px; fill:var(--green-dark); letter-spacing:.04em; }
+  svg .tbad{ fill:var(--warn); }
+  svg .ln{ stroke:var(--green-dark); stroke-width:1.5; fill:none; }
+  svg .ln-dash{ stroke-dasharray:5 4; }
+  svg .ln-bad{ stroke:var(--warn); }
+  svg .sep{ stroke:var(--rule); stroke-width:1; }
+
+  /* Clôture / cartes */
+  .s-close{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 80px; }
+  .s-close h2{ font-family:var(--font-display); font-size:38px; margin:0 0 26px; font-weight:600; }
+  .s-close .grid{ display:flex; gap:40px; }
+  .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
+  .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
+  .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-close .grid.four{ gap:24px; }
+  .s-close .grid.four .card{ width:182px; }
+  .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
+
+  /* Notes orateur — touche N pour afficher/masquer */
+  .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
+          padding:14px 20px; font-size:14px; line-height:1.55; margin-top:-14px; }
+  .notes::before{ content:"NOTES ORATEUR"; display:block; font-family:var(--font-code); font-size:11px; color:var(--green); margin-bottom:6px; }
+  .notes p{ margin:0 0 6px; }
+  body.show-notes .notes{ display:block; }
+  .hint{ position:fixed; bottom:12px; left:16px; font-family:var(--font-code); font-size:11px; color:#5C6959; }
+  @media print{ .notes, .hint{ display:none !important; } body{ background:#fff; } .deck{ gap:0; padding:0; } }
+</style>
+</head>
+<body>
+
+<!-- Marqueurs de flèches partagés par tous les schémas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4B8A2E"/>
+    </marker>
+    <marker id="arr-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B5533C"/>
+    </marker>
+    <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FAFCF8" stroke="#4B8A2E" stroke-width="1.2"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="deck">
+
+  <!-- ============ 01 · TITRE ============ -->
+  <section class="slide s-title">
+    <div class="half">
+      <div class="course">ANNEXE</div>
+      <div class="leaf">Sec</div>
+    </div>
+    <div class="content">
+      <h1>Spring Security &amp; JWT : qui fait ce troc ?</h1>
+      <div class="sub">Authentifier les utilisateurs de l'API de troc par jeton : le mot de passe ne circule qu'une seule fois.</div>
+    </div>
+    <div class="meta">
+      <div>PRÉREQUIS <span>séances 1 à 3</span></div>
+      <div>VERSIONS <span>Boot 4.1 · Security 7.1</span></div>
+      <div>À JOUR <span>octobre 2026</span></div>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+  <aside class="notes">
+    <p>Support annexe, hors séance : bonus de la séance 4 dans le plan, piste d'amélioration pour le projet final. La partie 03 est rédigée pour être appliquée pas à pas au fil rouge.</p>
+    <p>Quatre parties : pourquoi sécuriser, comment fonctionne une authentification par jeton, l'ajout concret à l'API de troc, puis rôles, tests et choix techniques.</p>
+  </aside>
+
+  <!-- ============ 02 · SECTION 01 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 01</div>
+    <div class="num">01</div>
+    <div>
+      <h2>Pourquoi sécuriser l'API ?</h2>
+      <div class="list">
+        <div>Le client se déclare lui-même</div>
+        <div>Authentification et autorisation</div>
+      </div>
+    </div>
+    <div class="pageno">02</div>
+  </section>
+  <aside class="notes">
+    <p>Rappel des séances 2 et 3 : proposerId et userId sont envoyés dans le corps de la requête, « faute d'authentification ». C'était annoncé comme une dette : cette annexe la rembourse.</p>
+  </aside>
+
+  <!-- ============ 03 · LE PROBLÈME ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 01 · LE PROBLÈME</div>
+    <h3>Aujourd'hui, n'importe qui peut être Bob</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">SANS SÉCURITÉ · LE CLIENT SE DÉCLARE</div>
+        <div class="win">
+          <div class="winbar">terminal</div>
+<pre><span class="cm"># Alice (id 1) propose un troc à Bob (id 2)</span>
+curl -X POST localhost:8080/trades \
+  -d '{"proposerId": 1, ...}'
+
+<span class="cm"># Mallory se fait passer pour Bob</span>
+curl -X POST localhost:8080/trades/7/accept \
+<span class="bad">  -d '{"userId": 2}'</span>
+<span class="cm"># 200 OK : les stocks de Bob ont changé</span>
+
+</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">AVEC UN JETON · ON PROUVE QUI ON EST</div>
+        <div class="win">
+          <div class="winbar">terminal</div>
+<pre><span class="cm"># 1. Bob se connecte, une seule fois</span>
+curl -X POST localhost:8080/auth/token \
+  -d '{"username": "bob", ...}'
+<span class="cm"># {"token": "eyJhbGciOi…"}</span>
+
+<span class="cm"># 2. puis présente son jeton</span>
+<span class="good">curl -H "Authorization: Bearer eyJ…" \</span>
+  -X POST localhost:8080/trades/7/accept
+<span class="cm"># Mallory, sans jeton : 401</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Le serveur ne croit plus le client sur parole : il a lui-même <b>signé le jeton</b> qui dit qui appelle.</div>
+    <div class="pageno">03</div>
+  </section>
+  <aside class="notes">
+    <p>Le 403 « tu n'es pas le destinataire » de la séance 3 existe déjà, mais il ne protège rien : il suffit de mentir sur userId. La règle métier est bonne, c'est l'information d'entrée qui n'est pas fiable.</p>
+    <p>Mallory est le prénom traditionnel de l'attaquant dans les exemples de sécurité (Alice et Bob communiquent, Mallory s'interpose).</p>
+    <p>Les en-têtes Content-Type sont omis ici pour la lisibilité ; le scénario complet est diapo 20.</p>
+  </aside>
+
+  <!-- ============ 04 · VOCABULAIRE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 01 · VOCABULAIRE</div>
+    <h3>Deux questions, deux codes HTTP</h3>
+    <ul>
+      <li><b>Authentification</b> <span>qui es-tu ? on le prouve : mot de passe, puis jeton</span></li>
+      <li><b>Autorisation</b> <span>as-tu le droit ? se décide une fois l'identité connue</span></li>
+      <li><b>Jeton (JWT)</b> <span>preuve d'identité signée par le serveur, qui expire</span></li>
+      <li><b>Rôle</b> <span>ROLE_USER, ROLE_ADMIN : des droits attribués à un compte</span></li>
+      <li><b>401 Unauthorized</b> <span>pas authentifié : jeton absent, invalide ou expiré</span></li>
+      <li class="hl"><b>403 Forbidden</b> <span>authentifié, mais pas autorisé à faire ça</span></li>
+    </ul>
+    <div class="pageno">04</div>
+  </section>
+  <aside class="notes">
+    <p>Toujours dans cet ordre : on ne peut pas décider de ce qu'une personne a le droit de faire tant qu'on ne sait pas qui elle est.</p>
+    <p>Piège de vocabulaire : 401 s'appelle « Unauthorized » mais signifie « non authentifié ». C'est une erreur historique de la norme HTTP. Retenir : 401 = je ne sais pas qui tu es, 403 = je sais qui tu es, et c'est non.</p>
+    <p>JWT = JSON Web Token, prononcé « jot ». Bearer = « porteur » : celui qui présente le jeton est considéré comme son titulaire, d'où l'importance de ne pas le laisser fuiter.</p>
+  </aside>
+
+  <!-- ============ 05 · SECTION 02 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 02</div>
+    <div class="num">02</div>
+    <div>
+      <h2>Comment ça fonctionne</h2>
+      <div class="list">
+        <div>Se connecter une fois, présenter un jeton ensuite</div>
+        <div>À quoi ressemble un JWT</div>
+        <div>Ce que fait la dépendance seule</div>
+      </div>
+    </div>
+    <div class="pageno">05</div>
+  </section>
+  <aside class="notes">
+    <p>Objectif : comprendre où la sécurité s'exécute et ce que contient le jeton, pour savoir lire un 401 ou un 403 inattendu.</p>
+  </aside>
+
+  <!-- ============ 06 · LES DEUX TEMPS ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · LE MÉCANISME</div>
+    <h3>Le mot de passe une fois, le jeton ensuite</h3>
+    <svg viewBox="0 0 800 304" role="img" aria-label="Temps 1 : le client envoie identifiant et mot de passe à POST /auth/token ; l'AuthenticationManager vérifie avec UserDetailsService et BCrypt, le JwtEncoder signe un jeton renvoyé au client. Temps 2 : à chaque requête le client présente le jeton ; la chaîne de filtres vérifie la signature et l'expiration, puis l'autorisation, avant le contrôleur. Jeton invalide : 401, refus : 403.">
+      <!-- temps 1 -->
+      <text class="tk" x="0" y="12">1 · UNE FOIS : SE CONNECTER</text>
+      <rect class="box" x="0" y="24" width="110" height="60" rx="4"/>
+      <text class="t tb" x="55" y="50" text-anchor="middle">Client</text>
+      <text class="tc" x="55" y="70" text-anchor="middle" font-size="11">login + mdp</text>
+
+      <rect class="box-strong" x="150" y="24" width="200" height="60" rx="4"/>
+      <text class="tc" x="250" y="50" text-anchor="middle" font-weight="600">POST /auth/token</text>
+      <text class="t tm" x="250" y="70" text-anchor="middle">AuthController</text>
+
+      <rect class="box-strong" x="380" y="24" width="200" height="60" rx="4"/>
+      <text class="tc" x="480" y="50" text-anchor="middle">AuthenticationManager</text>
+      <text class="t tm" x="480" y="70" text-anchor="middle">UserDetailsService + BCrypt</text>
+
+      <rect class="box-accent" x="610" y="24" width="190" height="60" rx="4"/>
+      <text class="t tb tw" x="705" y="50" text-anchor="middle">JwtEncoder</text>
+      <text class="t tw" x="705" y="70" text-anchor="middle" font-size="12.5">signe avec la clé secrète</text>
+
+      <line class="ln" x1="110" y1="54" x2="148" y2="54" marker-end="url(#arr)"/>
+      <line class="ln" x1="350" y1="54" x2="378" y2="54" marker-end="url(#arr)"/>
+      <line class="ln" x1="580" y1="54" x2="608" y2="54" marker-end="url(#arr)"/>
+      <path class="ln ln-dash" d="M705,84 L705,102 L55,102 L55,88" marker-end="url(#arr)"/>
+      <text class="t tm" x="380" y="120" text-anchor="middle">{ "token": "eyJ…" } renvoyé au client, qui le garde</text>
+
+      <line class="sep" x1="0" y1="138" x2="800" y2="138"/>
+
+      <!-- temps 2 -->
+      <text class="tk" x="0" y="160">2 · À CHAQUE REQUÊTE</text>
+      <rect class="box" x="0" y="184" width="110" height="60" rx="4"/>
+      <text class="t tb" x="55" y="210" text-anchor="middle">Client</text>
+      <text class="tc" x="55" y="230" text-anchor="middle" font-size="11">Bearer eyJ…</text>
+
+      <rect class="frame" x="126" y="166" width="450" height="90" rx="6"/>
+      <text class="tk" x="400" y="160">SECURITYFILTERCHAIN</text>
+      <rect class="box-strong" x="140" y="184" width="222" height="60" rx="4"/>
+      <text class="t tb" x="251" y="208" text-anchor="middle">1 · Vérifier le jeton</text>
+      <text class="tc" x="251" y="228" text-anchor="middle" font-size="11">JwtDecoder : signature, exp</text>
+      <rect class="box-strong" x="376" y="184" width="186" height="60" rx="4"/>
+      <text class="t tb" x="469" y="208" text-anchor="middle">2 · Autorisation</text>
+      <text class="tc" x="469" y="228" text-anchor="middle" font-size="11">AuthorizationFilter</text>
+
+      <rect class="box-accent" x="596" y="184" width="204" height="60" rx="4"/>
+      <text class="t tb tw" x="698" y="208" text-anchor="middle">Votre contrôleur</text>
+      <text class="t tw" x="698" y="228" text-anchor="middle" font-size="12">@AuthenticationPrincipal Jwt</text>
+
+      <line class="ln" x1="110" y1="214" x2="138" y2="214" marker-end="url(#arr)"/>
+      <line class="ln" x1="362" y1="214" x2="374" y2="214" marker-end="url(#arr)"/>
+      <line class="ln" x1="576" y1="214" x2="594" y2="214" marker-end="url(#arr)"/>
+
+      <line class="ln ln-bad" x1="251" y1="256" x2="251" y2="272" marker-end="url(#arr-bad)"/>
+      <rect class="box-bad" x="202" y="274" width="98" height="28" rx="4"/>
+      <text class="t tb tbad" x="251" y="293" text-anchor="middle">401</text>
+      <line class="ln ln-bad" x1="469" y1="256" x2="469" y2="272" marker-end="url(#arr-bad)"/>
+      <rect class="box-bad" x="420" y="274" width="98" height="28" rx="4"/>
+      <text class="t tb tbad" x="469" y="293" text-anchor="middle">403</text>
+      <text class="t tm" x="800" y="293" text-anchor="end">ni base, ni BCrypt : une signature à vérifier</text>
+    </svg>
+    <div class="caption">La base et BCrypt ne servent <b>qu'au login</b>. Ensuite, le serveur vérifie une signature : c'est rapide et il ne garde rien en mémoire.</div>
+    <div class="pageno">06</div>
+  </section>
+  <aside class="notes">
+    <p>Temps 1 : le seul moment où le mot de passe circule. AuthenticationManager charge le compte (UserDetailsService, notre code) et compare le mot de passe au haché (PasswordEncoder). Succès : TokenService fabrique un jeton, JwtEncoder le signe avec une clé que seul le serveur connaît. Échec : 401.</p>
+    <p>Temps 2 : un filtre (BearerTokenAuthenticationFilter) lit l'en-tête Authorization: Bearer, JwtDecoder vérifie la signature et la date d'expiration. Si tout va bien, le contenu du jeton est rangé dans le SecurityContext ; le contrôleur le récupère avec @AuthenticationPrincipal. Puis AuthorizationFilter applique les règles de SecurityConfig : refus → 403.</p>
+    <p>Un filtre (Servlet Filter) s'exécute avant le DispatcherServlet de Spring MVC, donc avant tout contrôleur. Spring Security en installe une quinzaine ; seuls ceux qui nous concernent sont dessinés.</p>
+    <p>Encore de l'IoC : on ne réécrit pas la chaîne, on fournit des beans (UserDetailsService, PasswordEncoder, JwtEncoder, JwtDecoder, SecurityFilterChain) que Spring branche aux bons endroits.</p>
+  </aside>
+
+  <!-- ============ 07 · ANATOMIE D'UN JWT ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · LE JETON</div>
+    <h3>Un JWT : trois parties, lisibles par tous</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label">LE JETON · TEL QU'IL CIRCULE</div>
+        <div class="win">
+          <div class="winbar">Authorization: Bearer …</div>
+<pre style="font-size:12px;line-height:1.55;padding:14px 16px"><span class="an">eyJhbGciOiJIUzI1NiJ9</span>
+.
+<span class="kw">eyJpc3MiOiJ0cm9jLWFwaSIsInN1YiI6</span>
+<span class="kw">IjEiLCJ1c2VybmFtZSI6ImFsaWNlIiwi</span>
+<span class="kw">cm9sZXMiOlsiVVNFUiJdLCJpYXQiOjE3</span>
+<span class="kw">OTI2NjMyMDAsImV4cCI6MTc5MjY2Njgw</span>
+<span class="kw">MH0</span>
+.
+<span style="color:#E3A38F">DBlqUDT6esOk_0nL5sONZGZgYbHN0fF7</span>
+<span style="color:#E3A38F">JWTQWDgTmGo</span>
+<span class="cm">(une seule ligne en réalité)</span></pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">DÉCODÉ · BASE64, RIEN DE SECRET</div>
+        <div class="win">
+          <div class="winbar">en-tête · contenu · signature</div>
+<pre style="font-size:12px;line-height:1.55;padding:14px 16px"><span class="an">{ "alg": "HS256" }</span>
+
+<span class="kw">{</span>
+<span class="kw">  "iss": "troc-api",</span>
+<span class="kw">  "sub": "1",           </span><span class="cm">// l'id d'alice</span>
+<span class="kw">  "username": "alice",</span>
+<span class="kw">  "roles": ["USER"],</span>
+<span class="kw">  "iat": 1792663200,    </span><span class="cm">// émis à</span>
+<span class="kw">  "exp": 1792666800     </span><span class="cm">// +1 h</span>
+<span class="kw">}</span>
+
+<span style="color:#E3A38F">HMAC-SHA256(en-tête.contenu, clé)</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Encodé, pas chiffré</b> : tout le monde peut le lire. Modifier un seul caractère casse la signature : <b>401</b>.</div>
+    <div class="pageno">07</div>
+  </section>
+  <aside class="notes">
+    <p>Ce jeton est réel : signé avec la clé de dev du support (diapo 15). Le coller dans un décodeur JWT en ligne permet de vérifier son contenu et sa signature. Bonne démonstration en direct.</p>
+    <p>Pourquoi Mallory ne peut pas fabriquer un jeton « sub: 2 » : la signature est calculée avec une clé secrète que seul le serveur connaît. Elle peut changer le contenu, mais pas recalculer une signature valide.</p>
+    <p>Conséquence : ne jamais mettre dans un jeton une information qui ne doit pas être lue (mot de passe, données personnelles). Le jeton est une carte d'identité, pas un coffre-fort.</p>
+    <p>iat (issued at) et exp (expiration) sont des secondes depuis le 1er janvier 1970. Ici, émis le 22 octobre 2026 à 12h, valable une heure.</p>
+  </aside>
+
+  <!-- ============ 08 · LA DÉPENDANCE SEULE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 02 · SÉCURISÉ PAR DÉFAUT</div>
+    <h3>Ajouter le starter, c'est déjà tout verrouiller</h3>
+    <ul>
+      <li><b>Toutes les URLs</b> <span>protégées, même GET /users : 401 partout</span></li>
+      <li><b>Un compte « user »</b> <span>mot de passe aléatoire affiché dans la console</span></li>
+      <li><b>Login et HTTP Basic</b> <span>activés par défaut, en attendant notre configuration</span></li>
+      <li><b>CSRF actif</b> <span>POST, PUT, DELETE refusés sans jeton CSRF : 403</span></li>
+      <li class="hl"><b>Notre SecurityConfig</b> <span>remplace ces défauts : seul le jeton sera accepté</span></li>
+    </ul>
+    <div class="pageno">08</div>
+  </section>
+  <aside class="notes">
+    <p>« Secure by default » : tout est fermé, on ouvre ensuite explicitement. Expérience utile en premier : ajouter la dépendance seule, relancer, et constater que les requêtes de test des séances précédentes répondent toutes 401.</p>
+    <p>Dans la console au démarrage : « Using generated security password: … ». Ce compte de démonstration disparaît dès qu'on déclare notre propre UserDetailsService.</p>
+    <p>Dès qu'on déclare un bean SecurityFilterChain (diapo 18), l'auto-configuration de Boot se retire : formulaire de login et HTTP Basic ne sont plus actifs, sauf si on les demande.</p>
+  </aside>
+
+  <!-- ============ 09 · SECTION 03 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 03</div>
+    <div class="num">03</div>
+    <div>
+      <h2>Ajouter l'authentification au troc</h2>
+      <div class="list">
+        <div>Les comptes et les mots de passe</div>
+        <div>Émettre et vérifier des jetons</div>
+        <div>Les contrôleurs sans proposerId</div>
+      </div>
+    </div>
+    <div class="pageno">09</div>
+  </section>
+  <aside class="notes">
+    <p>Partie à suivre dans l'ordre, sur le projet tel qu'il est à la fin de la séance 3 (ou 4). Compter environ 2h pour un groupe.</p>
+  </aside>
+
+  <!-- ============ 10 · LES ÉTAPES ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · FEUILLE DE ROUTE</div>
+    <h3>Six étapes, dans cet ordre</h3>
+    <ul>
+      <li><b>1 · pom.xml</b> <span>starters security et security-oauth2-resource-server</span></li>
+      <li><b>2 · Les comptes</b> <span>colonnes dans users, UserDetailsService</span></li>
+      <li><b>3 · Les mots de passe</b> <span>BCrypt, AuthenticationManager, inscription</span></li>
+      <li><b>4 · Les clés</b> <span>un secret externalisé, JwtEncoder et JwtDecoder</span></li>
+      <li><b>5 · POST /auth/token</b> <span>le mot de passe échangé contre un jeton</span></li>
+      <li class="hl"><b>6 · SecurityConfig</b> <span>Bearer exigé ; proposerId et userId disparaissent</span></li>
+    </ul>
+    <div class="pageno">10</div>
+  </section>
+  <aside class="notes">
+    <p>Dépendances : spring-boot-starter-security et spring-boot-starter-security-oauth2-resource-server ; en test, spring-boot-starter-security-test. Avec Boot 4, les starters liés à la sécurité portent le préfixe security- ; les tutos Boot 3 écrivent spring-boot-starter-oauth2-resource-server.</p>
+    <p>Répartition possible dans un groupe de 4 : schéma, entité et UserDetailsService (2) ; mots de passe et inscription (3) ; clés, TokenService et AuthController (4, 5) ; SecurityConfig, contrôleurs et requêtes de test (6).</p>
+    <p>Un package security/ à côté de user/, item/, trade/ : la sécurité est une fonctionnalité transverse, elle n'appartient à aucune des trois.</p>
+  </aside>
+
+  <!-- ============ 11 · SCHÉMA ET ENTITÉ ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 2</div>
+    <h3>Un compte = un identifiant, un haché, un rôle</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label">LE SCHÉMA · TROIS COLONNES DE PLUS</div>
+        <div class="win">
+          <div class="winbar">src/main/resources/schema.sql</div>
+<pre><span class="kw">CREATE TABLE IF NOT EXISTS</span> users (
+  id   <span class="kw">BIGINT GENERATED BY DEFAULT</span>
+       <span class="kw">AS IDENTITY PRIMARY KEY</span>,
+  name <span class="kw">VARCHAR</span>(100) <span class="kw">NOT NULL</span>,
+<span class="good">  username      <span class="kw">VARCHAR</span>(50)  <span class="kw">NOT NULL</span></span>
+<span class="good">                <span class="kw">UNIQUE</span>,</span>
+<span class="good">  password_hash <span class="kw">VARCHAR</span>(100) <span class="kw">NOT NULL</span>,</span>
+<span class="good">  role <span class="kw">VARCHAR</span>(20) <span class="kw">NOT NULL</span></span>
+<span class="good">       <span class="kw">DEFAULT</span> 'USER'</span>
+);</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">L'ENTITÉ · ET UNE REQUÊTE DÉRIVÉE</div>
+        <div class="win">
+          <div class="winbar">user/User.java · user/UserRepository.java</div>
+<pre><span class="an">@Table</span>(<span class="kw">"users"</span>)
+<span class="kw">public class</span> User {
+    <span class="an">@Id</span> <span class="kw">private</span> Long id;
+    <span class="kw">private</span> String name;
+    <span class="kw">private</span> String username;
+    <span class="kw">private</span> String passwordHash; <span class="cm">// password_hash</span>
+    <span class="kw">private</span> String role;         <span class="cm">// USER, ADMIN</span>
+}
+
+<span class="kw">public interface</span> UserRepository
+    <span class="kw">extends</span> ListCrudRepository&lt;User, Long&gt; {
+<span class="good">  Optional&lt;User&gt; findByUsername(String u);</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>UNIQUE</b> : deux comptes ne peuvent pas partager un identifiant, et l'index créé avec accélère chaque login.</div>
+    <div class="pageno">11</div>
+  </section>
+  <aside class="notes">
+    <p>name reste le nom affiché (« Alice Martin »), username est l'identifiant de connexion (« alice »). On pourrait fusionner les deux ; les séparer évite de casser les données existantes.</p>
+    <p>Rappel séance 3 : à cause de IF NOT EXISTS, modifier le CREATE ne change pas une table existante. Supprimer le dossier data/ et redémarrer.</p>
+    <p>Critère de notation « concepts SQL, index » : la contrainte UNIQUE crée un index, et findByUsername est appelé à chaque login. C'est un index qui se justifie très bien à l'oral.</p>
+    <p>VARCHAR(100) pour le haché : un haché BCrypt fait 60 caractères, plus le préfixe {bcrypt} (8). On garde de la marge si l'algorithme change.</p>
+  </aside>
+
+  <!-- ============ 12 · USERDETAILSSERVICE ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 2</div>
+    <h3>UserDetailsService : le pont entre Spring et votre table</h3>
+    <div class="win">
+      <div class="winbar">src/main/java/fr/cours/troc/security/TrocUserDetailsService.java</div>
+<pre style="font-size:12px;line-height:1.5;padding:14px 22px"><span class="an">@Service</span>
+<span class="kw">public class</span> TrocUserDetailsService <span class="kw">implements</span> UserDetailsService {
+
+    <span class="kw">private final</span> UserRepository users;   <span class="cm">// injecté par le constructeur</span>
+
+    <span class="an">@Override</span>
+<span class="good">    <span class="kw">public</span> UserDetails loadUserByUsername(String username) {</span>
+        User user = users.findByUsername(username)
+            .orElseThrow(() -&gt; <span class="kw">new</span> UsernameNotFoundException(username));
+        <span class="kw">return</span> org.springframework.security.core.userdetails.User
+            .withUsername(user.getUsername())
+            .password(user.getPasswordHash())   <span class="cm">// le haché, jamais le mot de passe</span>
+            .roles(user.getRole())
+            .build();
+    }
+}</pre>
+    </div>
+    <div class="caption">Appelé <b>uniquement au login</b>. Spring compare ensuite lui-même le mot de passe reçu au haché.</div>
+    <div class="pageno">12</div>
+  </section>
+  <aside class="notes">
+    <p>Encore l'IoC de la séance 1 : on fournit une implémentation d'interface, le framework l'utilise. Le compte « user » généré au démarrage disparaît.</p>
+    <p>Collision de noms : notre entité s'appelle User, et Spring Security a aussi une classe User (un builder de UserDetails). D'où le nom complet.</p>
+    <p>UsernameNotFoundException et mauvais mot de passe produisent la même erreur (401) : Spring ne dit volontairement pas lequel des deux était faux, pour qu'un attaquant ne puisse pas tester quels identifiants existent.</p>
+  </aside>
+
+  <!-- ============ 13 · MOTS DE PASSE ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 3</div>
+    <h3>On ne stocke jamais un mot de passe, seulement son haché</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label">EN BASE · CE QU'ON DOIT Y TROUVER</div>
+        <div class="win">
+          <div class="winbar">SELECT username, password_hash FROM users</div>
+<pre><span class="bad">alice | potager123          <span class="cm">-- jamais</span></span>
+
+<span class="good">alice | {bcrypt}$2a$10$Xq0S…k7Gm</span>
+         │      │   │
+         │      │   └ sel + haché
+         │      └ coût : 2^10 tours
+         └ algorithme utilisé
+
+
+
+</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">DANS LE CODE · L'ENCODEUR ET LE VÉRIFICATEUR</div>
+        <div class="win">
+          <div class="winbar">security/SecurityConfig.java</div>
+<pre style="font-size:11.5px;line-height:1.55;padding:14px 14px"><span class="an">@Bean</span>
+PasswordEncoder passwordEncoder() {
+<span class="good">    <span class="kw">return</span> PasswordEncoderFactories</span>
+<span class="good">        .createDelegatingPasswordEncoder();</span>
+}
+
+<span class="an">@Bean</span>   <span class="cm">// utilisé par POST /auth/token</span>
+AuthenticationManager authenticationManager(
+        UserDetailsService uds,
+        PasswordEncoder encoder) {
+    <span class="kw">var</span> provider = <span class="kw">new</span> DaoAuthenticationProvider(uds);
+    provider.setPasswordEncoder(encoder);
+    <span class="kw">return new</span> ProviderManager(provider);
+}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Hacher n'est pas chiffrer</b> : impossible de retrouver le mot de passe, on vérifie qu'un essai donne le même haché.</div>
+    <div class="pageno">13</div>
+  </section>
+  <aside class="notes">
+    <p>Pourquoi : si la base fuit (sauvegarde perdue, injection SQL), les mots de passe ne doivent pas être lisibles. Les gens réutilisent les mêmes partout.</p>
+    <p>Le sel : une valeur aléatoire mélangée au mot de passe avant hachage, stockée dans le résultat. Deux utilisateurs avec le même mot de passe ont deux hachés différents.</p>
+    <p>Le coût : BCrypt est volontairement lent (2^10 = 1024 tours, de l'ordre de 100 ms). Imperceptible pour un login, très pénalisant pour un attaquant qui teste des milliards de combinaisons. C'est aussi pourquoi on ne veut pas le faire tourner à chaque requête : avec un jeton, il ne tourne qu'au login.</p>
+    <p>AuthenticationManager : c'est lui qui enchaîne UserDetailsService puis PasswordEncoder. On le déclare explicitement pour pouvoir l'appeler depuis AuthController (diapo 17). Spring Security 7 exige le UserDetailsService dans le constructeur de DaoAuthenticationProvider.</p>
+    <p>Le préfixe {bcrypt} : le « delegating » encoder sait lire plusieurs algorithmes, et un changement d'algorithme futur reste compatible avec les anciens hachés. Erreur classique : insérer en base un haché sans préfixe → « There is no PasswordEncoder mapped for the id null ».</p>
+  </aside>
+
+  <!-- ============ 14 · L'INSCRIPTION ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 3 · INSCRIPTION</div>
+    <h3>POST /users devient l'inscription</h3>
+    <div class="win">
+      <div class="winbar">user/RegisterRequest.java · user/UserResponse.java · user/UserService.java</div>
+<pre style="font-size:11.5px;line-height:1.45;padding:12px 20px"><span class="kw">public record</span> RegisterRequest(String name, String username, String password) { }
+<span class="good"><span class="kw">public record</span> UserResponse(Long id, String name, String username) { }   <span class="cm">// pas de haché !</span></span>
+
+<span class="an">@Service</span>
+<span class="kw">public class</span> UserService {
+    <span class="cm">// UserRepository users, PasswordEncoder passwordEncoder : injectés par le constructeur</span>
+
+    <span class="kw">public</span> UserResponse register(RegisterRequest request) {
+        <span class="kw">if</span> (users.findByUsername(request.username()).isPresent()) {
+            <span class="kw">throw new</span> ResponseStatusException(HttpStatus.CONFLICT, <span class="kw">"username déjà pris"</span>);
+        }
+<span class="good">        String hash = passwordEncoder.encode(request.password());</span>
+<span class="good">        User saved = users.save(<span class="kw">new</span> User(request.name(), request.username(), hash, <span class="kw">"USER"</span>));</span>
+        <span class="kw">return new</span> UserResponse(saved.getId(), saved.getName(), saved.getUsername());
+    }
+}</pre>
+    </div>
+    <div class="caption">Le client choisit son mot de passe, <b>pas son rôle</b>. Et la réponse JSON ne renvoie <b>jamais le haché</b>.</div>
+    <div class="pageno">14</div>
+  </section>
+  <aside class="notes">
+    <p>Requête ≠ entité, comme en séance 2 : sans UserResponse, GET /users renverrait password_hash de tout le monde en JSON. C'est la fuite la plus fréquente dans les projets étudiants.</p>
+    <p>Le rôle est fixé par le serveur. Si RegisterRequest contenait un champ role, n'importe qui pourrait s'inscrire ADMIN.</p>
+    <p>Le 409 n'est qu'une première vérification : deux inscriptions simultanées du même username passeraient toutes les deux le if. C'est la contrainte UNIQUE qui tranche (DuplicateKeyException). « Le code vérifie, la base garantit », séance 3.</p>
+  </aside>
+
+  <!-- ============ 15 · LA CLÉ ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 4</div>
+    <h3>Une clé secrète pour signer et vérifier</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label">LE SECRET · EXTERNALISÉ (SÉANCE 2)</div>
+        <div class="win">
+          <div class="winbar">application*.properties · JwtProperties.java</div>
+<pre style="font-size:11.5px;line-height:1.42;padding:12px 14px"><span class="cm"># application.properties</span>
+<span class="good">troc.jwt.secret=${TROC_JWT_SECRET}</span>
+troc.jwt.ttl=1h
+
+<span class="cm"># application-dev.properties</span>
+troc.jwt.secret=dev-secret-de-32-caracteres-min!!
+
+<span class="an">@ConfigurationProperties</span>(<span class="kw">"troc.jwt"</span>)
+<span class="kw">public record</span> JwtProperties(
+    String secret,
+    Duration ttl
+) { }</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">LES BEANS · ENCODEUR ET DÉCODEUR</div>
+        <div class="win">
+          <div class="winbar">security/JwtConfig.java</div>
+<pre style="font-size:11.5px;line-height:1.42;padding:12px 14px"><span class="an">@Configuration</span>
+<span class="kw">public class</span> JwtConfig {
+  <span class="an">@Bean</span>
+  SecretKey jwtKey(JwtProperties props) {
+    <span class="kw">byte</span>[] k = props.secret().getBytes(UTF_8);
+    <span class="kw">return new</span> SecretKeySpec(k, <span class="kw">"HmacSHA256"</span>);
+  }
+  <span class="an">@Bean</span>
+<span class="good">  JwtEncoder jwtEncoder(SecretKey key) {</span>
+    <span class="kw">return</span> NimbusJwtEncoder.withSecretKey(key).build();
+  }
+  <span class="an">@Bean</span>
+<span class="good">  JwtDecoder jwtDecoder(SecretKey key) {</span>
+    <span class="kw">return</span> NimbusJwtDecoder.withSecretKey(key).build();
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Qui connaît la clé peut fabriquer des jetons pour n'importe qui : elle vient de l'environnement, <b>jamais de git</b>.</div>
+    <div class="pageno">15</div>
+  </section>
+  <aside class="notes">
+    <p>HS256 (HMAC) : la même clé signe et vérifie. Simple, et suffisant quand c'est la même application qui émet et vérifie les jetons. Si plusieurs services devaient vérifier les jetons, on passerait à une paire de clés RSA : clé privée pour signer, clé publique partagée pour vérifier.</p>
+    <p>Taille minimale : 256 bits, soit 32 octets pour HS256. Avec un secret trop court, la signature échoue au premier login (« The secret length must be at least 256 bits »). En production, générer un secret aléatoire : openssl rand -base64 48.</p>
+    <p>Rappel séance 2 : la variable d'environnement TROC_JWT_SECRET l'emporte sur le fichier ; le profil dev fournit un secret de développement pour que l'appli démarre sans configuration. Sans profil dev et sans variable, l'appli ne démarre pas : c'est voulu.</p>
+    <p>Changer le secret invalide tous les jetons en circulation : c'est le seul « bouton de déconnexion générale ».</p>
+    <p>Imports : UTF_8 en import statique depuis StandardCharsets ; SecretKeySpec depuis javax.crypto.spec (c'est bien javax, qui fait partie du JDK, pas de Jakarta EE).</p>
+  </aside>
+
+  <!-- ============ 16 · TOKENSERVICE ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 5</div>
+    <h3>TokenService : fabriquer et signer un jeton</h3>
+    <div class="win">
+      <div class="winbar">src/main/java/fr/cours/troc/security/TokenService.java</div>
+<pre style="font-size:12px;line-height:1.38;padding:10px 22px"><span class="an">@Service</span>
+<span class="kw">public class</span> TokenService {
+    <span class="cm">// JwtEncoder encoder, JwtProperties props : injectés par le constructeur</span>
+
+    <span class="kw">public</span> String issue(User user) {
+        Instant now = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+            .issuer(<span class="kw">"troc-api"</span>)
+<span class="good">            .subject(String.valueOf(user.getId()))      <span class="cm">// qui : l'id, signé donc fiable</span></span>
+            .claim(<span class="kw">"username"</span>, user.getUsername())
+            .claim(<span class="kw">"roles"</span>, List.of(user.getRole()))
+            .issuedAt(now)
+<span class="good">            .expiresAt(now.plus(props.ttl()))           <span class="cm">// 1 h, puis 401</span></span>
+            .build();
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        <span class="kw">return</span> encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+    }
+}</pre>
+    </div>
+    <div class="caption">Le contenu de la diapo 07, écrit en Java. L'en-tête <b>HS256</b> doit correspondre au type de clé.</div>
+    <div class="pageno">16</div>
+  </section>
+  <aside class="notes">
+    <p>sub (subject) contient l'id de l'utilisateur : c'est lui que les contrôleurs liront à la place de proposerId. Comme il est signé, impossible de le remplacer par l'id de Bob.</p>
+    <p>Durée de vie courte : un jeton volé reste valable jusqu'à son expiration, on ne peut pas le révoquer. Une heure est un compromis raisonnable pour le projet. Les applications réelles ajoutent un « refresh token » pour en obtenir un nouveau sans redemander le mot de passe : piste de bonus avancée.</p>
+    <p>Le rôle est copié dans le jeton : si un admin change le rôle d'un utilisateur, le changement ne s'applique qu'au prochain login. Encore une conséquence de « le serveur ne garde rien ».</p>
+    <p>JwsHeader explicite : par défaut, l'encodeur s'attend à une signature RSA. Sans cet en-tête, l'encodage échoue avec une clé HMAC.</p>
+  </aside>
+
+  <!-- ============ 17 · AUTHCONTROLLER ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 5</div>
+    <h3>POST /auth/token : le seul endroit où passe le mot de passe</h3>
+    <div class="win">
+      <div class="winbar">security/LoginRequest.java · security/TokenResponse.java · security/AuthController.java</div>
+<pre style="font-size:11.5px;line-height:1.36;padding:10px 20px"><span class="kw">public record</span> LoginRequest(String username, String password) { }
+<span class="kw">public record</span> TokenResponse(String token, <span class="kw">long</span> expiresIn) { }
+
+<span class="an">@RestController</span>
+<span class="kw">public class</span> AuthController {
+    <span class="cm">// AuthenticationManager authManager, UserRepository users, TokenService tokens</span>
+
+    <span class="an">@PostMapping</span>(<span class="kw">"/auth/token"</span>)
+    <span class="kw">public</span> TokenResponse token(<span class="an">@RequestBody</span> LoginRequest request) {
+        <span class="kw">try</span> {
+<span class="good">            authManager.authenticate(UsernamePasswordAuthenticationToken</span>
+<span class="good">                .unauthenticated(request.username(), request.password()));</span>
+        } <span class="kw">catch</span> (AuthenticationException e) {
+            <span class="kw">throw new</span> ResponseStatusException(HttpStatus.UNAUTHORIZED, <span class="kw">"identifiants invalides"</span>);
+        }
+        User user = users.findByUsername(request.username()).orElseThrow();
+        <span class="kw">return new</span> TokenResponse(tokens.issue(user), tokens.ttlSeconds());
+    }
+}</pre>
+    </div>
+    <div class="caption">authenticate() appelle <b>UserDetailsService puis BCrypt</b>. Échec : 401. Succès : un jeton.</div>
+    <div class="pageno">17</div>
+  </section>
+  <aside class="notes">
+    <p>Login en JSON plutôt qu'en HTTP Basic : c'est ce qu'enverra un front Angular depuis un formulaire, et le mot de passe n'apparaît pas dans un en-tête qui pourrait être journalisé.</p>
+    <p>ttlSeconds() : une petite méthode de TokenService qui renvoie props.ttl().toSeconds(), pour que le client sache quand redemander un jeton.</p>
+    <p>Le message d'erreur reste vague (« identifiants invalides ») : ne jamais dire si c'est l'identifiant ou le mot de passe qui est faux.</p>
+    <p>Bonus sécurité : limiter le nombre d'essais par identifiant (compteur d'échecs, blocage temporaire) contre les attaques par force brute.</p>
+  </aside>
+
+  <!-- ============ 18 · SECURITYCONFIG ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 6</div>
+    <h3>SecurityConfig : un jeton exigé partout, sauf deux routes</h3>
+    <div class="win">
+      <div class="winbar">src/main/java/fr/cours/troc/security/SecurityConfig.java</div>
+<pre style="font-size:12px;line-height:1.36;padding:8px 22px"><span class="an">@Configuration</span>
+<span class="kw">public class</span> SecurityConfig {
+    <span class="an">@Bean</span>
+    SecurityFilterChain securityFilterChain(HttpSecurity http) <span class="kw">throws</span> Exception {
+        http
+<span class="good">            .authorizeHttpRequests(auth -&gt; auth</span>
+<span class="good">                .requestMatchers(HttpMethod.POST, <span class="kw">"/users"</span>, <span class="kw">"/auth/token"</span>).permitAll()</span>
+                .requestMatchers(<span class="kw">"/h2-console/**"</span>).permitAll()            <span class="cm">// dev uniquement</span>
+<span class="good">                .anyRequest().authenticated())</span>
+<span class="good">            .oauth2ResourceServer(rs -&gt; rs.jwt(Customizer.withDefaults())) <span class="cm">// Bearer exigé</span></span>
+            .csrf(csrf -&gt; csrf.disable())                                <span class="cm">// pas de cookie</span>
+            .sessionManagement(s -&gt; s.sessionCreationPolicy(STATELESS))
+            .headers(h -&gt; h.frameOptions(f -&gt; f.sameOrigin()));         <span class="cm">// console H2</span>
+        <span class="kw">return</span> http.build();
+    }
+    <span class="cm">// + les beans PasswordEncoder et AuthenticationManager (diapo 13)</span>
+}</pre>
+    </div>
+    <div class="caption">Les règles se lisent <b>de haut en bas</b> : la première qui correspond gagne. anyRequest() toujours en dernier.</div>
+    <div class="pageno">18</div>
+  </section>
+  <aside class="notes">
+    <p>oauth2ResourceServer + jwt : active le filtre qui lit « Authorization: Bearer … » et le JwtDecoder de la diapo 15. Le vocabulaire OAuth2 vient de la norme qui a popularisé ces jetons ; on n'utilise ici qu'une petite partie (« resource server » = une API qui accepte des jetons).</p>
+    <p>Pas de httpBasic ni de formLogin : le seul moyen d'être authentifié est un jeton valide. Pas besoin de @EnableWebSecurity avec Spring Boot.</p>
+    <p>CSRF : protection contre un site malveillant qui ferait envoyer une requête par le navigateur de la victime, en profitant de son cookie. Le jeton n'est pas un cookie : le navigateur ne l'envoie pas tout seul, la protection n'a pas d'objet. STATELESS : Spring ne crée pas de session HTTP.</p>
+    <p>La console H2 ne doit pas être ouverte en production : idéalement, cette ligne n'existe que dans le profil dev (séance 2). Imports : HttpMethod (org.springframework.http), SessionCreationPolicy.STATELESS en import statique.</p>
+  </aside>
+
+  <!-- ============ 19 · LES CONTRÔLEURS ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · ÉTAPE 6</div>
+    <h3>L'identité vient du jeton, plus du corps de la requête</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">AVANT · LE CLIENT SE DÉCLARE</div>
+        <div class="win">
+          <div class="winbar">trade/TradeController.java</div>
+<pre style="font-size:11.5px;line-height:1.55;padding:14px 14px"><span class="kw">public record</span> ProposeTradeRequest(
+<span class="bad">    Long proposerId,</span>
+    Long offeredItemId, <span class="kw">int</span> offeredQuantity,
+    Long recipientId,
+    Long requestedItemId, <span class="kw">int</span> requestedQuantity
+) { }
+
+<span class="an">@PostMapping</span>(<span class="kw">"/{id}/accept"</span>)
+<span class="kw">public</span> Trade accept(<span class="an">@PathVariable</span> Long id,
+<span class="bad">    <span class="an">@RequestBody</span> AcceptRequest body) {</span>
+<span class="bad">  <span class="kw">return</span> tradeService.accept(id, body.userId());</span>
+}</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">APRÈS · LE JETON SIGNÉ</div>
+        <div class="win">
+          <div class="winbar">trade/TradeController.java</div>
+<pre style="font-size:11.5px;line-height:1.55;padding:14px 14px"><span class="kw">public record</span> ProposeTradeRequest(
+    Long offeredItemId, <span class="kw">int</span> offeredQuantity,
+    Long recipientId,
+    Long requestedItemId, <span class="kw">int</span> requestedQuantity
+) { }
+
+<span class="an">@PostMapping</span>(<span class="kw">"/{id}/accept"</span>)
+<span class="kw">public</span> Trade accept(<span class="an">@PathVariable</span> Long id,
+<span class="good">    <span class="an">@AuthenticationPrincipal</span> Jwt jwt) {</span>
+<span class="good">  Long myId = Long.valueOf(jwt.getSubject());</span>
+  <span class="kw">return</span> tradeService.accept(id, myId);
+}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>TradeService ne change pas</b> : il reçoit toujours un identifiant. Mais le 403 « pas le destinataire » devient enfin fiable.</div>
+    <div class="pageno">19</div>
+  </section>
+  <aside class="notes">
+    <p>@AuthenticationPrincipal : Spring lit le SecurityContext (diapo 06) et injecte le jeton décodé en paramètre, comme il injecte un @PathVariable. Jwt vient de org.springframework.security.oauth2.jwt.</p>
+    <p>Aucune requête en base pour savoir qui appelle : l'id est dans le jeton, et la signature garantit qu'il n'a pas été modifié.</p>
+    <p>L'architecture en couches paie : seule la couche contrôleur change. Le service et ses tests unitaires (séance 4) restent identiques. La règle métier « seul le destinataire accepte » reste dans le service.</p>
+    <p>Même traitement pour propose (proposerId), reject, et GET /trades?userId= qu'on peut remplacer par GET /trades/mine. Mettre à jour les fichiers de requêtes de test.</p>
+  </aside>
+
+  <!-- ============ 20 · TESTER AVEC CURL ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 03 · VÉRIFIER</div>
+    <h3>Le scénario complet, en cinq requêtes</h3>
+    <div class="win">
+      <div class="winbar">terminal</div>
+<pre style="font-size:11.5px;line-height:1.42;padding:12px 20px"><span class="cm"># 1. s'inscrire                                                        → 201 Created</span>
+curl -i -X POST localhost:8080/users -H <span class="kw">"Content-Type: application/json"</span> \
+     -d <span class="kw">'{"name":"Alice","username":"alice","password":"tomate42"}'</span>
+
+<span class="cm"># 2. se connecter : le mot de passe circule une seule fois</span>
+curl -X POST localhost:8080/auth/token -H <span class="kw">"Content-Type: application/json"</span> \
+     -d <span class="kw">'{"username":"alice","password":"tomate42"}'</span>
+<span class="good"><span class="cm"># {"token":"eyJhbGciOiJIUzI1NiJ9.eyJpc3Mi…","expiresIn":3600}</span></span>
+TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJpc3Mi…
+
+<span class="cm"># 3. sans jeton                                                        → 401</span>
+curl -i localhost:8080/items
+<span class="cm"># 4. avec le jeton                                                     → 200 OK</span>
+curl -i -H <span class="kw">"Authorization: Bearer $TOKEN"</span> localhost:8080/items
+<span class="cm"># 5. accepter un troc destiné à Bob                                    → 403</span>
+curl -i -H <span class="kw">"Authorization: Bearer $TOKEN"</span> -X POST localhost:8080/trades/7/accept</pre>
+    </div>
+    <div class="caption">Une heure plus tard, la requête 4 répond <b>401</b> : le jeton a expiré, il faut repasser par l'étape 2.</div>
+    <div class="pageno">20</div>
+  </section>
+  <aside class="notes">
+    <p>Client HTTP d'IntelliJ (fichiers .http) : après la requête de login, ajouter le gestionnaire « &gt; {% client.global.set("token", response.body.token); %} », puis écrire « Authorization: Bearer {{token}} » dans les requêtes suivantes. Le jeton est récupéré automatiquement.</p>
+    <p>En réponse à un 401, l'en-tête WWW-Authenticate: Bearer donne la raison (jeton absent, invalid_token, expiré) : premier réflexe de débogage.</p>
+    <p>Le 401 et le 403 ne viennent pas du même endroit : le 401 de la chaîne de filtres (diapo 06), le 403 de la requête 5 du service de troc (règle métier). Les deux sont des réponses correctes.</p>
+    <p>En production, HTTPS reste indispensable : le mot de passe au login et le jeton ensuite doivent voyager chiffrés.</p>
+  </aside>
+
+  <!-- ============ 21 · SECTION 04 ============ -->
+  <section class="slide s-section">
+    <div class="tag">ANNEXE · PARTIE 04</div>
+    <div class="num">04</div>
+    <div>
+      <h2>Aller plus loin</h2>
+      <div class="list">
+        <div>Rôles et autorisations</div>
+        <div>Tester une API sécurisée</div>
+        <div>Pourquoi un jeton ?</div>
+        <div>Les pièges classiques</div>
+      </div>
+    </div>
+    <div class="pageno">21</div>
+  </section>
+  <aside class="notes">
+    <p>Partie à piocher selon le temps : les tests (diapo 23) sont la suite la plus utile, car ceux de la séance 4 cassent dès qu'on ajoute la sécurité.</p>
+  </aside>
+
+  <!-- ============ 22 · RÔLES ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 04 · AUTORISATION</div>
+    <h3>Les rôles voyagent dans le jeton</h3>
+    <div class="win">
+      <div class="winbar">application.properties · SecurityConfig.java · UserService.java</div>
+<pre style="font-size:12px;line-height:1.5;padding:14px 22px"><span class="cm"># où lire les rôles dans le jeton : claim "roles", préfixe ROLE_ ("ADMIN" → ROLE_ADMIN)</span>
+<span class="good">spring.security.oauth2.resourceserver.jwt.authorities-claim-name=roles</span>
+<span class="good">spring.security.oauth2.resourceserver.jwt.authority-prefix=ROLE_</span>
+
+<span class="cm">// règle par URL, dans SecurityConfig</span>
+.requestMatchers(HttpMethod.DELETE, <span class="kw">"/users/**"</span>).hasRole(<span class="kw">"ADMIN"</span>)
+
+<span class="cm">// ou règle par méthode : @EnableMethodSecurity sur SecurityConfig, puis</span>
+<span class="an">@PreAuthorize</span>(<span class="kw">"hasRole('ADMIN')"</span>)
+<span class="kw">public void</span> delete(Long id) { ... }</pre>
+    </div>
+    <div class="caption">Un rôle dit qui a le droit <b>en général</b>. « Seul le destinataire accepte ce troc-là » dépend des données : <b>règle métier</b>, dans le service.</div>
+    <div class="pageno">22</div>
+  </section>
+  <aside class="notes">
+    <p>Sans ces deux propriétés, Spring cherche les droits dans un claim « scope » et les préfixe par SCOPE_ : hasRole("ADMIN") échoue alors toujours, avec un 403 difficile à comprendre.</p>
+    <p>@PreAuthorize repose sur l'AOP de la séance 4 : Spring entoure le bean d'un proxy qui vérifie la règle avant d'appeler la méthode. Mêmes limites que @Transactional : un appel interne (this.delete()) contourne la vérification.</p>
+    <p>Créer un admin : pas par l'API (le rôle n'est jamais choisi par le client). Un UPDATE users SET role = 'ADMIN' dans la console H2, puis se reconnecter pour obtenir un jeton avec le nouveau rôle.</p>
+    <p>Choix à justifier en présentation : règles par URL (vue d'ensemble) ou par méthode (au plus près du métier). Les deux se défendent ; éviter de mélanger sans raison.</p>
+  </aside>
+
+  <!-- ============ 23 · TESTS ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 04 · TESTS · SUITE DE LA SÉANCE 4</div>
+    <h3>Tester la sécurité, pas la contourner</h3>
+    <div class="win">
+      <div class="winbar">src/test/java/fr/cours/troc/trade/TradeSecurityTest.java</div>
+<pre style="font-size:11.5px;line-height:1.4;padding:10px 20px"><span class="an">@SpringBootTest</span>
+<span class="an">@AutoConfigureMockMvc</span>
+<span class="an">@ActiveProfiles</span>(<span class="kw">"test"</span>)
+<span class="an">@Transactional</span>
+<span class="kw">class</span> TradeSecurityTest {
+    <span class="an">@Autowired</span> MockMvc mvc;
+
+    <span class="an">@Test</span>
+    <span class="kw">void</span> withoutTokenGets401() <span class="kw">throws</span> Exception {
+<span class="good">        mvc.perform(get(<span class="kw">"/items"</span>)).andExpect(status().isUnauthorized());</span>
+    }
+
+    <span class="an">@Test</span>
+    <span class="kw">void</span> onlyRecipientCanAccept() <span class="kw">throws</span> Exception {
+        mvc.perform(post(<span class="kw">"/trades/1/accept"</span>)                <span class="cm">// troc 1 : destiné à bob (id 2)</span>
+<span class="good">               .with(jwt().jwt(j -&gt; j.subject(<span class="kw">"1"</span>))))       <span class="cm">// connecté en tant qu'alice (id 1)</span></span>
+           .andExpect(status().isForbidden());
+    }
+}</pre>
+    </div>
+    <div class="caption">jwt() fournit un jeton déjà validé. Boot 4 : dépendance de test <b>spring-boot-starter-security-test</b>.</div>
+    <div class="pageno">23</div>
+  </section>
+  <aside class="notes">
+    <p>Effet immédiat de la sécurité : les tests d'intégration MockMvc de la séance 4 répondent 401. Correction : ajouter .with(jwt().jwt(j -&gt; j.subject("…"))) aux requêtes. Les tests unitaires du service, eux, ne bougent pas : pas de Spring, pas de sécurité.</p>
+    <p>jwt() vient de SecurityMockMvcRequestPostProcessors (import statique). Il place directement un jeton décodé dans le SecurityContext, sans signature : on choisit le sub, et donc l'utilisateur, test par test. Pour les rôles : .authorities(new SimpleGrantedAuthority("ROLE_ADMIN")).</p>
+    <p>@WithMockUser, qu'on croise dans beaucoup de tutos, ne convient pas ici : il ne fournit pas un Jwt, et @AuthenticationPrincipal Jwt recevrait null.</p>
+    <p>Bon test d'intégration complet en bonus : inscription, POST /auth/token, extraction du jeton de la réponse, puis requête avec « Authorization: Bearer ». Il traverse le vrai encodeur et le vrai décodeur.</p>
+    <p>Ne pas désactiver la sécurité dans les tests « pour que ça passe » : le 401 et le 403 font partie du contrat de l'API, ils méritent leurs tests.</p>
+  </aside>
+
+  <!-- ============ 24 · POURQUOI UN JETON ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 04 · CHOISIR</div>
+    <h3>Pourquoi un jeton plutôt que Basic ou une session ?</h3>
+    <svg viewBox="0 0 800 268" role="img" aria-label="Comparaison de trois modes d'authentification : HTTP Basic, session avec cookie, jeton JWT, retenu pour le cours">
+      <rect class="box-strong" x="160" y="0" width="200" height="38" rx="4"/>
+      <text class="t tb" x="260" y="24" text-anchor="middle">HTTP Basic</text>
+      <rect class="box-strong" x="376" y="0" width="200" height="38" rx="4"/>
+      <text class="t tb" x="476" y="24" text-anchor="middle">Session + cookie</text>
+      <rect class="box-accent" x="592" y="0" width="208" height="38" rx="4"/>
+      <text class="t tb tw" x="696" y="24" text-anchor="middle">Jeton JWT · le cours</text>
+
+      <text class="tk" x="0" y="66">LE CLIENT ENVOIE</text>
+      <text class="t" x="168" y="66" font-size="13">login + mot de passe,</text>
+      <text class="t tbad" x="168" y="84" font-size="13">à chaque requête</text>
+      <text class="t" x="384" y="66" font-size="13">un cookie, après un</text>
+      <text class="t" x="384" y="84" font-size="13">formulaire de login</text>
+      <text class="t" x="600" y="66" font-size="13">un jeton signé, obtenu</text>
+      <text class="t" x="600" y="84" font-size="13">une fois au login</text>
+      <line class="sep" x1="0" y1="100" x2="800" y2="100"/>
+
+      <text class="tk" x="0" y="126">LE SERVEUR GARDE</text>
+      <text class="t" x="168" y="126" font-size="13">rien</text>
+      <text class="t" x="384" y="126" font-size="13">la session en mémoire</text>
+      <text class="t" x="600" y="126" font-size="13">rien : le jeton se suffit</text>
+      <line class="sep" x1="0" y1="142" x2="800" y2="142"/>
+
+      <text class="tk" x="0" y="168">À CHAQUE REQUÊTE</text>
+      <text class="t tbad" x="168" y="168" font-size="13">base + BCrypt (~100 ms)</text>
+      <text class="t" x="384" y="168" font-size="13">lecture de la session</text>
+      <text class="t" x="600" y="168" font-size="13">une signature vérifiée</text>
+      <line class="sep" x1="0" y1="184" x2="800" y2="184"/>
+
+      <text class="tk" x="0" y="210">LA LIMITE</text>
+      <text class="t" x="168" y="210" font-size="13">mot de passe exposé</text>
+      <text class="t" x="168" y="228" font-size="13">dans chaque requête</text>
+      <text class="t" x="384" y="210" font-size="13">CSRF à gérer, peu adapté</text>
+      <text class="t" x="384" y="228" font-size="13">à une API sans navigateur</text>
+      <text class="t" x="600" y="210" font-size="13">non révocable avant</text>
+      <text class="t" x="600" y="228" font-size="13">expiration : durée courte</text>
+      <line class="sep" x1="0" y1="244" x2="800" y2="244"/>
+      <text class="t tm" x="168" y="264">historique : curl -u …</text>
+      <text class="t tm" x="384" y="264">sites rendus côté serveur</text>
+      <text class="t tm" x="600" y="264">API + front Angular, mobile</text>
+    </svg>
+    <div class="caption">Un bon sujet pour l'oral : <b>pourquoi pas Basic ?</b> Le mot de passe et BCrypt ne servent qu'une fois, le reste est signé et expire.</div>
+    <div class="pageno">24</div>
+  </section>
+  <aside class="notes">
+    <p>HTTP Basic : le plus simple à mettre en place, mais le mot de passe voyage dans chaque requête (en Base64, donc lisible sans HTTPS) et risque de finir dans des journaux, des proxys, l'historique du terminal. Le client doit le conserver ; aucune expiration, aucune déconnexion. Et BCrypt, lent exprès, tourne à chaque appel : un attaquant peut s'en servir pour saturer le serveur.</p>
+    <p>Session : le modèle classique des sites web. Le cookie part automatiquement avec chaque requête du navigateur, d'où le besoin de la protection CSRF. Le serveur garde un état, ce qui complique le passage à plusieurs instances.</p>
+    <p>JWT : le serveur ne garde rien et vérifie une signature. Limite principale : un jeton volé reste valable jusqu'à expiration. Parades : durée courte, HTTPS, ne jamais le journaliser, et un refresh token pour les applications réelles.</p>
+    <p>Pour aller plus loin : déléguer complètement l'authentification à un serveur d'autorisation (Keycloak, ou Spring Authorization Server, intégré à Spring Security 7). L'API ne fait alors que vérifier les jetons, exactement comme ici.</p>
+  </aside>
+
+  <!-- ============ 25 · PIÈGES ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">PARTIE 04 · PIÈGES COURANTS</div>
+    <h3>Ça ne marche pas : les suspects habituels</h3>
+    <ul>
+      <li><b>401 partout</b> <span>normal : tout est fermé, même GET /users</span></li>
+      <li><b>401 avec un jeton</b> <span>expiré, mal copié, ou « Bearer » oublié</span></li>
+      <li><b>403 sur chaque POST</b> <span>CSRF encore actif : csrf.disable() oublié</span></li>
+      <li><b>Erreur au login</b> <span>secret de moins de 32 caractères : trop court pour HS256</span></li>
+      <li><b>hasRole toujours refusé</b> <span>propriétés authorities-claim-name oubliées</span></li>
+      <li class="hl"><b>Tuto avec .and()</b> <span>Spring Security 5 ou 6 : en 7, lambdas uniquement</span></li>
+    </ul>
+    <div class="pageno">25</div>
+  </section>
+  <aside class="notes">
+    <p>Pour comprendre une décision de sécurité : logging.level.org.springframework.security=DEBUG dans application.properties affiche chaque filtre traversé et la raison d'un refus. Lire aussi l'en-tête WWW-Authenticate des réponses 401.</p>
+    <p>Autres pièges : console H2 blanche (frameOptions sameOrigin manquant) ; « There is no PasswordEncoder mapped for the id null » (haché inséré en base sans préfixe {bcrypt}) ; tests de la séance 4 en 401 (ajouter .with(jwt())).</p>
+    <p>Tutoriels anciens, ce qui ne compile plus en Spring Security 7 : WebSecurityConfigurerAdapter (supprimé dès la version 6), authorizeRequests() (remplacé par authorizeHttpRequests), antMatchers et mvcMatchers (remplacés par requestMatchers), le chaînage .and(). Beaucoup de tutos JWT utilisent aussi une bibliothèque externe (jjwt) et un filtre écrit à la main : inutile, Spring Security sait vérifier les jetons lui-même.</p>
+  </aside>
+
+  <!-- ============ 26 · SYNTHÈSE ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">ANNEXE · SYNTHÈSE</div>
+    <h2>Ce qu'il faut retenir</h2>
+    <div class="quote">Le mot de passe une fois, un jeton signé ensuite.</div>
+    <div class="grid four">
+      <div class="card">
+        <div class="k">401 ≠ 403</div>
+        <div class="v">Authentification : qui es-tu ? Autorisation : as-tu le droit ? Toujours dans cet ordre.</div>
+      </div>
+      <div class="card">
+        <div class="k">LE JETON</div>
+        <div class="v">Lisible par tous, infalsifiable sans la clé, valable une heure. Jamais de secret dedans.</div>
+      </div>
+      <div class="card">
+        <div class="k">LES MOTS DE PASSE</div>
+        <div class="v">Hachés avec BCrypt, vérifiés au seul login, jamais renvoyés en JSON.</div>
+      </div>
+      <div class="card">
+        <div class="k">DANS LE PROJET</div>
+        <div class="v">POST /auth/token, Bearer partout ailleurs, l'id lu dans sub, des tests 401 / 403.</div>
+      </div>
+    </div>
+    <div class="pageno">26</div>
+  </section>
+  <aside class="notes">
+    <p>Pour la présentation finale, la sécurité coche plusieurs critères : choix technique à justifier (pourquoi un jeton, pourquoi HS256, quelle durée de vie), concept SQL (UNIQUE et son index), vulgarisation (401 vs 403, hacher vs chiffrer, encodé vs signé).</p>
+    <p>Pour aller plus loin : la documentation de référence de Spring Security (docs.spring.io/spring-security/reference), sections « Servlet Applications » → « OAuth2 » → « Resource Server » → « JWT ».</p>
+  </aside>
+
+</div>
+<div class="hint">N : notes orateur</div>
+<script>
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey) {
+      document.body.classList.toggle('show-notes');
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+meta {
+  name: Créer utilisateur
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Alice"
+  }
+}

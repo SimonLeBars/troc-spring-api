@@ -1,0 +1,82 @@
+package fr.cours.troc.trade;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("trades")
+public class Trade {
+
+    @Id
+    private Long id; // null → INSERT, sinon UPDATE
+    private TradeStatus status;
+    private Long proposerId;
+    private Long offeredItemId;
+    private int offeredQuantity;
+    private Long recipientId;
+    private Long requestedItemId;
+    private int requestedQuantity;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TradeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TradeStatus status) {
+        this.status = status;
+    }
+
+    public Long getProposerId() {
+        return proposerId;
+    }
+
+    public void setProposerId(Long proposerId) {
+        this.proposerId = proposerId;
+    }
+
+    public Long getOfferedItemId() {
+        return offeredItemId;
+    }
+
+    public void setOfferedItemId(Long offeredItemId) {
+        this.offeredItemId = offeredItemId;
+    }
+
+    public int getOfferedQuantity() {
+        return offeredQuantity;
+    }
+
+    public void setOfferedQuantity(int offeredQuantity) {
+        this.offeredQuantity = offeredQuantity;
+    }
+
+    public Long getRecipientId() {
+        return recipientId;
+    }
+
+    public void setRecipientId(Long recipientId) {
+        this.recipientId = recipientId;
+    }
+
+    public Long getRequestedItemId() {
+        return requestedItemId;
+    }
+
+    public void setRequestedItemId(Long requestedItemId) {
+        this.requestedItemId = requestedItemId;
+    }
+
+    public int getRequestedQuantity() {
+        return requestedQuantity;
+    }
+
+    public void setRequestedQuantity(int requestedQuantity) {
+        this.requestedQuantity = requestedQuantity;
+    }
+}

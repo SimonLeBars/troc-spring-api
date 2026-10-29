@@ -1,0 +1,23 @@
+meta {
+  name: Créer objet jetable
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/items
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "poireaux",
+    "quantity": 1,
+    "ownerId": 1
+  }
+}

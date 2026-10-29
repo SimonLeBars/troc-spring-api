@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Séance 1 — Fondations : de SOLID à Spring Boot</title>
+<style>
+  :root{
+    --bg: #FAFCF8;
+    --surface: #EEF3EA;
+    --surface-2: #E2EADB;
+    --green: #6DB33F;
+    --green-dark: #4B8A2E;
+    --text: #1C2419;
+    --text-muted: #5C6959;
+    --rule: #D9E2D2;
+    --warn: #B5533C;
+    --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
+    --font-body: "Inter", "Helvetica Neue", sans-serif;
+    --font-code: "JetBrains Mono", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:#000; font-family:var(--font-body);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .deck{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0 80px; }
+  .slide{
+    width:960px; height:540px; background:var(--bg);
+    position:relative; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--rule);
+  }
+  .slide .tag{
+    position:absolute; top:28px; left:40px; font-family:var(--font-code);
+    font-size:12px; color:var(--green-dark); letter-spacing:.02em;
+  }
+  .slide .pageno{
+    position:absolute; bottom:24px; right:32px; font-family:var(--font-code);
+    font-size:12px; color:var(--text-muted);
+  }
+  .bar{ position:absolute; left:0; top:0; width:6px; height:100%; background:var(--green); }
+
+  /* Titre */
+  .s-title{ display:flex; }
+  .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
+  .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
+  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
+  .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
+  .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
+  .s-title .meta{ position:absolute; bottom:36px; right:60px; display:flex; gap:24px; }
+  .s-title .meta div{ font-family:var(--font-code); font-size:11px; color:var(--text-muted); }
+  .s-title .meta span{ color:var(--green-dark); }
+
+  /* Section */
+  .s-section{ background:var(--green); display:flex; align-items:center; padding:0 80px; }
+  .s-section .num{ font-family:var(--font-display); font-size:110px; color:rgba(255,255,255,.25); font-weight:700; margin-right:44px; }
+  .s-section h2{ font-family:var(--font-display); font-size:40px; margin:0; font-weight:600; max-width:520px; line-height:1.15; color:#fff; }
+  .s-section .list{ margin-top:18px; }
+  .s-section .list div{ color:rgba(255,255,255,.75); font-size:16px; margin-top:6px; }
+  .s-section .tag{ color:#EAF6E2; }
+  .s-section .pageno{ color:rgba(255,255,255,.6); }
+
+  /* Contenu / points */
+  .s-content{ padding:70px 80px 40px; }
+  .s-content h3{ font-family:var(--font-display); font-size:30px; margin:0 0 30px; font-weight:600; }
+  .s-content ul{ list-style:none; margin:0; padding:0; }
+  .s-content li{ display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--rule); font-size:17px; align-items:baseline; }
+  .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
+  .s-content li b{ color:var(--text); font-weight:600; white-space:nowrap; }
+  .s-content li span{ color:var(--text-muted); margin-left:6px; }
+  /* [AJOUT] ligne mise en avant */
+  .s-content li.hl{ background:var(--surface); border-left:3px solid var(--green); padding-left:12px; margin-left:-15px; }
+  .s-content li.hl span{ color:var(--text); }
+
+  /* Code */
+  .s-code{ padding:70px 80px 40px; }
+  .s-code h3{ font-family:var(--font-display); font-size:26px; margin:0 0 22px; font-weight:600; }
+  .s-code .win{ background:#1C2419; border:1px solid var(--rule); border-radius:4px; overflow:hidden; }
+  .s-code .winbar{ background:#263323; padding:9px 16px; font-family:var(--font-code); font-size:12px; color:#9FB393; border-bottom:1px solid #33422F; }
+  .s-code pre{ margin:0; padding:22px 24px; font-family:var(--font-code); font-size:14.5px; line-height:1.65; color:#EAF3E4; overflow:auto; }
+  .s-code .kw{ color:#9FD88D; }
+  .s-code .an{ color:#6DB33F; }
+  .s-code .cm{ color:#6E7C68; }
+  /* [AJOUT] ligne de code signalée, légende sous la fenêtre, variante compacte */
+  .s-code .bad{ background:rgba(181,83,60,.32); display:inline-block; width:100%; }
+  .s-code .good{ background:rgba(109,179,63,.22); display:inline-block; width:100%; }
+  .s-code .caption{ margin-top:14px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-code .caption b{ color:var(--text); }
+  .s-code.dense pre{ font-size:13px; line-height:1.55; padding:16px 22px; }
+
+  /* [AJOUT] Avant / après côte à côte */
+  .s-code.compare{ padding:70px 56px 40px; }
+  .compare .cols{ display:flex; gap:20px; }
+  .compare .col{ flex:1; min-width:0; }
+  .compare .label{ font-family:var(--font-code); font-size:12px; margin-bottom:8px; color:var(--green-dark); }
+  .compare .label.before{ color:var(--warn); }
+  .compare pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
+
+  /* [AJOUT] Schéma SVG */
+  .s-diagram{ padding:70px 80px 40px; }
+  .s-diagram h3{ font-family:var(--font-display); font-size:26px; margin:0 0 18px; font-weight:600; }
+  .s-diagram svg{ display:block; width:100%; height:auto; }
+  .s-diagram .caption{ margin-top:12px; font-size:15px; color:var(--text-muted); line-height:1.5; }
+  .s-diagram .caption b{ color:var(--text); }
+  svg .box{ fill:var(--surface); stroke:var(--rule); stroke-width:1; }
+  svg .box-strong{ fill:#fff; stroke:var(--green-dark); stroke-width:1.5; }
+  svg .box-accent{ fill:var(--green); stroke:none; }
+  svg .box-bad{ fill:#fff; stroke:var(--warn); stroke-width:1.5; }
+  svg .frame{ fill:none; stroke:var(--green); stroke-width:1.5; stroke-dasharray:6 5; }
+  svg .t{ font-family:var(--font-body); font-size:14px; fill:var(--text); }
+  svg .tb{ font-weight:600; font-size:15px; }
+  svg .tm{ fill:var(--text-muted); font-size:12.5px; }
+  svg .tc{ font-family:var(--font-code); font-size:12.5px; fill:var(--green-dark); }
+  svg .tw{ fill:#fff; }
+  svg .tk{ font-family:var(--font-code); font-size:11px; fill:var(--green-dark); letter-spacing:.04em; }
+  svg .tbad{ fill:var(--warn); }
+  svg .ln{ stroke:var(--green-dark); stroke-width:1.5; fill:none; }
+  svg .ln-dash{ stroke-dasharray:5 4; }
+  svg .ln-bad{ stroke:var(--warn); }
+  svg .sep{ stroke:var(--rule); stroke-width:1; }
+
+  /* Clôture / cartes */
+  .s-close{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 80px; }
+  .s-close h2{ font-family:var(--font-display); font-size:38px; margin:0 0 26px; font-weight:600; }
+  .s-close .grid{ display:flex; gap:40px; }
+  .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
+  .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
+  .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
+  /* [AJOUT] grille 4 cartes + citation */
+  .s-close .grid.four{ gap:24px; }
+  .s-close .grid.four .card{ width:182px; }
+  .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
+
+  /* [AJOUT] Notes orateur — touche N pour afficher/masquer */
+  .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
+          padding:14px 20px; font-size:14px; line-height:1.55; margin-top:-14px; }
+  .notes::before{ content:"NOTES ORATEUR"; display:block; font-family:var(--font-code); font-size:11px; color:var(--green); margin-bottom:6px; }
+  .notes p{ margin:0 0 6px; }
+  body.show-notes .notes{ display:block; }
+  .hint{ position:fixed; bottom:12px; left:16px; font-family:var(--font-code); font-size:11px; color:#5C6959; }
+  @media print{ .notes, .hint{ display:none !important; } body{ background:#fff; } .deck{ gap:0; padding:0; } }
+</style>
+</head>
+<body>
+
+<!-- Marqueurs de flèches partagés par tous les schémas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4B8A2E"/>
+    </marker>
+    <marker id="arr-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B5533C"/>
+    </marker>
+    <marker id="arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FAFCF8" stroke="#4B8A2E" stroke-width="1.2"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="deck">
+
+  <!-- ============ 01 · TITRE ============ -->
+  <section class="slide s-title">
+    <div class="half">
+      <div class="course">JOUR 01 / 05</div>
+      <div class="leaf">Sp</div>
+    </div>
+    <div class="content">
+      <h1>Fondations : de SOLID à Spring Boot</h1>
+      <div class="sub">Comprendre pourquoi Spring existe, avant d'apprendre à s'en servir.</div>
+    </div>
+    <div class="meta">
+      <div>PRÉREQUIS <span>Java, POO, Maven</span></div>
+      <div>OUTILS <span>IntelliJ · JDK 25</span></div>
+      <div>STACK <span>Spring Boot 4.1</span></div>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+  <aside class="notes">
+    <p>Accueil. Annoncer le déroulé de l'après-midi : 10 min sur le cours, 20 min de théorie, TP, puis 20 min de théorie Spring au checkpoint #1, et encore du TP.</p>
+    <p>Message clé : aujourd'hui on part d'un problème concret avant de parler de Spring.</p>
+  </aside>
+
+  <!-- ============ 02 · SECTION 00 ============ -->
+  <section class="slide s-section">
+    <div class="tag">00 · LE COURS · 10 MIN</div>
+    <div class="num">00</div>
+    <div>
+      <h2>Organisation du cours</h2>
+      <div class="list">
+        <div>Le fil rouge : une API de troc</div>
+        <div>Une API REST, concrètement</div>
+        <div>La feuille de route</div>
+        <div>Méthode de travail &amp; évaluation</div>
+      </div>
+    </div>
+    <div class="pageno">02</div>
+  </section>
+  <aside class="notes">
+    <p>Section courte : garder un rythme soutenu, les détails sont dans le support écrit.</p>
+  </aside>
+
+  <!-- ============ 03 · FIL ROUGE ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">00 · LE FIL ROUGE</div>
+    <h3>Une API de troc d'objets entre utilisateurs</h3>
+    <svg viewBox="0 0 800 290" role="img" aria-label="Alice échange 3 kg de tomates contre 4 courgettes de Bob via un Trade qui passe par trois états">
+      <rect class="box" x="10" y="0" width="210" height="96" rx="4"/>
+      <text class="t tb" x="30" y="30">User · Alice</text>
+      <text class="t tm" x="30" y="54">Item « tomates »</text>
+      <text class="tc" x="30" y="76">stock : 10 kg</text>
+
+      <rect class="box-accent" x="295" y="0" width="210" height="96" rx="4"/>
+      <text class="t tb tw" x="400" y="34" text-anchor="middle">Trade</text>
+      <text class="t tw" x="400" y="58" text-anchor="middle">3 kg de tomates</text>
+      <text class="t tw" x="400" y="78" text-anchor="middle">⇄ 4 courgettes</text>
+
+      <rect class="box" x="580" y="0" width="210" height="96" rx="4"/>
+      <text class="t tb" x="600" y="30">User · Bob</text>
+      <text class="t tm" x="600" y="54">Item « courgettes »</text>
+      <text class="tc" x="600" y="76">stock : 6 unités</text>
+
+      <line class="ln" x1="222" y1="48" x2="291" y2="48" marker-end="url(#arr)"/>
+      <line class="ln" x1="578" y1="48" x2="509" y2="48" marker-end="url(#arr)"/>
+
+      <text class="tk" x="10" y="140">CYCLE DE VIE D'UN TROC</text>
+      <rect class="box-strong" x="10" y="155" width="210" height="84" rx="4"/>
+      <text class="t tb" x="30" y="185">1 · Proposé</text>
+      <text class="t tm" x="30" y="209">Alice propose l'échange</text>
+
+      <rect class="box-strong" x="295" y="155" width="210" height="84" rx="4"/>
+      <text class="t tb" x="315" y="185">2 · Validé</text>
+      <text class="t tm" x="315" y="209">Alice ET Bob acceptent</text>
+
+      <rect class="box-strong" x="580" y="155" width="210" height="84" rx="4"/>
+      <text class="t tb" x="600" y="185">3 · Exécuté</text>
+      <text class="t tm" x="600" y="209">Alice : 7 kg de tomates, 4 courg.</text>
+      <text class="t tm" x="600" y="227">Bob : 2 courg., 3 kg de tomates</text>
+
+      <line class="ln" x1="222" y1="197" x2="291" y2="197" marker-end="url(#arr)"/>
+      <line class="ln" x1="507" y1="197" x2="576" y2="197" marker-end="url(#arr)"/>
+    </svg>
+    <div class="caption"><b>Règles métier :</b> on ne peut pas échanger plus que son stock, rien ne bouge tant que les deux parties n'ont pas validé, et les deux stocks sont mis à jour en même temps.</div>
+    <div class="pageno">03</div>
+  </section>
+  <aside class="notes">
+    <p>Présenter le domaine : User, Item (un légume et sa quantité), Trade. Le code sera en anglais pendant tout le cours.</p>
+    <p>La quantité rend le métier concret : un troc peut échouer faute de stock suffisant, et un échange partiel laisserait des stocks incohérents.</p>
+    <p>Insister sur la double validation et la mise à jour « tout ou rien » des deux stocks : c'est ce qui justifiera les transactions en séance 3.</p>
+  </aside>
+
+  <!-- ============ 04 · API REST ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">00 · CE QUE VOUS ALLEZ CONSTRUIRE</div>
+    <h3>Une API REST, concrètement</h3>
+    <svg viewBox="0 0 800 310" role="img" aria-label="Un client envoie GET /users et POST /users à l'API de troc, qui répond avec un code de statut et du JSON">
+      <rect class="box" x="0" y="20" width="150" height="200" rx="4"/>
+      <text class="t tb" x="75" y="112" text-anchor="middle">Client</text>
+      <text class="t tm" x="75" y="134" text-anchor="middle">navigateur, front,</text>
+      <text class="t tm" x="75" y="152" text-anchor="middle">appli mobile, curl…</text>
+
+      <rect class="box-accent" x="650" y="20" width="150" height="200" rx="4"/>
+      <text class="t tb tw" x="725" y="112" text-anchor="middle">API de troc</text>
+      <text class="t tw" x="725" y="134" text-anchor="middle" font-size="12.5">localhost:8080</text>
+
+      <line class="ln" x1="152" y1="62" x2="646" y2="62" marker-end="url(#arr)"/>
+      <text class="tc" x="170" y="54">GET /users</text>
+      <line class="ln ln-dash" x1="648" y1="98" x2="154" y2="98" marker-end="url(#arr)"/>
+      <text class="tc" x="170" y="90">200 OK · [ { "id": 1, "name": "Alice" } ]</text>
+
+      <line class="ln" x1="152" y1="152" x2="646" y2="152" marker-end="url(#arr)"/>
+      <text class="tc" x="170" y="144">POST /users · { "name": "Bob" }</text>
+      <line class="ln ln-dash" x1="648" y1="188" x2="154" y2="188" marker-end="url(#arr)"/>
+      <text class="tc" x="170" y="180">201 Created · { "id": 2, "name": "Bob" }</text>
+
+      <line class="sep" x1="0" y1="245" x2="800" y2="245"/>
+      <text class="tk" x="0" y="272">VERBE</text>
+      <text class="t tm" x="0" y="294">ce qu'on veut faire : GET lit, POST crée</text>
+      <text class="tk" x="270" y="272">RESSOURCE</text>
+      <text class="t tm" x="270" y="294">sur quoi : /users, /items, /trades</text>
+      <text class="tk" x="540" y="272">RÉPONSE</text>
+      <text class="t tm" x="540" y="294">un code (200, 201, 404…) + du JSON</text>
+    </svg>
+    <div class="pageno">04</div>
+  </section>
+  <aside class="notes">
+    <p>Le projet n'a pas d'interface graphique : c'est un service qui reçoit des requêtes HTTP et répond en JSON. N'importe quel client peut l'utiliser.</p>
+    <p>Les deux exemples sont exactement ce que vous aurez codé à la fin de la séance : lister et créer des utilisateurs.</p>
+    <p>Rester au niveau de lecture : les verbes, paramètres et codes d'erreur sont détaillés en séance 2.</p>
+  </aside>
+
+  <!-- ============ 04 · FEUILLE DE ROUTE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">00 · FEUILLE DE ROUTE</div>
+    <h3>Feuille de route</h3>
+    <ul>
+      <li class="hl"><b>01 · Fondations</b> <span>SOLID, inversion de contrôle, première API : lister et créer des utilisateurs</span></li>
+      <li><b>02 · Configuration &amp; REST</b> <span>propriétés externalisées, endpoints CRUD, proposer un troc</span></li>
+      <li><b>03 · Persistance &amp; transactions</b> <span>Spring Data JDBC, base H2, troc exécuté en tout-ou-rien</span></li>
+      <li><b>04 · AOP &amp; tests</b> <span>journalisation transverse, tests unitaires et d'intégration</span></li>
+      <li><b>05 · Autonomie</b> <span>travail de groupe sur le projet final</span></li>
+    </ul>
+    <div class="pageno">05</div>
+  </section>
+  <aside class="notes">
+    <p>Chaque séance a un objectif obligatoire commun : tout le monde doit l'atteindre pour que la séance suivante démarre sur la même base.</p>
+  </aside>
+
+  <!-- ============ 05 · ORGANISATION ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">00 · ORGANISATION</div>
+    <h3>Comment on travaille</h3>
+    <ul>
+      <li><b>Groupes de 4</b> <span>un projet par groupe, du premier au dernier jour</span></li>
+      <li><b>Peu de théorie, beaucoup de pratique</b> <span>le support de TP est votre documentation</span></li>
+      <li><b>Checkpoints collectifs</b> <span>quand tout le monde a globalement fini une étape, on fait le point ensemble</span></li>
+      <li><b>En avance ?</b> <span>des features bonus</span></li>
+      <li><b>Séance 5</b> <span>travail de groupe en autonomie</span></li>
+    </ul>
+    <div class="pageno">06</div>
+  </section>
+  <aside class="notes">
+    <p>Les supports (diapos + TP) sont fournis en amont, leur lecture n'est pas obligatoire. Pendant le TP, le réflexe est : chercher dans le support, puis demander.</p>
+    <p>Séance 5 : pas d'intervenant présent, les groupes doivent être autonomes. D'où l'importance de s'appuyer sur les supports dès maintenant.</p>
+  </aside>
+
+  <!-- ============ 06 · NOTATION ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">00 · ÉVALUATION</div>
+    <h2>Comment le projet sera évalué</h2>
+    <div class="grid four">
+      <div class="card">
+        <div class="k">FONCTIONNEL</div>
+        <div class="v">L'application tourne et remplit son rôle de plateforme de troc.</div>
+      </div>
+      <div class="card">
+        <div class="k">DONNÉES</div>
+        <div class="v">Concepts SQL respectés : transactions, clés primaires et étrangères, index.</div>
+      </div>
+      <div class="card">
+        <div class="k">CHOIX TECHNIQUES</div>
+        <div class="v">Chaque choix de votre projet est détaillé et justifié.</div>
+      </div>
+      <div class="card">
+        <div class="k">PRÉSENTATION</div>
+        <div class="v">Vous savez vulgariser ce que vous avez construit.</div>
+      </div>
+    </div>
+    <div class="pageno">07</div>
+  </section>
+  <aside class="notes">
+    <p>Point sur la vulgarisation : les analogies de cette séance (prise électrique, Hollywood) sont un bon modèle pour votre future présentation.</p>
+    <p>Pondération : à préciser si elle est fixée d'ici là.</p>
+  </aside>
+
+  <!-- ============ 07 · SECTION 01 ============ -->
+  <section class="slide s-section">
+    <div class="tag">THÉORIE A · 20 MIN</div>
+    <div class="num">01</div>
+    <div>
+      <h2>Le problème &amp; le principe</h2>
+      <div class="list">
+        <div>SOLID en un coup d'œil</div>
+        <div>Les couches d'une application</div>
+        <div>Le couplage fort, et pourquoi il fait mal</div>
+        <div>Inverser les dépendances</div>
+      </div>
+    </div>
+    <div class="pageno">08</div>
+  </section>
+  <aside class="notes">
+    <p>Pas une ligne de Spring dans cette partie. On pose le problème ; la solution Spring arrive après le premier bloc de TP.</p>
+  </aside>
+
+  <!-- ============ 08 · SOLID ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE A · SOLID</div>
+    <h3>SOLID, et pourquoi le D nous intéresse</h3>
+    <ul>
+      <li><b>S</b> — Single Responsibility <span>une classe, une raison de changer</span></li>
+      <li><b>O</b> — Open/Closed <span>ouvert à l'extension, fermé à la modification</span></li>
+      <li><b>L</b> — Liskov Substitution <span>une sous-classe doit rester substituable</span></li>
+      <li><b>I</b> — Interface Segregation <span>préférer plusieurs interfaces ciblées</span></li>
+      <li class="hl"><b>D</b> — Dependency Inversion <span>dépendre d'abstractions, pas d'implémentations</span></li>
+    </ul>
+    <div class="pageno">09</div>
+  </section>
+  <aside class="notes">
+    <p>Survol rapide : une phrase par principe, pas d'exemple. Les autres reviendront au fil du cours (le S dès la diapo 12).</p>
+    <p>Le D est celui qui explique pourquoi Spring existe : c'est le fil de toute la séance.</p>
+  </aside>
+
+  <!-- ============ 09 · COUCHES ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE A · ARCHITECTURE</div>
+    <h3>Architecture en couches : chacun son métier</h3>
+    <svg viewBox="0 0 800 250" role="img" aria-label="Client, Controller, Service, Repository, base de données, reliés de gauche à droite">
+      <rect class="box" x="0" y="40" width="120" height="80" rx="4"/>
+      <text class="t tb" x="60" y="86" text-anchor="middle">Client</text>
+
+      <rect class="box-strong" x="160" y="40" width="160" height="80" rx="4"/>
+      <text class="t tb" x="240" y="74" text-anchor="middle">Controller</text>
+      <text class="tc" x="240" y="98" text-anchor="middle">UserController</text>
+
+      <rect class="box-strong" x="360" y="40" width="160" height="80" rx="4"/>
+      <text class="t tb" x="440" y="74" text-anchor="middle">Service</text>
+      <text class="tc" x="440" y="98" text-anchor="middle">UserService</text>
+
+      <rect class="box-strong" x="560" y="40" width="160" height="80" rx="4"/>
+      <text class="t tb" x="640" y="74" text-anchor="middle">Repository</text>
+      <text class="tc" x="640" y="98" text-anchor="middle">UserRepository</text>
+
+      <ellipse class="box" cx="770" cy="50" rx="28" ry="9"/>
+      <path class="box" d="M742,50 L742,110 A28,9 0 0 0 798,110 L798,50"/>
+      <ellipse class="box" cx="770" cy="50" rx="28" ry="9"/>
+      <text class="t tb" x="770" y="88" text-anchor="middle">BDD</text>
+
+      <line class="ln" x1="122" y1="80" x2="156" y2="80" marker-end="url(#arr)"/>
+      <line class="ln" x1="322" y1="80" x2="356" y2="80" marker-end="url(#arr)"/>
+      <line class="ln" x1="522" y1="80" x2="556" y2="80" marker-end="url(#arr)"/>
+      <line class="ln" x1="722" y1="80" x2="740" y2="80" marker-end="url(#arr)"/>
+
+      <text class="t tm" x="60" y="160" text-anchor="middle">navigateur,</text>
+      <text class="t tm" x="60" y="178" text-anchor="middle">front, curl…</text>
+      <text class="t tm" x="240" y="160" text-anchor="middle">reçoit GET / POST /users,</text>
+      <text class="t tm" x="240" y="178" text-anchor="middle">renvoie la réponse</text>
+      <text class="t tm" x="440" y="160" text-anchor="middle">règles métier :</text>
+      <text class="t tm" x="440" y="178" text-anchor="middle">« ce nom est-il valide ? »</text>
+      <text class="t tm" x="640" y="160" text-anchor="middle">stocke et retrouve</text>
+      <text class="t tm" x="640" y="178" text-anchor="middle">les utilisateurs</text>
+      <text class="t tm" x="798" y="160" text-anchor="end">mémoire,</text>
+      <text class="t tm" x="798" y="178" text-anchor="end">puis H2</text>
+    </svg>
+    <div class="caption"><b>Règle :</b> chaque couche ne parle qu'à la couche juste en dessous. Un Controller n'écrit jamais en base.</div>
+    <div class="pageno">10</div>
+  </section>
+  <aside class="notes">
+    <p>C'est la carte de tout le cours : chaque séance remplit une ou plusieurs de ces boîtes.</p>
+    <p>Exemple pris sur ce que vous coderez aujourd'hui : lister et créer des utilisateurs. Au début, les données restent en mémoire ; la base arrive en séance 3.</p>
+    <p>Le lien qui nous intéresse : UserService → UserRepository. Comment le service obtient-il son repository ?</p>
+  </aside>
+
+  <!-- ============ 10 · COUPLAGE FORT ============ -->
+  <section class="slide s-code">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE A · COUPLAGE FORT</div>
+    <h3>Le couplage fort dans le code</h3>
+    <div class="win">
+      <div class="winbar">UserService.java</div>
+<pre><span class="kw">public class</span> UserService {
+
+    <span class="cm">// le service choisit ET fabrique sa dépendance</span>
+<span class="bad">    <span class="kw">private final</span> InMemoryUserRepository users = <span class="kw">new</span> InMemoryUserRepository();</span>
+
+    <span class="kw">public</span> List&lt;User&gt; findAll() {
+        <span class="kw">return</span> users.findAll();
+    }
+
+    <span class="kw">public</span> User create(User user) {
+        <span class="kw">return</span> users.save(user);
+    }
+}</pre>
+    </div>
+    <div class="pageno">11</div>
+  </section>
+  <aside class="notes">
+    <p>Code volontairement naïf, c'est ce que tout le monde écrit spontanément. Demander à la salle : « qu'est-ce qui vous gêne ici ? » avant de passer à la diapo suivante.</p>
+  </aside>
+
+  <!-- ============ 11 · POURQUOI ÇA FAIT MAL ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE A · COUPLAGE FORT</div>
+    <h3>Pourquoi ça fait mal</h3>
+    <ul>
+      <li><b>Données incohérentes</b> <span>deux services, deux new : deux stockages qui s'ignorent</span></li>
+      <li><b>Changer d'implémentation</b> <span>nouveau stockage = modifier chaque service qui fait new</span></li>
+      <li><b>Effet cascade</b> <span>le constructeur du repository change ? Plus rien ne compile</span></li>
+      <li><b>Deux métiers dans une classe</b> <span>il gère les utilisateurs ET fabrique ses outils (le S de SOLID)</span></li>
+    </ul>
+    <div class="pageno">12</div>
+  </section>
+  <aside class="notes">
+    <p>Si la salle a trouvé ces points à la diapo précédente, les valider plutôt que les dérouler.</p>
+    <p>Ne pas encore donner la solution en code : ils vont vivre ces trois problèmes dans le TP bloc 1, via les évolutions demandées par le client.</p>
+    <p>Un quatrième problème existe (impossible de tester UserService seul, sans son vrai stockage) : ne pas le développer, on y reviendra en séance 4.</p>
+  </aside>
+
+  <!-- ============ 12 · PRINCIPE D ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE A · DEPENDENCY INVERSION</div>
+    <h3>Inverser les dépendances : dépendre d'un contrat</h3>
+    <svg viewBox="0 0 800 280" role="img" aria-label="Avant : UserService dépend de InMemoryUserRepository. Après : UserService dépend de l'interface UserRepository, implémentée par deux classes.">
+      <text class="tk tbad" x="0" y="14">AVANT</text>
+      <rect class="box-strong" x="60" y="40" width="220" height="56" rx="4"/>
+      <text class="tc" x="170" y="73" text-anchor="middle">UserService</text>
+      <rect class="box-bad" x="60" y="200" width="220" height="56" rx="4"/>
+      <text class="tc" x="170" y="233" text-anchor="middle">InMemoryUserRepository</text>
+      <line class="ln ln-bad" x1="170" y1="98" x2="170" y2="196" marker-end="url(#arr-bad)"/>
+      <text class="t tm tbad" x="182" y="145">dépend du</text>
+      <text class="t tm tbad" x="182" y="162">concret</text>
+
+      <line class="sep" x1="380" y1="0" x2="380" y2="270"/>
+
+      <text class="tk" x="420" y="14">APRÈS</text>
+      <rect class="box-strong" x="500" y="30" width="220" height="50" rx="4"/>
+      <text class="tc" x="610" y="60" text-anchor="middle">UserService</text>
+      <rect class="box-accent" x="500" y="120" width="220" height="56" rx="4"/>
+      <text class="t tw" x="610" y="142" text-anchor="middle" font-size="11">«interface»</text>
+      <text class="t tb tw" x="610" y="163" text-anchor="middle" font-family="JetBrains Mono, Consolas, monospace" font-size="13">UserRepository</text>
+      <line class="ln" x1="610" y1="82" x2="610" y2="116" marker-end="url(#arr)"/>
+      <text class="t tm" x="620" y="104">utilise</text>
+
+      <rect class="box" x="420" y="220" width="180" height="46" rx="4"/>
+      <text class="tc" x="510" y="248" text-anchor="middle" font-size="12">JdbcUserRepository</text>
+      <rect class="box" x="615" y="220" width="185" height="46" rx="4"/>
+      <text class="tc" x="707" y="248" text-anchor="middle" font-size="12">InMemoryUserRepository</text>
+      <line class="ln ln-dash" x1="510" y1="218" x2="570" y2="180" marker-end="url(#arr-open)"/>
+      <line class="ln ln-dash" x1="707" y1="218" x2="650" y2="180" marker-end="url(#arr-open)"/>
+      <text class="t tm" x="610" y="208" text-anchor="middle">implémentent</text>
+    </svg>
+    <div class="caption">Le service ne connaît plus que le <b>contrat</b>. Reste une question : qui lui fournit l'implémentation ? Réponse après le TP.</div>
+    <div class="pageno">13</div>
+  </section>
+  <aside class="notes">
+    <p>Pointer le sens des flèches : avant, le haut dépend du bas. Après, le haut ET le bas dépendent de l'interface. C'est ça, « l'inversion ».</p>
+    <p>Laisser la question en suspens volontairement : elle sera le point de départ de la théorie B.</p>
+  </aside>
+
+  <!-- ============ 13 · ANALOGIE PRISE ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE A · ANALOGIE</div>
+    <h3>Analogie : la prise électrique</h3>
+    <svg viewBox="0 0 800 270" role="img" aria-label="Une lampe branchée sur une prise, alimentée au choix par une centrale, un groupe électrogène ou une pile">
+      <rect class="box-strong" x="0" y="95" width="200" height="80" rx="4"/>
+      <text class="t tb" x="100" y="128" text-anchor="middle">Lampe</text>
+      <text class="tc" x="100" y="152" text-anchor="middle">UserService</text>
+
+      <rect class="box-accent" x="290" y="95" width="200" height="80" rx="4"/>
+      <text class="t tb tw" x="390" y="128" text-anchor="middle">Prise 230 V</text>
+      <text class="t tw" x="390" y="152" text-anchor="middle" font-family="JetBrains Mono, Consolas, monospace" font-size="12.5">UserRepository</text>
+
+      <line class="ln" x1="202" y1="135" x2="286" y2="135" marker-end="url(#arr)"/>
+      <text class="t tm" x="244" y="124" text-anchor="middle">branchée</text>
+
+      <rect class="box" x="580" y="10" width="220" height="66" rx="4"/>
+      <text class="t tb" x="596" y="37">Groupe électrogène</text>
+      <text class="tc" x="596" y="60">InMemoryUserRepository</text>
+      <rect class="box" x="580" y="102" width="220" height="66" rx="4"/>
+      <text class="t tb" x="596" y="129">Centrale (séance 3)</text>
+      <text class="tc" x="596" y="152">JdbcUserRepository</text>
+      <rect class="box" x="580" y="194" width="220" height="66" rx="4"/>
+      <text class="t tb" x="596" y="221">Batterie avec afficheur</text>
+      <text class="tc" x="596" y="244">LoggingUserRepository</text>
+
+      <line class="ln ln-dash" x1="578" y1="43" x2="494" y2="120" marker-end="url(#arr)"/>
+      <line class="ln ln-dash" x1="578" y1="135" x2="494" y2="135" marker-end="url(#arr)"/>
+      <line class="ln ln-dash" x1="578" y1="227" x2="494" y2="150" marker-end="url(#arr)"/>
+    </svg>
+    <div class="caption">La lampe ne sait pas d'où vient le courant : elle respecte la <b>norme de la prise</b>. Changer de source ne change rien à la lampe.</div>
+    <div class="pageno">14</div>
+  </section>
+  <aside class="notes">
+    <p>Faire le parallèle point par point : lampe = service, norme de la prise = interface, sources = implémentations. La batterie avec afficheur, c'est le LoggingUserRepository de l'évolution 2 : elle fournit le courant et affiche chaque consommation.</p>
+    <p>Question à poser : « qu'est-ce qui se passerait si la lampe était soudée directement au groupe électrogène ? » → c’est la diapo 11.</p>
+  </aside>
+
+  <!-- ============ 14 · CONSIGNE TP 1 ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">TP · BLOC 1</div>
+    <h2>TP bloc 1 : codez-le mal, exprès</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="k">À FAIRE</div>
+        <div class="v">Coder User et un UserService couplé en dur, puis traiter les 3 évolutions demandées par le client.</div>
+      </div>
+      <div class="card">
+        <div class="k">À OBSERVER</div>
+        <div class="v">Pour chaque évolution, comptez les fichiers que vous devez modifier.</div>
+      </div>
+      <div class="card">
+        <div class="k">CHECKPOINT #1</div>
+        <div class="v">Quand tout le monde a globalement fini : mise en commun, puis Spring entre en scène.</div>
+      </div>
+    </div>
+    <div class="pageno">15</div>
+  </section>
+  <aside class="notes">
+    <p>Durée indicative du bloc : environ 70 min. Lancer le checkpoint quand la majorité des groupes a terminé.</p>
+    <p>Rappeler : tout est dans le support de TP. Les groupes en avance attaquent les bonus.</p>
+  </aside>
+
+  <!-- ============ 15 · SECTION 02 ============ -->
+  <section class="slide s-section">
+    <div class="tag">THÉORIE B · 20 MIN · CHECKPOINT #1</div>
+    <div class="num">02</div>
+    <div>
+      <h2>Spring entre en scène</h2>
+      <div class="list">
+        <div>Injecter à la main</div>
+        <div>Le conteneur IoC</div>
+        <div>Les annotations Spring Boot</div>
+        <div>Structure d'un projet &amp; premiers endpoints</div>
+      </div>
+    </div>
+    <div class="pageno">16</div>
+  </section>
+  <aside class="notes">
+    <p>Avant cette diapo : 5 min de blocages communs du TP bloc 1 (Maven, IntelliJ, structure). Puis relever au tableau, groupe par groupe, le nombre de fichiers modifiés pour chaque évolution, et le bug de l'évolution 1 (utilisateur introuvable). On doit retrouver la liste de la diapo 12.</p>
+  </aside>
+
+  <!-- ============ 16 · AVANT / APRÈS ============ -->
+  <section class="slide s-code compare">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · INJECTION PAR CONSTRUCTEUR</div>
+    <h3>À la main : on reçoit, on ne fabrique plus</h3>
+    <div class="cols">
+      <div class="col">
+        <div class="label before">AVANT · COUPLAGE FORT</div>
+        <div class="win">
+          <div class="winbar">UserService.java</div>
+<pre><span class="kw">public class</span> UserService {
+
+<span class="bad">  <span class="kw">private final</span> InMemoryUserRepository users
+      = <span class="kw">new</span> InMemoryUserRepository();</span>
+
+  <span class="cm">// ...</span>
+}
+
+
+
+
+</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="label">APRÈS · INJECTION PAR CONSTRUCTEUR</div>
+        <div class="win">
+          <div class="winbar">UserService.java</div>
+<pre><span class="kw">public class</span> UserService {
+
+<span class="good">  <span class="kw">private final</span> UserRepository users;</span>
+
+<span class="good">  <span class="kw">public</span> UserService(UserRepository users) {</span>
+<span class="good">    <span class="kw">this</span>.users = users;</span>
+<span class="good">  }</span>
+}
+
+<span class="cm">// changer de stockage : un seul endroit</span>
+<span class="kw">new</span> UserService(
+    <span class="kw">new</span> LoggingUserRepository(<span class="kw">"[USERS]"</span>));</pre>
+        </div>
+      </div>
+    </div>
+    <div class="pageno">17</div>
+  </section>
+  <aside class="notes">
+    <p>Aucune annotation ici : c'est du Java pur. La dépendance est déclarée dans le constructeur, typée par l'interface.</p>
+    <p>Montrer la dernière ligne : l'évolution 2 du TP ne touche plus UserService. Problème de la diapo 12 résolu… mais quelqu'un doit maintenant faire les new.</p>
+    <p>Pour l'évolution 1 : il suffit de passer la même instance de repository à UserService et à ItemService, et les données redeviennent cohérentes.</p>
+  </aside>
+
+  <!-- ============ 17 · 50 CLASSES ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · LE BESOIN D'UN CONTENEUR</div>
+    <h3>Et avec 50 classes ?</h3>
+    <div class="win">
+      <div class="winbar">Main.java</div>
+<pre><span class="kw">public static void</span> main(String[] args) {
+    DataSource ds             = createDataSource();
+    UserRepository users      = <span class="kw">new</span> JdbcUserRepository(ds);
+    ItemRepository items      = <span class="kw">new</span> JdbcItemRepository(ds);
+    TradeRepository trades    = <span class="kw">new</span> JdbcTradeRepository(ds);
+    TradeService tradeService = <span class="kw">new</span> TradeService(users, items, trades);
+    UserService userService   = <span class="kw">new</span> UserService(users);
+    TradeController ctrl      = <span class="kw">new</span> TradeController(tradeService, userService);
+    <span class="cm">// ... et 43 autres, dans le bon ordre</span>
+}</pre>
+    </div>
+    <div class="caption">Quelqu'un doit créer tous ces objets et les brancher entre eux. <b>Ce ne sera plus vous.</b></div>
+    <div class="pageno">18</div>
+  </section>
+  <aside class="notes">
+    <p>Faire remarquer l'ordre imposé : on ne peut pas créer TradeService avant ses repositories. Sur un vrai projet, c'est ingérable à la main.</p>
+    <p>Transition : « et si on déléguait tout ce câblage à quelqu'un d'autre ? »</p>
+  </aside>
+
+  <!-- ============ 18 · IOC / HOLLYWOOD ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · INVERSION DE CONTRÔLE</div>
+    <h2>Inversion de contrôle</h2>
+    <div class="quote">« Ne nous appelez pas, c'est nous qui vous appellerons. »</div>
+    <div class="grid">
+      <div class="card">
+        <div class="k">SANS IOC</div>
+        <div class="v">Votre code crée ses objets et décide quand les appeler.</div>
+      </div>
+      <div class="card">
+        <div class="k">AVEC IOC</div>
+        <div class="v">Le conteneur crée les objets, les assemble et appelle votre code au bon moment.</div>
+      </div>
+      <div class="card">
+        <div class="k">DI ≠ IOC</div>
+        <div class="v">L'injection de dépendances est une façon de faire de l'IoC : les dépendances arrivent de l'extérieur.</div>
+      </div>
+    </div>
+    <div class="pageno">19</div>
+  </section>
+  <aside class="notes">
+    <p>Principe d'Hollywood : l'acteur ne harcèle pas le studio, il laisse son CV et attend l'appel. Votre classe déclare ce dont elle a besoin et attend que Spring l'appelle.</p>
+    <p>Deux analogies, deux idées : la prise explique la DI (dépendre d'une norme), Hollywood explique l'IoC (qui a la main sur le cycle de vie).</p>
+  </aside>
+
+  <!-- ============ 20 · ANNOTATIONS ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · ANNOTATIONS</div>
+    <h3>Déclarer ses beans : quelques annotations</h3>
+    <div class="win">
+      <div class="winbar">TrocApplication.java · UserService.java · InMemoryUserRepository.java</div>
+<pre><span class="an">@SpringBootApplication</span>                     <span class="cm">// point d'entrée : démarre le conteneur</span>
+<span class="kw">public class</span> TrocApplication { ... }
+
+<span class="an">@Service</span>                                   <span class="cm">// bean de la couche métier</span>
+<span class="kw">public class</span> UserService {
+    <span class="kw">private final</span> UserRepository users;
+    <span class="kw">public</span> UserService(UserRepository users) {  <span class="cm">// injecté par Spring,</span>
+        <span class="kw">this</span>.users = users;                    <span class="cm">// en lui passant le bean</span>
+    }
+}
+
+<span class="an">@Repository</span>                                <span class="cm">// bean d'accès aux données</span>
+<span class="kw">public class</span> InMemoryUserRepository <span class="kw">implements</span> UserRepository { ... }</pre>
+    </div>
+    <div class="caption"><b>@Service</b>, <b>@Repository</b>, <b>@RestController</b> : des <b>@Component</b> spécialisés, un par couche.</div>
+    <div class="pageno">20</div>
+  </section>
+  <aside class="notes">
+    <p>Le UserService est le même que sur la diapo avant/après, avec une seule annotation en plus. Tout le reste est fait par le conteneur.</p>
+    <p>Vocabulaire à poser ici : un « bean » est simplement un objet dont Spring s'occupe (création, assemblage). Les annotations servent à dire à Spring « cette classe est un bean ».</p>
+    <p>Aucune annotation à ajouter sur le constructeur : quand une classe n'a qu'un seul constructeur, Spring l'utilise automatiquement pour injecter les dépendances.</p>
+    <p>Transition : ces annotations sont des étiquettes. La diapo suivante montre comment Spring les trouve et s'en sert au démarrage.</p>
+  </aside>
+
+  <!-- ============ 19 · APPLICATIONCONTEXT ============ -->
+  <section class="slide s-diagram">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · LE CONTENEUR</div>
+    <h3>L'ApplicationContext au démarrage</h3>
+    <svg viewBox="0 0 800 290" role="img" aria-label="Au démarrage, Spring scanne, crée puis injecte les beans dans l'ApplicationContext">
+      <rect class="box-strong" x="0" y="0" width="240" height="62" rx="4"/>
+      <text class="t tb" x="18" y="26">1 · Scanner</text>
+      <text class="t tm" x="18" y="47">trouve les classes annotées</text>
+      <rect class="box-strong" x="280" y="0" width="240" height="62" rx="4"/>
+      <text class="t tb" x="298" y="26">2 · Créer</text>
+      <text class="t tm" x="298" y="47">une instance de chaque bean</text>
+      <rect class="box-strong" x="560" y="0" width="240" height="62" rx="4"/>
+      <text class="t tb" x="578" y="26">3 · Injecter</text>
+      <text class="t tm" x="578" y="47">passe les beans aux constructeurs</text>
+      <line class="ln" x1="242" y1="31" x2="276" y2="31" marker-end="url(#arr)"/>
+      <line class="ln" x1="522" y1="31" x2="556" y2="31" marker-end="url(#arr)"/>
+
+      <rect class="frame" x="0" y="96" width="800" height="190" rx="6"/>
+      <text class="tk" x="18" y="122">APPLICATIONCONTEXT · LE CONTENEUR SPRING</text>
+
+      <rect class="box" x="30" y="160" width="210" height="56" rx="4"/>
+      <text class="t tm" x="135" y="181" text-anchor="middle" font-size="11">bean</text>
+      <text class="tc" x="135" y="201" text-anchor="middle">UserController</text>
+      <rect class="box" x="295" y="160" width="210" height="56" rx="4"/>
+      <text class="t tm" x="400" y="181" text-anchor="middle" font-size="11">bean</text>
+      <text class="tc" x="400" y="201" text-anchor="middle">UserService</text>
+      <rect class="box" x="560" y="160" width="210" height="56" rx="4"/>
+      <text class="t tm" x="665" y="181" text-anchor="middle" font-size="11">bean</text>
+      <text class="tc" x="665" y="201" text-anchor="middle">InMemoryUserRepository</text>
+
+      <line class="ln" x1="558" y1="188" x2="509" y2="188" marker-end="url(#arr)"/>
+      <line class="ln" x1="293" y1="188" x2="244" y2="188" marker-end="url(#arr)"/>
+      <text class="t tm" x="533" y="238" text-anchor="middle">injecté dans</text>
+      <text class="t tm" x="268" y="238" text-anchor="middle">injecté dans</text>
+      <text class="t" x="400" y="270" text-anchor="middle">Vous <tspan font-weight="600">déclarez</tspan>, Spring <tspan font-weight="600">fabrique et assemble</tspan>.</text>
+    </svg>
+    <div class="pageno">21</div>
+  </section>
+  <aside class="notes">
+    <p>Étape 1 : le scan cherche les classes portant les annotations de la diapo précédente (@Service, @Repository, @RestController…).</p>
+    <p>L'ApplicationContext est le conteneur qui détient tous les beans.</p>
+    <p>Spring résout l'ordre tout seul : il crée d'abord ce dont les autres ont besoin. Si une dépendance est introuvable, l'application refuse de démarrer, avec un message explicite.</p>
+  </aside>
+
+  <!-- ============ 21 · STRUCTURE PROJET ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · START.SPRING.IO OU INTELLIJ · MAVEN · JAVA 25 · SPRING BOOT 4.1</div>
+    <h3>Structure d'un projet Spring Boot</h3>
+    <div class="win">
+      <div class="winbar">troc-api/</div>
+<pre style="font-size:12px;line-height:1.45;padding:14px 22px">troc-api/
+├── pom.xml                                   <span class="cm">← dépendances (Spring Web…)</span>
+└── src/
+    ├── main/java/fr/cours/troc/
+    │   ├── <span class="an">TrocApplication.java</span>              <span class="cm">← @SpringBootApplication</span>
+    │   ├── user/                             <span class="cm">← une fonctionnalité = un package</span>
+    │   │   ├── User.java
+    │   │   ├── UserController.java           <span class="cm">← les couches restent visibles</span>
+    │   │   ├── UserService.java                <span class="cm">dans les noms de classes</span>
+    │   │   ├── UserRepository.java
+    │   │   └── InMemoryUserRepository.java
+    │   ├── item/                             <span class="cm">← ItemService (évolution 1)</span>
+    │   └── trade/                            <span class="cm">← séance 2</span>
+    ├── main/resources/application.properties <span class="cm">← configuration (séance 2)</span>
+    └── test/java/fr/cours/troc/              <span class="cm">← tests (séance 4)</span></pre>
+    </div>
+    <div class="caption">Le scan part du package de <b>TrocApplication</b> : <b>user</b>, <b>item</b>, <b>trade</b> doivent être en dessous.</div>
+    <div class="pageno">22</div>
+  </section>
+  <aside class="notes">
+    <p>start.spring.io et l'assistant IntelliJ génèrent le même projet. Une seule dépendance pour aujourd'hui : Spring Web. Les étapes détaillées sont dans le support de TP.</p>
+    <p>Piège classique : une classe annotée placée hors du package racine n'est pas détectée. Nom du package à adapter au choix du groupe.</p>
+    <p>Découpage par fonctionnalité plutôt que par couche : tout ce qui concerne les utilisateurs est au même endroit, les dépendances entre fonctionnalités se voient (trade dépendra de user et item), et chaque membre du groupe peut prendre une fonctionnalité.</p>
+    <p>Vous croiserez souvent l'autre découpage dans les tutos (controller/, service/, repository/) : il fonctionne aussi, mais disperse une même fonctionnalité dans trois dossiers. Les couches du schéma de la diapo 10 restent là : ce sont des rôles de classes, pas forcément des dossiers.</p>
+  </aside>
+
+  <!-- ============ HELLO WORLD ============ -->
+  <section class="slide s-code dense">
+    <div class="bar"></div>
+    <div class="tag">THÉORIE B · OBJECTIF DE FIN DE SÉANCE</div>
+    <h3>Votre objectif : une API qui répond</h3>
+    <div class="win">
+      <div class="winbar">UserController.java</div>
+<pre><span class="an">@RestController</span>                                <span class="cm">// bean de la couche web, répond en JSON</span>
+<span class="kw">public class</span> UserController {
+
+    <span class="kw">private final</span> UserService userService;
+
+    <span class="kw">public</span> UserController(UserService userService) {
+        <span class="kw">this</span>.userService = userService;
+    }
+
+    <span class="an">@GetMapping</span>(<span class="kw">"/users"</span>)                        <span class="cm">// GET /users</span>
+    <span class="kw">public</span> List&lt;User&gt; findAll() { <span class="kw">return</span> userService.findAll(); }
+
+    <span class="an">@PostMapping</span>(<span class="kw">"/users"</span>)                       <span class="cm">// POST /users + corps JSON</span>
+    <span class="kw">public</span> User create(<span class="an">@RequestBody</span> User user) { <span class="kw">return</span> userService.create(user); }
+}</pre>
+    </div>
+    <div class="caption">On retrouve les deux requêtes du début de séance : <b>GET /users</b> liste, <b>POST /users</b> crée.</div>
+    <div class="pageno">23</div>
+  </section>
+  <aside class="notes">
+    <p>Objectif obligatoire pour tous les groupes avant la fin de séance : le refactor IoC du bloc 1, puis ces deux endpoints.</p>
+    <p>Après le refactor, faire refaire l'évolution 2 et recompter les fichiers modifiés : un seul avec l'injection manuelle, et avec Spring il suffit de déplacer @Repository. Comparer avec les chiffres relevés au checkpoint #1.</p>
+    <p>Revenir sur la diapo « Une API REST, concrètement » : c'est exactement ce qu'on vient de coder. Spring convertit l'objet Java en JSON (et le JSON reçu en objet Java avec @RequestBody).</p>
+    <p>Par défaut, le POST renvoie 200 et non 201 : les codes de statut seront traités en séance 2. Spring Boot embarque son propre serveur web, on lance le main et l'API écoute sur le port 8080.</p>
+  </aside>
+
+  <!-- ============ 24 · SYNTHÈSE ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">JOUR 1 · SYNTHÈSE</div>
+    <h2>Ce qu'il faut retenir</h2>
+    <div class="grid four">
+      <div class="card">
+        <div class="k">CONCEPT CLÉ</div>
+        <div class="v">Dépendre d'abstractions ; Spring crée et injecte les implémentations.</div>
+      </div>
+      <div class="card">
+        <div class="k">OBJECTIF DU JOUR</div>
+        <div class="v">Le code refactoré en IoC, l'évolution 2 refaite (combien de fichiers ?), et GET / POST /users.</div>
+      </div>
+      <div class="card">
+        <div class="k">EN AVANCE ?</div>
+        <div class="v">Bonus : profils Spring (dev/test), endpoint supplémentaire.</div>
+      </div>
+      <div class="card">
+        <div class="k">SÉANCE 2</div>
+        <div class="v">Configuration externalisée et vrais endpoints REST.</div>
+      </div>
+    </div>
+    <div class="pageno">24</div>
+  </section>
+  <aside class="notes">
+    <p>Diapo projetée pendant le TP bloc 2 et reprise au checkpoint #2 pour le bilan.</p>
+  </aside>
+
+</div>
+<div class="hint">N : notes orateur</div>
+<script>
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey) {
+      document.body.classList.toggle('show-notes');
+    }
+  });
+</script>
+</body>
+</html>

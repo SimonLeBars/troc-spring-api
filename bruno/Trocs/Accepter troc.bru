@@ -1,0 +1,21 @@
+meta {
+  name: Accepter troc
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/trades/1/accept
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "userId": 2
+  }
+}

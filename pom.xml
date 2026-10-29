@@ -8,7 +8,7 @@
 		<version>4.1.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
+	<groupId>fr.cours</groupId>
 	<artifactId>troc-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>troc-api</name>
@@ -33,6 +33,27 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+
+		<!-- Séance 3 : persistance -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-h2console</artifactId>
+		</dependency>
+
+		<!-- Séance 4 : AOP -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aspectj</artifactId>
 		</dependency>
 
 		<dependency>
