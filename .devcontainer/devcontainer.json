@@ -1,0 +1,22 @@
+{
+  "name": "troc-api",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "jdkDistro": "tem",
+      "installMaven": "false"
+    },
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "postCreateCommand": "chmod +x mvnw && ./mvnw -q -B dependency:go-offline && npm install -g @anthropic-ai/claude-code",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": { "label": "API troc", "onAutoForward": "notify" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["vscjava.vscode-java-pack", "vmware.vscode-boot-dev-pack"]
+    }
+  }
+}
