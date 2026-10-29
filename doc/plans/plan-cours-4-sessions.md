@@ -99,6 +99,8 @@ Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/04-session2-
 - **TP bloc 2 (noyau)** : tests unitaires du service + un test d'intégration sur l'API.
 - **Bonus / si le temps le permet** : introduction sécurité (Spring Security basique) ; aspect avancé (`@Around` avec mesure de temps d'exécution).
 
+Supports : `doc/cours/04-seance-4-aop-tests.html`, `doc/tp/08-session4-tp-bloc1-aspect-log.md`, `doc/tp/09-session4-tp-bloc2-tests.md`.
+
 ### ⚠️ Point de vigilance
 Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de TP net. Si du retard s'est accumulé sur les sessions précédentes, c'est ici qu'il faudra couper en premier — **ordre de priorité si le temps manque** :
 1. Logging AOP (le noyau, non-négociable)
@@ -109,7 +111,7 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 À annoncer explicitement aux étudiants dès le départ pour gérer leurs attentes.
 
 ### À faire avant la session
-- [ ] Rédiger le support de TP (AOP logging + tests)
+- [x] Rédiger le support de TP (AOP logging + tests)
 - [x] Préparer la diapo théorie AOP/tests
 
 ---
