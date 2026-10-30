@@ -1,0 +1,40 @@
+# Intégration continue : compile et lance les tests à chaque push sur main
+# et à chaque pull request. Le résultat s'affiche directement sur la PR.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Annule l'exécution précédente si un nouveau commit arrive sur la même branche
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & tests (Java 25)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Compiler et lancer les tests
+        run: sh ./mvnw -B -ntp verify
+
+      - name: Publier les rapports de tests en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-tests
+          path: target/surefire-reports/
+          retention-days: 7
