@@ -119,6 +119,9 @@ Pour chaque évolution, remplissez ce tableau (sur papier ou dans un fichier tex
 Le type d'objets échangés est au choix de votre groupe : légumes, livres, jeux de société, outils… Les exemples de ce support utilisent des légumes ; adaptez-les à votre choix.
 
 1. Dans un nouveau package `fr.cours.troc.item`, créez l'entité `Item` : `id` (`Long`), `name` (`String`), `quantity` (`int`), `ownerId` (`Long`, l'`id` de l'utilisateur propriétaire).
+
+   > Ce modèle est volontairement simple et **pas idéal**. Il suffit pour suivre le TP ; libre à votre groupe de l'améliorer si vous en ressentez le besoin, quand vous le souhaitez.
+
 2. Créez `InMemoryItemRepository`, sur le même modèle que `InMemoryUserRepository`, avec `save` et `findAll`.
 3. Créez `ItemService`. Pour vérifier que le propriétaire existe, il a besoin des utilisateurs : comme `UserService`, il fabrique ce dont il a besoin.
 
