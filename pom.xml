@@ -56,6 +56,14 @@
 			<artifactId>spring-boot-starter-aspectj</artifactId>
 		</dependency>
 
+		<!-- Séance 5 : documentation de l'API et Swagger UI (http://localhost:8080/swagger-ui.html) -->
+		<!-- Pas gérée par Spring Boot : la version 3.2.x correspond à Spring Boot 4.1 -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.2.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
