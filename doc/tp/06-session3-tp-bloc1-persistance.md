@@ -232,6 +232,8 @@ Trois nouveautés, qui sont autant de **garanties** apportées par la base :
 | `CHECK (quantity >= 0)` | un stock négatif | …un calcul se trompe |
 | `UNIQUE (owner_id, name)` | deux lignes « tomates » pour le même utilisateur | …deux requêtes arrivent en même temps |
 
+> Rappel : le modèle des objets est celui de la séance 1, simple et pas idéal. Le support le garde tel quel ; si votre groupe l'a amélioré, adaptez le schéma en conséquence.
+
 `ItemService` vérifie déjà que le propriétaire existe (`404`). La clé étrangère ne fait pas double emploi : le service vérifie pour **répondre proprement** au client, la base garantit que **rien d'incohérent ne sera jamais enregistré**, quel que soit le chemin emprunté (un bug, une autre application, une commande tapée dans la console…).
 
 Le schéma a changé : la table `users` existe déjà, mais pas `items`. Ici, `IF NOT EXISTS` suffit (le script crée `items` et ignore `users`). Gardez le réflexe pour la suite : schéma modifié → supprimer `data/` en cas de doute.

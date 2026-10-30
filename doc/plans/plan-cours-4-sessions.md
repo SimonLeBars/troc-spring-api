@@ -119,6 +119,7 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 ## Session 5 — Autonomie de groupe
 
 - Travail en autonomie sur le projet final, sans cours magistral.
+- Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP des séances 1 et 3. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
 - Simon disponible pour support technique ponctuel (à cadrer : combien de temps de présence prévu ?).
 
 ---
