@@ -33,7 +33,7 @@ fois la vérification faite.
 ## Déploiement (Render)
 
 - `Dockerfile` à la racine : build Maven puis image JRE 25. Le port vient de la variable `PORT`.
-- `main` est déployé automatiquement sur Render (offre gratuite, 512 Mo de RAM, mise en veille
+- `main` est déployé automatiquement sur Render (https://troc-spring-api.onrender.com, offre gratuite, 512 Mo de RAM, mise en veille
   après 15 min sans requête : la première requête suivante prend ~1 min).
 - Chaque pull request obtient sa propre preview (URL visible sur la PR, « View deployment »),
   supprimée au merge ou à la fermeture. Base H2 vide à chaque déploiement.
