@@ -38,3 +38,28 @@ jobs:
           name: rapports-tests
           path: target/surefire-reports/
           retention-days: 7
+
+  docker:
+    name: Image Docker (démarrage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construire l'image
+        run: docker build -t troc-api .
+
+      # Même limite mémoire que l'offre gratuite de Render
+      - name: Démarrer le conteneur (512 Mo, port imposé comme sur Render)
+        run: docker run -d --name troc -m 512m -e PORT=10000 -p 10000:10000 troc-api
+
+      - name: Vérifier que l'API répond
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:10000/users > /dev/null; then
+              echo "L'API répond sur /users"; exit 0
+            fi
+            sleep 2
+          done
+          echo "L'API ne répond pas"; docker logs troc; exit 1

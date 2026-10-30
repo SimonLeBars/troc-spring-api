@@ -30,6 +30,16 @@ fois la vérification faite.
 `.github/workflows/ci.yml` lance `./mvnw verify` sur chaque pull request et chaque push sur
 `main`. Une PR ne doit être mergée que si ce check est vert.
 
+## Déploiement (Render)
+
+- `Dockerfile` à la racine : build Maven puis image JRE 25. Le port vient de la variable `PORT`.
+- `main` est déployé automatiquement sur Render (offre gratuite, 512 Mo de RAM, mise en veille
+  après 15 min sans requête : la première requête suivante prend ~1 min).
+- Chaque pull request obtient sa propre preview (URL visible sur la PR, « View deployment »),
+  supprimée au merge ou à la fermeture. Base H2 vide à chaque déploiement.
+- Pour tester une preview avec Bruno : environnement `Render`, remplacer `baseUrl` par l'URL
+  de la preview.
+
 ## Sessions cloud (Claude Code on the web)
 
 L'image cloud fournit Java 21 par défaut. Le script `scripts/cloud-setup.sh` (setup script de
