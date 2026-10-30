@@ -1,0 +1,12 @@
+.git
+.github
+.claude
+.devcontainer
+.idea
+.vscode
+target
+data
+bruno
+doc
+scripts
+*.md
