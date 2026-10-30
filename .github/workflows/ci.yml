@@ -63,3 +63,9 @@ jobs:
             sleep 2
           done
           echo "L'API ne répond pas"; docker logs troc; exit 1
+
+      - name: Vérifier la documentation OpenAPI et Swagger UI
+        run: |
+          curl -sf http://localhost:10000/v3/api-docs | grep -q '"/users"'
+          curl -sfL http://localhost:10000/swagger-ui.html | grep -qi swagger
+          echo "OpenAPI et Swagger UI disponibles"

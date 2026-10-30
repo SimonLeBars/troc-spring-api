@@ -12,6 +12,8 @@ Les recommandations de travail détaillées (git, dépendances, supports de TP, 
 - Persistance : Spring Data JDBC + H2. Schéma dans `src/main/resources/schema.sql`.
   - Application : base fichier dans `data/` (ignoré par git), console sur `/h2-console`
   - Tests : profil `test`, base H2 en mémoire (`src/test/resources/application-test.properties`)
+- Documentation : springdoc-openapi (séance 5). Swagger UI sur `/swagger-ui.html`, description
+  OpenAPI sur `/v3/api-docs` (aussi disponibles sur Render et les previews).
 
 ## Commandes
 
