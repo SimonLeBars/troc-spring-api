@@ -40,3 +40,10 @@ Le `pom.xml` doit refléter ce que les étudiants ont vu à un instant donné du
 - Pour illustrer un problème technique (ex. couplage fort), préférer une liste de conséquences
   concrètes avec des exemples "dans la vraie vie" professionnels plutôt qu'un exercice qui
   nécessiterait des outils/notions pas encore vus.
+
+## Sessions de grilling (`/grill-me`, skill `grilling`)
+
+- Poser les questions de chaque round via l'outil `AskUserQuestion` plutôt qu'en texte libre.
+- Une question par entrée (4 max par appel ; enchaîner plusieurs appels si le round en compte
+  plus), la réponse recommandée en première option suffixée « (Recommandé) ».
+- Garder les questions ouvertes : Simon peut toujours répondre en texte libre via « Other ».
