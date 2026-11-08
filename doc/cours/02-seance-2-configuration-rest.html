@@ -168,11 +168,11 @@
     </div>
     <div class="content">
       <h1>Configuration &amp; REST</h1>
-      <div class="sub">Sortir les règles métier du code, et apprendre à l'API à parler HTTP correctement.</div>
+      <div class="sub">Sortir les règles métier du code, et retrouver ses réflexes REST en Spring.</div>
     </div>
     <div class="meta">
       <div>PRÉREQUIS <span>GET / POST /users</span></div>
-      <div>OUTILS <span>curl · client HTTP</span></div>
+      <div>OUTILS <span>Bruno · curl</span></div>
       <div>STACK <span>Spring Boot 4.1</span></div>
     </div>
     <div class="pageno">01</div>
@@ -196,7 +196,7 @@
     <div class="pageno">02</div>
   </section>
   <aside class="notes">
-    <p>Rappel de 2 minutes, pas plus. Faire le lien avec la diapo « Une API REST, concrètement » de la séance 1 : on avait annoncé que les verbes, paramètres et codes de statut seraient vus aujourd'hui.</p>
+    <p>Rappel de 2 minutes, pas plus. Les étudiants ont déjà écrit des API REST dans une autre technologie : les verbes, les codes de statut et la conception des URLs sont connus. Ce qui est nouveau aujourd'hui, c'est la configuration externalisée et la façon de dire tout ça en Spring.</p>
     <p>Les données restent en mémoire toute la séance : la base H2 arrive en séance 3.</p>
   </aside>
 
@@ -216,7 +216,7 @@
     <div class="pageno">03</div>
   </section>
   <aside class="notes">
-    <p>Environ 10 minutes sur cette partie, 20 sur REST.</p>
+    <p>Environ 20 minutes sur cette partie : c'est la vraie nouveauté du jour. La partie REST n'est qu'un rappel suivi de son équivalent Spring (10 minutes).</p>
   </aside>
 
   <!-- ============ 04 · VALEUR EN DUR ============ -->
@@ -402,62 +402,44 @@ server.port=8080
     <div class="tag">THÉORIE · SUITE</div>
     <div class="num">02</div>
     <div>
-      <h2>Parler HTTP correctement</h2>
+      <h2>REST : vos réflexes, en Spring</h2>
       <div class="list">
-        <div>Chemin, paramètres, corps</div>
-        <div>Concevoir ses URLs</div>
-        <div>Les codes de statut</div>
-        <div>Tester son API</div>
+        <div>Rappel express</div>
+        <div>Chemin, paramètres, corps : les annotations</div>
+        <div>Choisir son code de statut</div>
       </div>
     </div>
     <div class="pageno">09</div>
   </section>
   <aside class="notes">
-    <p>On reprend là où la diapo « Une API REST, concrètement » s'était arrêtée : verbe, ressource, réponse.</p>
+    <p>Partie courte : les notions REST sont acquises. Demander à la salle avec quelle technologie chacun a déjà écrit une API (Express, Symfony, FastAPI…) : chaque annotation Spring a son équivalent qu'ils connaissent.</p>
   </aside>
 
-  <!-- ============ 10 · ANATOMIE D'UNE REQUÊTE ============ -->
-  <section class="slide s-diagram">
+  <!-- ============ 10 · RAPPEL REST ============ -->
+  <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">REST · ANATOMIE D'UNE REQUÊTE</div>
-    <h3>Trois façons de transmettre une information</h3>
-    <svg viewBox="0 0 800 262" role="img" aria-label="Une variable de chemin correspond à @PathVariable, un paramètre de requête à @RequestParam, un corps JSON à @RequestBody">
-      <rect class="box" x="0" y="0" width="360" height="70" rx="4"/>
-      <text class="tc" x="20" y="42" font-size="16">GET /items/<tspan fill="#6DB33F" font-weight="700">7</tspan></text>
-      <line class="ln" x1="362" y1="35" x2="426" y2="35" marker-end="url(#arr)"/>
-      <rect class="box-strong" x="430" y="0" width="370" height="70" rx="4"/>
-      <text class="tc" x="450" y="30" font-size="14" font-weight="600">@PathVariable Long id</text>
-      <text class="t tm" x="450" y="52">identifie UNE ressource précise</text>
-
-      <rect class="box" x="0" y="95" width="360" height="70" rx="4"/>
-      <text class="tc" x="20" y="137" font-size="16">GET /items?<tspan fill="#6DB33F" font-weight="700">ownerId=42</tspan></text>
-      <line class="ln" x1="362" y1="130" x2="426" y2="130" marker-end="url(#arr)"/>
-      <rect class="box-strong" x="430" y="95" width="370" height="70" rx="4"/>
-      <text class="tc" x="450" y="125" font-size="14" font-weight="600">@RequestParam Long ownerId</text>
-      <text class="t tm" x="450" y="147">filtre ou option sur une liste, souvent facultatif</text>
-
-      <rect class="box" x="0" y="190" width="360" height="70" rx="4"/>
-      <text class="tc" x="20" y="218" font-size="16">POST /items</text>
-      <text class="tc" x="20" y="244"><tspan fill="#6DB33F" font-weight="700">{ "name": "tomates", "quantity": 10 }</tspan></text>
-      <line class="ln" x1="362" y1="225" x2="426" y2="225" marker-end="url(#arr)"/>
-      <rect class="box-strong" x="430" y="190" width="370" height="70" rx="4"/>
-      <text class="tc" x="450" y="220" font-size="14" font-weight="600">@RequestBody Item item</text>
-      <text class="t tm" x="450" y="242">les données envoyées, converties depuis le JSON</text>
-    </svg>
-    <div class="caption">Le verbe et le chemin se déclarent avec <b>@GetMapping</b>, <b>@PostMapping</b>, <b>@PutMapping</b>, <b>@DeleteMapping</b>.</div>
+    <div class="tag">REST · RAPPEL</div>
+    <h3>Ce que vous savez déjà</h3>
+    <ul>
+      <li><b>Des ressources</b> <span>des noms au pluriel : /users, /items/7, /trades</span></li>
+      <li><b>Un verbe par intention</b> <span>GET lit · POST crée · PUT remplace · DELETE supprime</span></li>
+      <li><b>Où va l'information</b> <span>chemin : une ressource · ?param : un filtre · corps : les données</span></li>
+      <li><b>Les codes</b> <span>200 · 201 · 204 &nbsp;|&nbsp; 400 · 404 · 409 &nbsp;|&nbsp; 500 = un bug</span></li>
+      <li class="hl"><b>400 ou 409 ?</b> <span>invalide en soi → 400 · valide, mais l'état des données s'y oppose → 409</span></li>
+    </ul>
     <div class="pageno">10</div>
   </section>
   <aside class="notes">
-    <p>Règle simple pour choisir : si l'information désigne la ressource, elle va dans le chemin ; si elle affine une liste, en paramètre ; si ce sont des données à enregistrer, dans le corps.</p>
-    <p>@RequestBody a déjà été vu en séance 1 sur POST /users. Les deux nouveautés sont @PathVariable et @RequestParam.</p>
-    <p>Un GET n'a pas de corps : tout passe par le chemin et les paramètres.</p>
+    <p>Diapo de rappel, à passer vite : si la salle hoche la tête, on avance. Le détail (codes, conception des URLs) est en lien dans le support de TP.</p>
+    <p>Seul point à appuyer : 400 ou 409. Le choix fait partie des choix techniques à justifier à l'évaluation, et il revient dans les deux blocs du TP.</p>
+    <p>Une action métier (proposer un troc) reste la création d'une ressource : POST /trades. Ce sera le bloc 2.</p>
   </aside>
 
   <!-- ============ 11 · ITEMCONTROLLER ============ -->
   <section class="slide s-code dense">
     <div class="bar"></div>
     <div class="tag">REST · DANS LE CODE</div>
-    <h3>Les trois annotations dans un contrôleur</h3>
+    <h3>Chemin, paramètre, corps : les annotations</h3>
     <div class="win">
       <div class="winbar">item/ItemController.java</div>
 <pre style="font-size:12px;line-height:1.5;padding:14px 22px"><span class="an">@RestController</span>
@@ -481,75 +463,13 @@ server.port=8080
     <div class="pageno">11</div>
   </section>
   <aside class="notes">
+    <p>Le verbe et le chemin se déclarent avec @GetMapping, @PostMapping, @PutMapping, @DeleteMapping. @RequestBody a déjà été vu en séance 1 sur POST /users : les nouveautés sont @PathVariable et @RequestParam.</p>
     <p>@RequestMapping sur la classe évite de répéter /items sur chaque méthode. Proposer aux groupes de faire la même chose sur UserController.</p>
     <p>Par défaut, un @RequestParam est obligatoire : sans required = false, GET /items sans paramètre renverrait 400.</p>
     <p>Si on appelle GET /items/abc, Spring ne peut pas convertir « abc » en Long : réponse 400 automatique, sans une ligne de code.</p>
   </aside>
 
-  <!-- ============ 12 · CONCEVOIR SES URLS ============ -->
-  <section class="slide s-content">
-    <div class="bar"></div>
-    <div class="tag">REST · CONCEPTION</div>
-    <h3>Concevoir ses URLs</h3>
-    <ul>
-      <li><b>Des noms, pas des verbes</b> <span>/items et non /getItems : l'action est portée par le verbe HTTP</span></li>
-      <li><b>Au pluriel</b> <span>/users/42 se lit « l'élément 42 de la collection users »</span></li>
-      <li><b>Un verbe par intention</b> <span>GET lit · POST crée · PUT remplace · DELETE supprime</span></li>
-      <li><b>Les filtres en paramètres</b> <span>/items?ownerId=42 plutôt que /items/owner/42</span></li>
-      <li class="hl"><b>Une action métier ?</b> <span>proposer un troc, c'est créer une ressource : POST /trades</span></li>
-    </ul>
-    <div class="pageno">12</div>
-  </section>
-  <aside class="notes">
-    <p>Contre-exemples à citer à l'oral : POST /createUser, GET /deleteUser?id=3. Le second est dangereux : un GET doit pouvoir être rejoué sans effet de bord (un navigateur ou un robot peut le déclencher).</p>
-    <p>PUT remplace la ressource entière ; PATCH (modification partielle) existe aussi, mais n'est pas demandé dans le TP.</p>
-    <p>La dernière ligne prépare le bloc 2 : même une action métier se modélise comme une ressource qu'on crée.</p>
-  </aside>
-
-  <!-- ============ 13 · CODES DE STATUT ============ -->
-  <section class="slide s-diagram">
-    <div class="bar"></div>
-    <div class="tag">REST · CODES DE STATUT</div>
-    <h3>Le code de statut : la réponse en un nombre</h3>
-    <svg viewBox="0 0 800 250" role="img" aria-label="Codes 2xx pour un succès, 4xx pour une erreur du client, 5xx pour une erreur du serveur, avec des exemples tirés du troc">
-      <rect class="box-accent" x="0" y="0" width="250" height="44" rx="4"/>
-      <text class="t tb tw" x="18" y="28">2xx · ça a marché</text>
-      <rect class="box" x="0" y="54" width="250" height="190" rx="4"/>
-      <text class="tc" x="18" y="84" font-weight="600">200 OK</text>
-      <text class="t tm" x="18" y="103">lecture, mise à jour</text>
-      <text class="tc" x="18" y="140" font-weight="600">201 Created</text>
-      <text class="t tm" x="18" y="159">utilisateur créé</text>
-      <text class="tc" x="18" y="196" font-weight="600">204 No Content</text>
-      <text class="t tm" x="18" y="215">supprimé, rien à renvoyer</text>
-
-      <rect class="box-strong" x="275" y="0" width="250" height="44" rx="4"/>
-      <text class="t tb" x="293" y="28">4xx · erreur du client</text>
-      <rect class="box" x="275" y="54" width="250" height="190" rx="4"/>
-      <text class="tc" x="293" y="84" font-weight="600">400 Bad Request</text>
-      <text class="t tm" x="293" y="103">JSON mal formé, quantité négative</text>
-      <text class="tc" x="293" y="140" font-weight="600">404 Not Found</text>
-      <text class="t tm" x="293" y="159">GET /users/42 : inconnu</text>
-      <text class="tc" x="293" y="196" font-weight="600">409 Conflict</text>
-      <text class="t tm" x="293" y="215">trop de trocs en attente</text>
-
-      <rect class="box-bad" x="550" y="0" width="250" height="44" rx="4"/>
-      <text class="t tb tbad" x="568" y="28">5xx · erreur du serveur</text>
-      <rect class="box" x="550" y="54" width="250" height="190" rx="4"/>
-      <text class="tc tbad" x="568" y="84" font-weight="600">500 Internal Server Error</text>
-      <text class="t tm" x="568" y="103">exception non rattrapée</text>
-      <text class="t tm" x="568" y="140">Jamais un choix volontaire :</text>
-      <text class="t tm" x="568" y="159">c'est un bug à corriger.</text>
-    </svg>
-    <div class="caption">Le code dit <b>ce qui s'est passé</b>, le corps JSON donne <b>les détails</b>. Un client doit pouvoir réagir sans lire le message.</div>
-    <div class="pageno">13</div>
-  </section>
-  <aside class="notes">
-    <p>Il en existe des dizaines ; ces sept suffisent pour tout le projet.</p>
-    <p>Distinction utile : 4xx = le client doit changer sa requête ; 5xx = la même requête pourrait marcher plus tard, c'est le serveur qui a un problème.</p>
-    <p>400 ou 409 ? 400 : la requête est invalide en elle-même. 409 : la requête est valide, mais l'état actuel des données l'empêche. Le choix fait partie des choix techniques à justifier à l'évaluation.</p>
-  </aside>
-
-  <!-- ============ 14 · CHOISIR SON CODE ============ -->
+  <!-- ============ 12 · CHOISIR SON CODE ============ -->
   <section class="slide s-code dense">
     <div class="bar"></div>
     <div class="tag">REST · CODES DE STATUT EN SPRING</div>
@@ -572,45 +492,17 @@ server.port=8080
 <span class="good">        <span class="kw">new</span> ResponseStatusException(HttpStatus.NOT_FOUND, <span class="kw">"Utilisateur "</span> + id + <span class="kw">" introuvable"</span>)); <span class="cm">// 404</span></span>
 }</pre>
     </div>
-    <div class="pageno">14</div>
+    <div class="pageno">12</div>
   </section>
   <aside class="notes">
     <p>Rappel de la séance 1 : notre POST /users renvoyait 200. Voici comment renvoyer le 201 attendu, avec l'en-tête Location qui indique où trouver la ressource créée.</p>
     <p>Trois outils : ResponseEntity quand le code ou les en-têtes dépendent du cas ; @ResponseStatus quand le code est toujours le même ; ResponseStatusException pour interrompre le traitement avec une erreur.</p>
     <p>Limite assumée : ResponseStatusException dans le service mélange un peu web et métier. Le bonus @ControllerAdvice permet de lancer une exception métier (NotFoundException) et de la traduire en 404 côté web.</p>
     <p>Le TP fait passer findById à Optional (bloc 1, étape 2.1) : le code de la diapo est celui que les étudiants écrivent.</p>
+    <p>Pour vérifier les codes : la collection Bruno du projet, ou curl -i (sans -i, curl n'affiche ni le code ni les en-têtes).</p>
   </aside>
 
-  <!-- ============ 15 · TESTER ============ -->
-  <section class="slide s-code dense">
-    <div class="bar"></div>
-    <div class="tag">REST · TESTER SON API</div>
-    <h3>Vérifier le code, pas seulement le JSON</h3>
-    <div class="win">
-      <div class="winbar">terminal</div>
-<pre>$ curl -i -X POST localhost:8080/users \
-       -H <span class="kw">"Content-Type: application/json"</span> \
-       -d <span class="kw">'{"name": "Bob"}'</span>
-
-<span class="good">HTTP/1.1 201</span>
-Location: /users/2
-Content-Type: application/json
-
-{"id":2,"name":"Bob"}
-
-$ curl -i -X DELETE localhost:8080/users/2
-<span class="good">HTTP/1.1 204</span></pre>
-    </div>
-    <div class="caption"><b>-i</b> affiche le code et les en-têtes : sans lui, impossible de voir la différence entre un 200 et un 201.</div>
-    <div class="pageno">15</div>
-  </section>
-  <aside class="notes">
-    <p>Le serveur embarqué n'affiche pas de libellé après le code (« 201 » et non « 201 Created ») : c'est normal.</p>
-    <p>Sous Windows PowerShell, curl peut être un alias d'une autre commande : utiliser curl.exe, ou plus simplement un client HTTP graphique (Bruno, Postman, ou celui d'IntelliJ s'il est disponible dans leur édition).</p>
-    <p>Bonne pratique pour les groupes : garder un fichier de requêtes de test dans le projet. Il servira encore en séance 3 et pour la démo finale.</p>
-  </aside>
-
-  <!-- ============ 16 · CONSIGNE TP 1 ============ -->
+  <!-- ============ 13 · CONSIGNE TP 1 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
     <div class="tag">TP · BLOC 1</div>
@@ -622,22 +514,22 @@ $ curl -i -X DELETE localhost:8080/users/2
       </div>
       <div class="card">
         <div class="k">À VÉRIFIER</div>
-        <div class="v">Chaque endpoint testé avec curl -i ou un client HTTP : le bon code, pas seulement le bon JSON.</div>
+        <div class="v">Chaque endpoint testé avec Bruno (ou curl -i) : le bon code, pas seulement le bon JSON.</div>
       </div>
       <div class="card">
         <div class="k">CHECKPOINT #1</div>
         <div class="v">Quand tout le monde a globalement fini : les pièges courants, puis on attaque les trocs.</div>
       </div>
     </div>
-    <div class="pageno">16</div>
+    <div class="pageno">13</div>
   </section>
   <aside class="notes">
-    <p>Durée indicative : 60 à 75 min. Le détail des endpoints attendus (verbes, chemins, codes) est dans le support de TP.</p>
+    <p>Durée indicative : 60 à 75 min. Le détail des endpoints attendus (verbes, chemins, codes) est dans le support de TP. Le CRUD y est moins guidé qu'en séance 1 : les étudiants savent ce qu'est un CRUD, ils cherchent seulement comment l'écrire en Spring.</p>
     <p>Suggestion d'organisation pour les groupes de 4 : deux personnes sur user/, deux sur item/. Le découpage par fonctionnalité s'y prête.</p>
-    <p>Les groupes en avance attaquent les bonus : @ControllerAdvice, puis @Valid.</p>
+    <p>Le temps gagné sur les rappels doit permettre à la plupart des groupes d'atteindre les bonus : @ControllerAdvice, puis @Valid.</p>
   </aside>
 
-  <!-- ============ 17 · SECTION CHECKPOINT ============ -->
+  <!-- ============ 14 · SECTION CHECKPOINT ============ -->
   <section class="slide s-section">
     <div class="tag">CHECKPOINT #1 · 10 MIN</div>
     <div class="num">03</div>
@@ -649,13 +541,13 @@ $ curl -i -X DELETE localhost:8080/users/2
         <div>Ce que le client envoie ≠ ce qu'on stocke</div>
       </div>
     </div>
-    <div class="pageno">17</div>
+    <div class="pageno">14</div>
   </section>
   <aside class="notes">
     <p>Commencer par faire remonter les blocages des groupes, puis valider avec la diapo suivante. Garder la transition vers les trocs sous 5 minutes.</p>
   </aside>
 
-  <!-- ============ 18 · PIÈGES ============ -->
+  <!-- ============ 15 · PIÈGES ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
     <div class="tag">CHECKPOINT #1 · PIÈGES COURANTS</div>
@@ -667,7 +559,7 @@ $ curl -i -X DELETE localhost:8080/users/2
       <li><b>Un champ arrive à null</b> <span>nom JSON ≠ nom Java, ou setter manquant</span></li>
       <li><b>Un champ manque en sortie</b> <span>getter manquant : seul ce qui est exposé est converti</span></li>
     </ul>
-    <div class="pageno">18</div>
+    <div class="pageno">15</div>
   </section>
   <aside class="notes">
     <p>Message à faire passer : le code de statut est le premier outil de diagnostic. Lire le code avant de relire son propre code.</p>
@@ -675,7 +567,7 @@ $ curl -i -X DELETE localhost:8080/users/2
     <p>Penser aussi à la console de l'application : Spring y journalise la raison précise d'un 400.</p>
   </aside>
 
-  <!-- ============ 19 · PROPOSER UN TROC ============ -->
+  <!-- ============ 16 · PROPOSER UN TROC ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
     <div class="tag">CHECKPOINT #1 · OBJECTIF DU BLOC 2</div>
@@ -716,7 +608,7 @@ $ curl -i -X DELETE localhost:8080/users/2
       <text class="tk" x="0" y="260">PAS ENCORE</text>
       <text class="t tm" x="0" y="282">la double validation et la mise à jour des stocks : séance 3, avec les transactions</text>
     </svg>
-    <div class="pageno">19</div>
+    <div class="pageno">16</div>
   </section>
   <aside class="notes">
     <p>On retrouve le Trade de la diapo fil rouge de la séance 1, mais seulement sa première étape : « Proposé ».</p>
@@ -725,7 +617,7 @@ $ curl -i -X DELETE localhost:8080/users/2
     <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigerait avec Spring Security, qui reste un bonus de la séance 4.</p>
   </aside>
 
-  <!-- ============ 20 · REQUÊTE ≠ ENTITÉ ============ -->
+  <!-- ============ 17 · REQUÊTE ≠ ENTITÉ ============ -->
   <section class="slide s-code compare">
     <div class="bar"></div>
     <div class="tag">CHECKPOINT #1 · REQUÊTE ET ENTITÉ</div>
@@ -772,7 +664,7 @@ $ curl -i -X DELETE localhost:8080/users/2
       </div>
     </div>
     <div class="caption">Le client ne choisit ni l'<b>id</b> ni le <b>statut</b> : un record dédié à la requête l'en empêche.</div>
-    <div class="pageno">20</div>
+    <div class="pageno">17</div>
   </section>
   <aside class="notes">
     <p>Si on recevait directement un Trade, un client pourrait envoyer "status": "EXECUTED" et sauter toutes les règles métier.</p>
@@ -780,7 +672,7 @@ $ curl -i -X DELETE localhost:8080/users/2
     <p>Le service reçoit la requête et construit le Trade lui-même, après ses vérifications.</p>
   </aside>
 
-  <!-- ============ 21 · CONSIGNE TP 2 ============ -->
+  <!-- ============ 18 · CONSIGNE TP 2 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
     <div class="tag">TP · BLOC 2</div>
@@ -799,14 +691,14 @@ $ curl -i -X DELETE localhost:8080/users/2
         <div class="v">@ControllerAdvice pour centraliser les erreurs, @Valid pour valider les entrées.</div>
       </div>
     </div>
-    <div class="pageno">21</div>
+    <div class="pageno">18</div>
   </section>
   <aside class="notes">
     <p>Durée indicative : 60 à 75 min. Le TradeService dépend de UserService (ou UserRepository) et de ItemService : la dépendance entre fonctionnalités annoncée en séance 1 devient réelle.</p>
     <p>Le test avec la variable d'environnement montre concrètement la diapo « D'où vient la valeur ? » : même code, comportement différent.</p>
   </aside>
 
-  <!-- ============ 22 · SYNTHÈSE ============ -->
+  <!-- ============ 19 · SYNTHÈSE ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
     <div class="tag">JOUR 2 · SYNTHÈSE</div>
@@ -829,7 +721,7 @@ $ curl -i -X DELETE localhost:8080/users/2
         <div class="v">Une vraie base H2, et le troc exécuté en tout-ou-rien.</div>
       </div>
     </div>
-    <div class="pageno">22</div>
+    <div class="pageno">19</div>
   </section>
   <aside class="notes">
     <p>Diapo projetée pendant le TP bloc 2 et reprise au checkpoint #2 pour le bilan.</p>

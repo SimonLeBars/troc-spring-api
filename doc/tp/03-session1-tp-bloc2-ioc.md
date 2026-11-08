@@ -204,7 +204,7 @@ curl http://localhost:8080/users
 
 Pour un `GET`, un navigateur suffit aussi : ouvrez <http://localhost:8080/users>.
 
-Remarquez que le `POST` répond `200 OK`. Pour une création, le code attendu est `201 Created` : les codes de statut HTTP seront traités en séance 2.
+Remarquez que le `POST` répond `200 OK`, et non le `201 Created` que vous attendez pour une création : la façon de choisir le code en Spring est vue en séance 2.
 
 Les données sont en mémoire : elles disparaissent à chaque redémarrage de l'application. La base de données arrive en séance 3.
 
@@ -274,7 +274,7 @@ Documentation : [Spring Boot — Profiles](https://docs.spring.io/spring-boot/re
    `{id}` dans le chemin est une variable : `@PathVariable` la convertit en `Long` et la passe à la méthode.
 3. Dans Bruno, dupliquez **Lister utilisateurs** (clic droit > **Clone**), nommez-la **Consulter utilisateur** et changez l'URL en `{{baseUrl}}/users/1`.
 
-Que renvoie `GET /users/42` pour un utilisateur qui n'existe pas ? Le bon comportement (`404 Not Found`) sera vu en séance 2.
+Que renvoie `GET /users/42` pour un utilisateur qui n'existe pas ? La façon de renvoyer un `404` en Spring est vue en séance 2.
 
 ## Pour aller plus loin
 

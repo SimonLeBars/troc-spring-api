@@ -4,9 +4,11 @@
 
 À la fin de la séance 1, l'API savait faire deux choses : `GET /users` et `POST /users`. Dans ce bloc, on la complète en trois temps :
 
-1. **Les utilisateurs, de bout en bout** : consulter, modifier, supprimer un utilisateur, avec le bon code de statut HTTP à chaque fois.
+1. **Les utilisateurs, de bout en bout** : consulter, modifier, supprimer, avec le bon code de statut.
 2. **Les objets** : la même chose sur `/items`, en autonomie, avec un filtre par propriétaire.
 3. **La configuration** : la règle métier « un utilisateur ne peut pas déclarer plus de N objets » sort du code Java et part dans `application.properties`.
+
+Vous avez déjà écrit des API REST : ce support ne réexplique pas ce qu'est un CRUD, un `404` ou un paramètre de requête. Il montre **comment on l'écrit en Spring**, et il est volontairement moins guidé que ceux de la séance 1 (les solutions sont repliées, à ouvrir en cas de blocage). La vraie nouveauté du bloc est l'étape 6, la configuration.
 
 **Objectif obligatoire de fin de bloc** : tous les endpoints du tableau ci-dessous répondent, avec le bon code, et `max-per-user` est lu depuis la configuration.
 
@@ -29,57 +31,48 @@ Les données restent **en mémoire** pendant toute la séance : la base de donn�
 
 > Organisation conseillée pour un groupe de 4 : deux personnes sur `user/` (étapes 1 à 4), deux sur `item/` (étape 5, en commençant par le repository), puis tout le monde sur l'étape 6. Le découpage du projet par fonctionnalité s'y prête bien.
 
+## Rappel express : vos réflexes REST, en Spring
+
+| Vous connaissez… | En Spring |
+|---|---|
+| Associer un verbe et un chemin à un traitement | `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping` sur une méthode |
+| Un préfixe commun à un groupe de routes | `@RequestMapping("/users")` sur la classe du contrôleur |
+| Une variable de chemin (`/items/7`) : désigne **une** ressource | paramètre de méthode annoté `@PathVariable Long id` |
+| Un paramètre de requête (`/items?ownerId=42`) : filtre une liste | `@RequestParam(required = false) Long ownerId` |
+| Le corps JSON d'un `POST` / `PUT` | `@RequestBody Item item` (converti par Jackson, via les setters) |
+| Renvoyer du JSON | renvoyer l'objet Java : Spring le convertit tout seul |
+| Choisir le code et les en-têtes de la réponse (`201` + `Location`) | renvoyer une `ResponseEntity<T>` |
+| Un code fixe pour une route (`204` sur un `DELETE`) | `@ResponseStatus(HttpStatus.NO_CONTENT)` sur la méthode |
+| Interrompre le traitement avec une erreur (`400`, `404`, `409`) | `throw new ResponseStatusException(HttpStatus.NOT_FOUND, "message")` |
+
+Deux règles du projet, à garder en tête pour tout le cours :
+
+- **`400` ou `409` ?** `400` si la requête est invalide en elle-même (quantité négative), `409` si elle est valide mais que **l'état actuel des données** s'y oppose (l'utilisateur a déjà trop d'objets). Ce choix fait partie des choix techniques à justifier à l'évaluation.
+- **Un `500` n'est jamais un choix** : c'est une exception non prévue, donc un bug à corriger.
+
+Besoin de vous rafraîchir la mémoire ? [MDN — Codes de statut HTTP](https://developer.mozilla.org/fr/docs/Web/HTTP/Status), [MDN — Méthodes HTTP](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods), [Microsoft — Conception d'API web RESTful](https://learn.microsoft.com/fr-fr/azure/architecture/best-practices/api-design).
+
 ## Étape 1 — Un préfixe commun : `@RequestMapping`
 
-Toutes les méthodes de `UserController` vont commencer par `/users`. Plutôt que de le répéter sur chaque méthode, déclarez-le une fois sur la classe :
-
-```java
-@RestController
-@RequestMapping("/users") // préfixe commun à toutes les méthodes de la classe
-public class UserController {
-
-    // ... constructeur inchangé
-
-    @GetMapping // GET /users
-    public List<User> findAll() {
-        return userService.findAll();
-    }
-
-    @PostMapping // POST /users
-    public User create(@RequestBody User user) {
-        return userService.create(user);
-    }
-}
-```
-
-Le chemin d'une méthode est la concaténation du chemin de la classe et de celui de la méthode : `@RequestMapping("/users")` + `@GetMapping("/{id}")` donne `/users/{id}`.
+Déclarez `@RequestMapping("/users")` sur `UserController`, et retirez `"/users"` de `@GetMapping` et `@PostMapping`. Le chemin d'une méthode est la concaténation des deux : `@RequestMapping("/users")` + `@GetMapping("/{id}")` donne `/users/{id}`.
 
 Relancez et vérifiez dans Bruno que **Utilisateurs > Créer utilisateur** et **Lister utilisateurs** fonctionnent toujours.
 
-> La collection Bruno du projet a été rangée en dossiers (**Utilisateurs**, **Objets**, **Trocs**) et contient une requête pour chaque endpoint de cette séance. Si vous avez votre propre collection, ajoutez-y une requête à chaque nouvel endpoint : elle vous servira encore en séance 3 et pour la démonstration finale.
+> La collection Bruno du projet est rangée en dossiers (**Utilisateurs**, **Objets**, **Trocs**) et contient une requête pour chaque endpoint de cette séance. Si vous avez votre propre collection, ajoutez-y une requête à chaque nouvel endpoint : elle vous servira encore en séance 3 et pour la démonstration finale.
 
 ## Étape 2 — Consulter un utilisateur : `GET /users/{id}`
 
-> Si vous avez fait le bonus 2 de la séance 1, vous avez déjà la route : passez directement au 2.2, qui corrige le cas « utilisateur inconnu ».
+> Si vous avez fait le bonus 2 de la séance 1, vous avez déjà la route : il reste à traiter le cas « utilisateur inconnu ».
 
 ### 2.1 — Le repository renvoie un `Optional`
 
-Aujourd'hui, `findById` renvoie `null` quand l'utilisateur n'existe pas. C'est un piège : rien dans la signature `User findById(Long id)` ne prévient l'appelant qu'il peut recevoir `null`, et un oubli se termine en `NullPointerException`.
-
-Java fournit un type fait pour ça : [`Optional<T>`](https://dev.java/learn/api/streams/optionals/), une « boîte » qui contient soit une valeur, soit rien. Modifiez l'interface :
+Aujourd'hui, `findById` renvoie `null` quand l'utilisateur n'existe pas, et rien dans la signature `User findById(Long id)` ne prévient l'appelant. Java fournit un type fait pour ça : [`Optional<T>`](https://dev.java/learn/api/streams/optionals/), une « boîte » qui contient soit une valeur, soit rien. Changez la signature dans l'interface `UserRepository` :
 
 ```java
-public interface UserRepository {
-
-    User save(User user);
-
-    List<User> findAll();
-
-    Optional<User> findById(Long id); // import java.util.Optional
-}
+Optional<User> findById(Long id); // import java.util.Optional
 ```
 
-Puis les deux implémentations (`InMemoryUserRepository` **et** `LoggingUserRepository` : elles doivent toutes les deux respecter le contrat) :
+Puis dans les **deux** implémentations (`InMemoryUserRepository` et `LoggingUserRepository`) :
 
 ```java
 @Override
@@ -88,62 +81,45 @@ public Optional<User> findById(Long id) {
 }
 ```
 
-Le projet ne compile plus : `ItemService` comparait le résultat à `null`. Remplacez le test par :
+Le projet ne compile plus : `ItemService` comparait le résultat à `null`. Remplacez le test par `users.findById(item.getOwnerId()).isEmpty()`. Le compilateur a trouvé tous les endroits qui devaient traiter le cas « absent » : c'est exactement ce qu'on voulait.
+
+### 2.2 — Le service lève le `404`, le contrôleur expose la route
 
 ```java
-if (users.findById(item.getOwnerId()).isEmpty()) {
-```
-
-C'est exactement ce qu'on voulait : le compilateur a trouvé tous les endroits qui devaient traiter le cas « absent ».
-
-### 2.2 — Le service lève une erreur `404`
-
-Ajoutez à `UserService` :
-
-```java
+// UserService
 public User findById(Long id) {
     return users.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur " + id + " introuvable"));
 }
 ```
 
-- `orElseThrow` renvoie l'utilisateur s'il est dans la boîte, sinon lève l'exception fournie.
-- `ResponseStatusException` (package `org.springframework.web.server`) est une exception que Spring sait traduire en réponse HTTP : ici, un `404 Not Found`. Elle interrompt le traitement, comme n'importe quelle exception.
-
-### 2.3 — La route
-
-Dans `UserController` :
-
 ```java
+// UserController
 @GetMapping("/{id}") // GET /users/42
 public User findById(@PathVariable Long id) {
     return userService.findById(id);
 }
 ```
 
-`{id}` est une variable de chemin : `@PathVariable` récupère sa valeur et la convertit en `Long`. Le lien se fait par le nom : `{id}` ↔ `Long id`.
+- `orElseThrow` renvoie l'utilisateur s'il est dans la boîte, sinon lève l'exception fournie.
+- `ResponseStatusException` (package `org.springframework.web.server`) est traduite par Spring en réponse HTTP avec le code indiqué.
+- Le lien entre `{id}` et le paramètre Java se fait par le nom : `{id}` ↔ `Long id`. La conversion en `Long` est automatique : `GET /users/abc` répond `400` sans une ligne de code.
 
-### 2.4 — Afficher le message d'erreur
+### 2.3 — Afficher le message d'erreur
 
-Testez **Consulter utilisateur inconnu** (`GET /users/42`) dans Bruno. Le code est bien `404`, mais le message « Utilisateur 42 introuvable » n'apparaît nulle part dans la réponse : par défaut, Spring Boot le masque.
-
-Ajoutez dans `src/main/resources/application.properties` :
+Testez **Consulter utilisateur inconnu** (`GET /users/42`) dans Bruno. Le code est bien `404`, mais le message « Utilisateur 42 introuvable » n'apparaît pas dans la réponse : par défaut, Spring Boot le masque. Ajoutez dans `src/main/resources/application.properties` :
 
 ```properties
 spring.web.error.include-message=always
 ```
 
-Relancez : le corps de la réponse contient maintenant `"message": "Utilisateur 42 introuvable"`. C'est votre premier réglage dans ce fichier : on lui a changé un comportement de Spring Boot sans toucher au code. On y reviendra à l'étape 6.
+Relancez : le corps contient maintenant `"message": "Utilisateur 42 introuvable"`. C'est votre premier réglage dans ce fichier : on a changé un comportement de Spring Boot sans toucher au code. On y revient à l'étape 6.
 
 > En production, on évite parfois d'afficher les messages d'erreur, qui peuvent révéler des détails internes. Ici, nos messages sont écrits par nous et ne révèlent rien : on les garde.
 
-Testez aussi `GET /users/abc` : `400 Bad Request`, sans une ligne de code. Spring n'arrive pas à convertir `abc` en `Long`, et sait que c'est la faute du client.
-
 ## Étape 3 — Un `POST` qui répond `201 Created`
 
-En séance 1, le `POST /users` répondait `200 OK`. Le code attendu pour une création est `201 Created`, accompagné d'un en-tête `Location` qui indique où trouver la ressource créée.
-
-Quand on a besoin de choisir le code **et** les en-têtes, la méthode renvoie une `ResponseEntity` (package `org.springframework.http`) : une réponse HTTP complète, construite à la main.
+Le `POST /users` de la séance 1 répond `200 OK`. Pour renvoyer `201` avec l'en-tête `Location`, la méthode renvoie une `ResponseEntity` (package `org.springframework.http`) :
 
 ```java
 @PostMapping
@@ -154,26 +130,21 @@ public ResponseEntity<User> create(@RequestBody User user) {
 }
 ```
 
-Relancez, exécutez **Créer utilisateur** : Bruno affiche `201 Created`, et l'onglet **Headers** de la réponse contient `Location: /users/1`.
+Vérifiez avec **Créer utilisateur** : `201`, et `Location: /users/1` dans l'onglet **Headers** de la réponse.
 
-### Et si le client envoie un `id` ?
-
-Exécutez deux fois **Créer utilisateur**, puis modifiez son corps en `{"id": 1, "name": "Pirate"}` et exécutez-le. Listez les utilisateurs : Alice a disparu, remplacée par Pirate. Le repository a vu un `id` déjà rempli et a écrasé l'utilisateur existant.
-
-C'est le service qui décide des identifiants, pas le client. Corrigez `UserService.create` :
-
-```java
-public User create(User user) {
-    user.setId(null); // l'id est attribué par le repository, pas par le client
-    return users.save(user);
-}
-```
+**Et si le client envoie un `id` ?** Créez deux utilisateurs, puis exécutez **Créer utilisateur** avec le corps `{"id": 1, "name": "Pirate"}` : Alice est écrasée, parce que le repository a vu un `id` déjà rempli. C'est le serveur qui attribue les identifiants : ajoutez `user.setId(null);` au début de `UserService.create`.
 
 ## Étape 4 — Modifier et supprimer
 
-### 4.1 — `PUT /users/{id}` : remplacer un utilisateur
+À vous, avec le tableau du rappel :
 
-`PUT` remplace la ressource entière par celle envoyée dans le corps. L'`id` vient du chemin, les données du corps :
+1. **`PUT /users/{id}`** : `404` si l'utilisateur n'existe pas (réutilisez `findById`), sinon l'`id` vient du chemin, les données du corps. `200` par défaut : rien à préciser.
+2. **`DELETE /users/{id}`** : ajoutez `void deleteById(Long id)` à l'interface `UserRepository` et à ses **deux** implémentations (dans `LoggingUserRepository`, n'oubliez pas la trace), une méthode `delete` dans le service (`404` si inconnu), puis la route, qui répond toujours `204` quand tout va bien.
+
+Testez avec **Modifier utilisateur**, puis **Créer un 3e utilisateur** et **Supprimer utilisateur** (`DELETE /users/3`) → `204`. Une deuxième suppression → `404`.
+
+<details>
+<summary>Solution : PUT et DELETE</summary>
 
 ```java
 // UserService
@@ -181,6 +152,11 @@ public User update(Long id, User user) {
     findById(id); // 404 si l'utilisateur n'existe pas
     user.setId(id);
     return users.save(user);
+}
+
+public void delete(Long id) {
+    findById(id);
+    users.deleteById(id);
 }
 ```
 
@@ -190,17 +166,7 @@ public User update(Long id, User user) {
 public User update(@PathVariable Long id, @RequestBody User user) {
     return userService.update(id, user);
 }
-```
 
-Le code de retour par défaut, `200 OK`, est le bon : rien à préciser. Testez avec **Modifier utilisateur**.
-
-### 4.2 — `DELETE /users/{id}` : supprimer un utilisateur
-
-1. Ajoutez `void deleteById(Long id);` à l'interface `UserRepository`, et implémentez-la dans les deux repositories (`users.remove(id)` ; dans `LoggingUserRepository`, n'oubliez pas la trace).
-2. Ajoutez à `UserService` une méthode `delete(Long id)` qui lève le `404` si l'utilisateur n'existe pas (réutilisez `findById`), puis supprime.
-3. Ajoutez la route :
-
-```java
 @DeleteMapping("/{id}")
 @ResponseStatus(HttpStatus.NO_CONTENT) // 204 : supprimé, rien à renvoyer
 public void delete(@PathVariable Long id) {
@@ -208,19 +174,11 @@ public void delete(@PathVariable Long id) {
 }
 ```
 
-Ici, le code ne dépend jamais du cas (quand tout va bien, c'est toujours `204`) : `@ResponseStatus` suffit, pas besoin de `ResponseEntity`.
+Ici le code de succès ne dépend jamais du cas : `@ResponseStatus` suffit, pas besoin de `ResponseEntity`.
 
-Testez : **Créer un 3e utilisateur**, puis **Supprimer utilisateur** (`DELETE /users/3`) → `204`. Exécutez une deuxième fois la suppression → `404`.
+</details>
 
 > **Question** : on supprime un utilisateur qui possède des objets. Que deviennent ses objets ? Ici, rien : ils restent, avec un `ownerId` qui ne désigne plus personne. En séance 3, la base de données refusera cette suppression grâce à une **clé étrangère**.
-
-### Récapitulatif : choisir son outil
-
-| Besoin | Outil |
-|---|---|
-| Le code ou les en-têtes dépendent du cas (`201` + `Location`) | `ResponseEntity` |
-| Le code est toujours le même quand tout va bien (`204`) | `@ResponseStatus` sur la méthode |
-| Interrompre le traitement avec une erreur (`404`, `400`, `409`) | `throw new ResponseStatusException(...)` |
 
 ## Étape 5 — Les objets : `/items`, à vous
 
@@ -245,7 +203,7 @@ return items.values().stream()
         .toList();
 ```
 
-`Objects.equals` compare deux `Long` sans risque de `NullPointerException` si l'un des deux est `null`. Attention : comparer deux `Long` avec `==` compare les **objets**, pas les valeurs, et donne des résultats faux au-delà de 127.
+`Objects.equals` compare deux `Long` sans risque de `NullPointerException`. Attention : comparer deux `Long` avec `==` compare les **objets**, pas les valeurs, et donne des résultats faux au-delà de 127.
 
 Les noms de méthodes (`findByOwnerId`, `countByOwnerId`) ne sont pas choisis au hasard : en séance 3, Spring Data saura écrire ces requêtes tout seul, à partir de leur nom.
 
@@ -254,33 +212,12 @@ Les noms de méthodes (`findByOwnerId`, `countByOwnerId`) ne sont pas choisis au
 Dans `ItemService`, ajoutez `findById`, `update` et `delete`, sur le modèle de `UserService`, et faites évoluer les méthodes existantes :
 
 - `findAll(Long ownerId)` : tous les objets si `ownerId` est `null`, sinon ceux de cet utilisateur.
-- `create` et `update` vérifient l'objet reçu :
-  - quantité ≤ 0 → `400 Bad Request` (la requête est invalide en elle-même) ;
-  - propriétaire inconnu → `404 Not Found` (remplace l'`IllegalArgumentException` de la séance 1).
+- `create` et `update` vérifient l'objet reçu : quantité ≤ 0 → `400` ; propriétaire inconnu → `404` (remplace l'`IllegalArgumentException` de la séance 1). Ces vérifications communes peuvent aller dans une méthode `private void checkItem(Item item)`.
 - `create` ignore l'`id` envoyé par le client, comme à l'étape 3.
-
-Les vérifications communes à `create` et `update` peuvent aller dans une méthode `private void checkItem(Item item)`.
 
 ### 5.3 — Le contrôleur
 
-Créez `ItemController`, avec `@RequestMapping("/items")`. La nouveauté est le filtre de `GET /items?ownerId=1` : un **paramètre de requête**, récupéré avec `@RequestParam`.
-
-```java
-@GetMapping // GET /items ou GET /items?ownerId=1
-public List<Item> findAll(@RequestParam(required = false) Long ownerId) {
-    return itemService.findAll(ownerId); // ownerId vaut null si le paramètre est absent
-}
-```
-
-Par défaut, un `@RequestParam` est **obligatoire** : sans `required = false`, `GET /items` (sans paramètre) renverrait `400`.
-
-Pour choisir entre chemin, paramètre et corps :
-
-| L'information… | Elle va dans… | Exemple |
-|---|---|---|
-| désigne **une** ressource précise | le chemin, `@PathVariable` | `GET /items/7` |
-| filtre ou affine une liste | un paramètre, `@RequestParam` | `GET /items?ownerId=42` |
-| contient les données à enregistrer | le corps, `@RequestBody` | `POST /items` + JSON |
+Créez `ItemController`, avec `@RequestMapping("/items")`. La seule nouveauté est le filtre `GET /items?ownerId=1`, avec `@RequestParam(required = false) Long ownerId` : `ownerId` vaut `null` si le paramètre est absent. Sans `required = false`, le paramètre est **obligatoire** et `GET /items` répond `400`.
 
 Testez avec le dossier **Objets** de Bruno, dans l'ordre (créez d'abord les utilisateurs 1 et 2 dans le dossier **Utilisateurs**). Vérifiez aussi les cas d'erreur, en modifiant le corps de **Créer objet (Alice)** : `"quantity": -1` → `400`, `"ownerId": 99` → `404`.
 
@@ -341,31 +278,56 @@ public class ItemService {
 }
 ```
 
-`ItemController` est construit exactement comme `UserController` : remplacez `User` par `Item` et `/users` par `/items`, et ajoutez le `@RequestParam` sur `findAll`.
+</details>
+
+<details>
+<summary>Solution : ItemController</summary>
+
+```java
+@RestController
+@RequestMapping("/items")
+public class ItemController {
+
+    private final ItemService itemService;
+
+    public ItemController(ItemService itemService) {
+        this.itemService = itemService;
+    }
+
+    @GetMapping // GET /items ou GET /items?ownerId=1
+    public List<Item> findAll(@RequestParam(required = false) Long ownerId) {
+        return itemService.findAll(ownerId);
+    }
+
+    @GetMapping("/{id}")
+    public Item findById(@PathVariable Long id) {
+        return itemService.findById(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<Item> create(@RequestBody Item item) {
+        Item saved = itemService.create(item);
+        return ResponseEntity.created(URI.create("/items/" + saved.getId())).body(saved);
+    }
+
+    @PutMapping("/{id}")
+    public Item update(@PathVariable Long id, @RequestBody Item item) {
+        return itemService.update(id, item);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        itemService.delete(id);
+    }
+}
+```
 
 </details>
 
 ## Checkpoint intermédiaire — Vérifier le code, pas seulement le JSON
 
-Avant de passer à la configuration, rejouez toutes les requêtes des dossiers **Utilisateurs** et **Objets** et vérifiez le **code** de chaque réponse avec le tableau de l'objectif. Bruno l'affiche en haut de la réponse.
-
-En ligne de commande, `curl` n'affiche le code que si on ajoute `-i` :
-
-```bash
-curl -i -X POST http://localhost:8080/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Bob"}'
-```
-
-```
-HTTP/1.1 201
-Location: /users/2
-Content-Type: application/json
-
-{"id":2,"name":"Bob"}
-```
-
-Sous Windows PowerShell, `curl` est un alias d'une autre commande : tapez `curl.exe`.
+Avant de passer à la configuration, rejouez toutes les requêtes des dossiers **Utilisateurs** et **Objets** et vérifiez le **code** de chaque réponse avec le tableau de l'objectif. En ligne de commande, pensez à `curl -i` (sans `-i`, ni le code ni les en-têtes ne s'affichent ; sous Windows PowerShell, tapez `curl.exe`).
 
 ## Étape 6 — Sortir la règle métier dans la configuration
 
@@ -419,7 +381,7 @@ if (items.countByOwnerId(item.getOwnerId()) >= maxPerUser) {
 }
 ```
 
-Pourquoi `409 Conflict` et pas `400` ? La requête est parfaitement valide : déclarée par un utilisateur qui n'a encore rien, elle serait acceptée. C'est **l'état actuel des données** qui l'empêche. Règle à retenir : `400` si la requête est invalide en elle-même, `409` si elle est valide mais que l'état des données s'y oppose.
+`409` et pas `400` : la requête est valide (déclarée par un utilisateur qui n'a encore rien, elle serait acceptée), c'est **l'état actuel des données** qui l'empêche.
 
 **Testez** : passez `troc.item.max-per-user` à `2`, relancez, et exécutez trois fois **Créer objet (Alice)**. La troisième répond `409`. Aucune ligne de Java n'a changé entre `20` et `2`.
 
@@ -521,6 +483,8 @@ Retirez la variable d'environnement avant de continuer.
 
 ## En avance ? Features bonus
 
+Le CRUD étant un terrain connu, la plupart des groupes devraient atteindre au moins le bonus 1 pendant la séance.
+
 ### Bonus 1 — Centraliser la gestion des erreurs : `@RestControllerAdvice`
 
 `ResponseStatusException` dans un service mélange deux couches : le service, qui porte le métier, connaît maintenant les codes HTTP. Plus propre : le service lève une exception **métier**, et un composant de la couche web la traduit en réponse HTTP.
@@ -592,5 +556,3 @@ Documentation : [Spring Guide — Validating Form Input](https://spring.io/guide
 
 - [Spring Boot — Externalized Configuration](https://docs.spring.io/spring-boot/reference/features/external-config.html) (toutes les sources de configuration et leur ordre de priorité)
 - [Spring Framework — Annotated Controllers](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html) (`@PathVariable`, `@RequestParam`, `@RequestBody`, `ResponseEntity`)
-- [MDN — Codes de statut HTTP](https://developer.mozilla.org/fr/docs/Web/HTTP/Status) (tous les codes, avec exemples)
-- [MDN — Méthodes de requête HTTP](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods) (`GET`, `POST`, `PUT`, `DELETE`…)
