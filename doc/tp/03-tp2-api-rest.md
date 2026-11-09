@@ -4,9 +4,15 @@
 
 ## Le concept en bref
 
-Une API REST expose des **ressources** (les utilisateurs, les objets) à des URL, et des **verbes** HTTP pour agir dessus : `GET` pour lire, `POST` pour créer, `PUT` pour remplacer, `DELETE` pour supprimer. Chaque réponse porte un **code de statut** qui dit au client ce qui s'est passé : `201` créé, `404` introuvable, `409` conflit…
+Vous avez déjà écrit des API REST : ce TP ne réexplique ni les verbes, ni les codes de statut, ni la conception des URL. Il montre **comment on l'écrit en Spring**, et il est volontairement moins guidé que le TP 1 (pas de code complet, seulement des syntaxes).
 
-Le client d'une API est un programme (une application mobile, un front web, un autre service), pas un humain qui lit le message. C'est le code de statut qu'il teste pour décider quoi faire. Une API qui répond `200` à tout l'oblige à deviner.
+Trois rappels qui serviront tout au long du cours :
+
+- le client d'une API est un programme, pas un humain : c'est le **code de statut** qu'il teste pour décider quoi faire ;
+- **`400` ou `409` ?** `400` si la requête est invalide en elle-même (quantité négative), `409` si elle est valide mais que **l'état actuel des données** s'y oppose (limite atteinte). Ce choix fait partie des choix techniques à justifier à l'évaluation ;
+- **un `500` n'est jamais un choix** : c'est une exception non prévue, donc un bug à corriger.
+
+Besoin de rafraîchir la mémoire ? [MDN — Codes de statut HTTP](https://developer.mozilla.org/fr/docs/Web/HTTP/Status), [MDN — Méthodes HTTP](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods), [Microsoft — Conception d'API web RESTful](https://learn.microsoft.com/fr-fr/azure/architecture/best-practices/api-design).
 
 ---
 
@@ -87,18 +93,6 @@ Alice a disparu, remplacée par Pirate : le repository a vu un `id` déjà rempl
 ### Ce qu'il faut retenir
 
 - Le **code de statut** est la première chose que lit le client. Une API qui renvoie `200` et un corps vide pour une ressource inconnue l'oblige à deviner.
-- Les codes les plus courants :
-
-  | Code | Sens | Quand |
-  |---|---|---|
-  | `200 OK` | réussi, voici le résultat | lecture, modification |
-  | `201 Created` | ressource créée, avec un en-tête `Location` qui dit où la trouver | `POST` de création |
-  | `204 No Content` | réussi, rien à renvoyer | suppression |
-  | `400 Bad Request` | la requête est invalide **en elle-même** | quantité négative, JSON mal formé |
-  | `404 Not Found` | la ressource n'existe pas | `GET /users/42` |
-  | `409 Conflict` | la requête est valide, mais **l'état des données** s'y oppose | limite atteinte, doublon |
-  | `500 Internal Server Error` | le serveur a planté | jamais volontaire : c'est un bug |
-
 - C'est le **serveur** qui décide des identifiants, jamais le client.
 
 **Supprimez le package `fr.cours.troc.sandbox`.**
@@ -137,6 +131,16 @@ Les données restent **en mémoire** : la base arrive au TP 5.
 
 ### Syntaxes utiles
 
+#### Vos réflexes REST, en Spring
+
+| Vous connaissez… | En Spring |
+|---|---|
+| Associer un verbe et un chemin à un traitement | `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping` sur une méthode |
+| Un préfixe commun à un groupe de routes | `@RequestMapping("/users")` sur la classe du contrôleur |
+| Renvoyer du JSON | renvoyer l'objet Java : Spring le convertit tout seul |
+| Les données d'une requête (chemin, paramètre, corps) | `@PathVariable`, `@RequestParam`, `@RequestBody` (détaillés plus bas) |
+| Choisir le code de la réponse | `ResponseEntity`, `@ResponseStatus`, `ResponseStatusException` (détaillés plus bas) |
+
 #### Un préfixe commun aux routes d'un contrôleur
 
 ```java
@@ -150,8 +154,6 @@ public class UserController {
     …
 }
 ```
-
-Il existe une annotation par verbe : `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`.
 
 #### Récupérer les informations de la requête
 
@@ -245,6 +247,8 @@ Dans Bruno, les dossiers **Utilisateurs** et **Objets** contiennent une requête
 | `does not override abstract method deleteById` | Une méthode ajoutée à l'interface n'est pas implémentée dans **toutes** ses implémentations. |
 
 ## Bonus
+
+Le CRUD étant un terrain connu, la plupart des groupes devraient atteindre au moins le bonus 1 pendant la séance.
 
 ### Bonus 1 — Centraliser la gestion des erreurs : `@RestControllerAdvice`
 

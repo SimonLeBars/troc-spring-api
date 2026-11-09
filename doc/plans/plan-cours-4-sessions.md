@@ -3,6 +3,7 @@
 ## Contexte
 
 - **Public** : étudiants du supérieur avec notions Java (POO, exceptions, collections), Maven, SQL de base, IntelliJ/JDK 25, git/gitlab.
+- **Acquis REST** : les étudiants ont déjà développé des API REST, dans une autre technologie que Spring. Les bases (verbes HTTP, codes de statut, conception des URLs, chemin/paramètre/corps, CRUD, clients HTTP) ne sont donc plus enseignées mais **rappelées brièvement** ; le cours se concentre sur leur équivalent Spring et sur ce qui est propre à Spring.
 - **Groupe** : 35 étudiants, organisés en groupes de 4 (9 groupes).
 - **Format** : 4 sessions de cours/TP de 3h45 chacune + 1 session finale en autonomie (travail de groupe sur le projet, sans cours magistral).
 - **Fil rouge** : une API de troc d'objets entre utilisateurs (échanges validés par les deux parties avant exécution).
@@ -58,7 +59,7 @@
 
 Domaine codé en anglais : `User`, `Item` (un objet et sa quantité ; type d'objet libre, les exemples utilisent des légumes), `Trade`. Package racine `fr.cours.troc`, découpé par fonctionnalité (`user/`, `item/`, `trade/`).
 
-- **Présentation du cours (10 min)** : fil rouge, API REST, feuille de route, organisation, évaluation, journal de bord (`JOURNAL.md`, à compléter à chaque TP).
+- **Présentation du cours (10 min)** : fil rouge, rappel express de ce qu'est une API REST (déjà connu), feuille de route, organisation, évaluation, journal de bord (`JOURNAL.md`, à compléter à chaque TP).
 - **Théorie A (20 min)** : SOLID en survol, architecture en couches, couplage fort (`UserService` qui fait `new InMemoryUserRepository()`), inversion des dépendances. Pas une ligne de Spring.
 - **TP 1, expérimentation** (sandbox) : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade ; puis interfaces + injection manuelle (évolution 2 refaite : 1 fichier).
 - **Checkpoint #1 + théorie B (20 min)** : blocages Maven/IntelliJ, relevé des chiffres par groupe (pour les groupes qui ont fait l'expérimentation) ; injection par constructeur à la main, conteneur IoC, `@Service`/`@Repository`/`@RestController`, `ApplicationContext`, structure du projet.
@@ -79,12 +80,12 @@ Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-initialisation.md
 
 **Objectif : approfondir le Hello World avec de vrais endpoints REST et de la config externalisée.**
 
-- **Théorie (30 min)** : `application.properties`/`yml`, `@Value`/`@ConfigurationProperties` ; `@PathVariable`/`@RequestParam`/`@RequestBody` ; codes de statut HTTP.
-- **TP 2 — API REST** : endpoints CRUD (users, objets) sur données en mémoire, codes de statut. Expérimentation : jouer le client (codes renvoyés, ressource inconnue en `200`, `id` imposé par le client).
-- **Checkpoint #1** : blocages REST/JSON courants.
+- **Théorie (30 min)** : configuration externalisée (~20 min, la vraie nouveauté) : `application.properties`/`yml`, `@Value`/`@ConfigurationProperties`, priorité des sources. Puis REST en Spring (~10 min) : une diapo de rappel REST (verbes, codes, URLs, 400 vs 409), `@PathVariable`/`@RequestParam`/`@RequestBody`, `ResponseEntity`/`@ResponseStatus`/`ResponseStatusException`.
+- **TP 2 — API REST** : endpoints CRUD (users, objets) sur données en mémoire, moins guidés qu'en séance 1 (table de correspondance « vous connaissez → en Spring », solutions repliées). Expérimentation : jouer le client (codes renvoyés, ressource inconnue en `200`, `id` imposé par le client).
+- **Checkpoint #1** : blocages REST/JSON courants côté Spring.
 - **TP 3 — Configuration** : `troc.item.max-per-user` via `@ConfigurationProperties`, priorité des sources. Expérimentation : valeur en dur vs `--server.port` sur le `.jar`.
 - **TP 4 — DTO et règles métier** : proposer/consulter un troc (sans persistance ni double validation). Expérimentation : *mass assignment* sur une entité reçue telle quelle.
-- **Bonus** : gestion d'erreurs globale (`@RestControllerAdvice`) ; validation des entrées (`@Valid`) ; profils.
+- **Bonus** : gestion d'erreurs globale (`@RestControllerAdvice`) ; validation des entrées (`@Valid`) ; profils. Le temps gagné sur les rappels REST doit permettre à la plupart des groupes d'atteindre au moins le premier. Ils restent en bonus (pas dans le noyau) : les supports des séances 3 et 4 et le code de référence s'appuient sur `ResponseStatusException`, et `@Valid` demande une dépendance supplémentaire.
 
 Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/03-tp2-api-rest.md`, `doc/tp/04-tp3-configuration.md`, `doc/tp/05-tp4-dto-proposer-troc.md`.
 
