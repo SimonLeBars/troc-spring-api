@@ -1,0 +1,17 @@
+meta {
+  name: TP6 - Déplacer du stock
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/sandbox/move?fromId=2&toId=1&quantity=8
+  body: none
+  auth: none
+}
+
+params:query {
+  fromId: 2
+  toId: 1
+  quantity: 8
+}

@@ -130,6 +130,8 @@
   .s-close .grid.four{ gap:24px; }
   .s-close .grid.four .card{ width:182px; }
   .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
+  .s-close .memo{ margin-top:30px; max-width:820px; padding:10px 16px; border-left:3px solid var(--green); background:var(--surface); font-size:15px; line-height:1.5; color:var(--text); }
+  .s-close .memo b{ font-family:var(--font-code); font-size:12px; color:var(--green-dark); margin-right:8px; }
 
   /* [AJOUT] Notes orateur — touche N pour afficher/masquer */
   .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
@@ -319,7 +321,8 @@
       <li><b>Groupes de 4</b> <span>un projet par groupe, du premier au dernier jour</span></li>
       <li><b>Peu de théorie, beaucoup de pratique</b> <span>le support de TP est votre documentation</span></li>
       <li><b>Checkpoints collectifs</b> <span>quand tout le monde a globalement fini une étape, on fait le point ensemble</span></li>
-      <li><b>En avance ?</b> <span>des features bonus</span></li>
+      <li><b>Un TP = un concept</b> <span>expérimentation (facultative) pour comprendre le problème, puis mise en place (obligatoire)</span></li>
+      <li><b>En avance ?</b> <span>passez au TP suivant, ou faites les bonus</span></li>
       <li><b>Séance 5</b> <span>travail de groupe en autonomie</span></li>
     </ul>
     <div class="pageno">06</div>
@@ -352,9 +355,11 @@
         <div class="v">Vous savez vulgariser ce que vous avez construit.</div>
       </div>
     </div>
+    <div class="memo"><b>JOURNAL DE BORD</b>À chaque TP, notez dans JOURNAL.md ce qui a bloqué, ce qui aurait pu être fait plus efficacement, ce qui a bien marché, ce qui était fluide. C'est la matière de vos choix justifiés et de la présentation.</div>
     <div class="pageno">07</div>
   </section>
   <aside class="notes">
+    <p>Journal de bord (détails dans 00-organisation-des-tp.md) : un fichier JOURNAL.md par groupe, complété à la fin de chaque TP. Exemple de question qui ne prendra son sens qu'avec le recul : au TP 9, l'authentification oblige à retoucher routes, corps de requête et tests ; aurait-il fallu la mettre en place plus tôt ? Il sera rappelé en début et en fin de chaque séance.</p>
     <p>Point sur la vulgarisation : les analogies de cette séance (prise électrique, Hollywood) sont un bon modèle pour votre future présentation.</p>
     <p>Pondération : à préciser si elle est fixée d'ici là.</p>
   </aside>
@@ -490,8 +495,8 @@
   </section>
   <aside class="notes">
     <p>Si la salle a trouvé ces points à la diapo précédente, les valider plutôt que les dérouler.</p>
-    <p>Ne pas encore donner la solution en code : ils vont vivre ces trois problèmes dans le TP bloc 1, via les évolutions demandées par le client.</p>
-    <p>Un quatrième problème existe (impossible de tester UserService seul, sans son vrai stockage) : ne pas le développer, on y reviendra en séance 4.</p>
+    <p>Ne pas encore donner la solution en code : ils vont vivre ces trois problèmes dans l'expérimentation du TP 1, via les évolutions demandées par le client.</p>
+    <p>Un quatrième problème existe (impossible de tester UserService seul, sans son vrai stockage) : ne pas le développer, on y reviendra au TP 8 (tests).</p>
   </aside>
 
   <!-- ============ 12 · PRINCIPE D ============ -->
@@ -578,8 +583,8 @@
   <!-- ============ 14 · CONSIGNE TP 1 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP · BLOC 1</div>
-    <h2>TP bloc 1 : codez-le mal, exprès</h2>
+    <div class="tag">TP 1 · EXPÉRIMENTATION</div>
+    <h2>TP 1, expérimentation : codez-le mal, exprès</h2>
     <div class="grid">
       <div class="card">
         <div class="k">À FAIRE</div>
@@ -598,7 +603,7 @@
   </section>
   <aside class="notes">
     <p>Durée indicative du bloc : environ 70 min. Lancer le checkpoint quand la majorité des groupes a terminé.</p>
-    <p>Rappeler : tout est dans le support de TP. Les groupes en avance attaquent les bonus.</p>
+    <p>Rappeler : tout est dans le support de TP. L'expérimentation est facultative : les groupes qui connaissent déjà l'IoC passent directement à la mise en place, et peuvent ensuite attaquer le TP 2.</p>
   </aside>
 
   <!-- ============ 15 · SECTION 02 ============ -->
@@ -617,7 +622,7 @@
     <div class="pageno">16</div>
   </section>
   <aside class="notes">
-    <p>Avant cette diapo : 5 min de blocages communs du TP bloc 1 (Maven, IntelliJ, structure). Puis relever au tableau, groupe par groupe, le nombre de fichiers modifiés pour chaque évolution, et le bug de l'évolution 1 (utilisateur introuvable). On doit retrouver la liste de la diapo 12.</p>
+    <p>Avant cette diapo : 5 min de blocages communs de l'expérimentation du TP 1 (Maven, IntelliJ, structure). Puis relever au tableau, groupe par groupe, le nombre de fichiers modifiés pour chaque évolution, et le bug de l'évolution 1 (utilisateur introuvable). On doit retrouver la liste de la diapo 12.</p>
   </aside>
 
   <!-- ============ 16 · AVANT / APRÈS ============ -->
@@ -860,7 +865,7 @@
     <div class="pageno">23</div>
   </section>
   <aside class="notes">
-    <p>Objectif obligatoire pour tous les groupes avant la fin de séance : le refactor IoC du bloc 1, puis ces deux endpoints.</p>
+    <p>Objectif obligatoire pour tous les groupes avant la fin de séance : la mise en place du TP 1 (beans Spring injectés par constructeur), puis ces deux endpoints.</p>
     <p>Après le refactor, faire refaire l'évolution 2 et recompter les fichiers modifiés : un seul avec l'injection manuelle, et avec Spring il suffit de déplacer @Repository. Comparer avec les chiffres relevés au checkpoint #1.</p>
     <p>Revenir sur la diapo « Une API REST, concrètement » : c'est exactement ce qu'on vient de coder. Spring convertit l'objet Java en JSON (et le JSON reçu en objet Java avec @RequestBody).</p>
     <p>Par défaut, le POST renvoie 200 et non 201 : la façon de choisir le code en Spring sera vue en séance 2. Spring Boot embarque son propre serveur web, on lance le main et l'API écoute sur le port 8080.</p>
@@ -882,17 +887,19 @@
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">Bonus : profils Spring (dev/test), endpoint supplémentaire.</div>
+        <div class="v">TP 2 (API REST), ou bonus : profils Spring (dev/test).</div>
       </div>
       <div class="card">
         <div class="k">SÉANCE 2</div>
         <div class="v">Configuration externalisée et vrais endpoints REST.</div>
       </div>
     </div>
+    <div class="memo"><b>JOURNAL DE BORD</b>Avant de partir, 5 min dans JOURNAL.md : ce qui a bloqué, ce que vous feriez autrement ou plus tôt, ce qui a bien marché, ce qui était fluide.</div>
     <div class="pageno">24</div>
   </section>
   <aside class="notes">
-    <p>Diapo projetée pendant le TP bloc 2 et reprise au checkpoint #2 pour le bilan.</p>
+    <p>Journal de bord : laisser 5 minutes en fin de checkpoint #2 pour le compléter. Faire citer une ou deux entrées à voix haute : ce qui a bloqué aujourd'hui sert de point de départ au rappel de la prochaine séance.</p>
+    <p>Diapo projetée pendant la mise en place du TP 1 et reprise au checkpoint #2 pour le bilan.</p>
   </aside>
 
 </div>
