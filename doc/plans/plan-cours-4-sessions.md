@@ -20,6 +20,7 @@
   - **Expérimentation** (facultative) : provoquer le problème que le concept résout, avec du code jetable dans le package `fr.cours.troc.sandbox`. Les étudiants qui savent déjà répondre aux questions d'entrée la sautent.
   - **Mise en place** (obligatoire) : objectifs, syntaxes et indices, sans solution complète ; l'implémentation est laissée à la réflexion du groupe. Se termine par une liste de vérification.
 - Les groupes en avance **passent au TP suivant** sans attendre la session d'après (supports auto-suffisants, diapos disponibles dès le début) ; les bonus de chaque TP restent une alternative pour approfondir.
+- **Journal de bord** de groupe (`JOURNAL.md`, décrit dans `doc/tp/00-organisation-des-tp.md`) : à chaque TP, noter ce qui a posé problème, ce qui aurait pu être fait plus efficacement, ce qui a bien fonctionné, ce qui était fluide/intuitif. Rappelé **en début et en fin de chaque séance** (diapo « Où en est-on ? » et diapo de synthèse). Exemple de question à faire émerger : l'authentification (TP 9) aurait-elle dû être mise en place plus tôt pour limiter ses impacts sur le code existant ? Sert de base aux choix techniques justifiés et à la présentation finale.
 - Checkpoints collectifs à heure fixe (pas déclenchés à la volée), pour que les groupes s'organisent autour. Ils portent sur le TP du rythme indicatif : les groupes en avance y partagent ce qu'ils ont rencontré.
 
 ## Correspondance TP / sessions (rythme indicatif)
@@ -42,12 +43,12 @@
 
 | Bloc | Durée | Contenu |
 |---|---|---|
-| Théorie | 30 min | Concepts schématiques + mise en place Spring (diapo) |
+| Théorie | 30 min | Rappel du journal de bord (1 min), concepts schématiques + mise en place Spring (diapo) |
 | Pause | 15 min | |
 | TP — 1er concept | 60–75 min | Expérimentation (facultative) puis mise en place (obligatoire) |
 | **Checkpoint collectif #1** | 10 min | Lever blocages communs + transition vers la notion suivante |
 | TP — concept suivant | 60–75 min | Suite du rythme indicatif ; les groupes en avance continuent sur les TP suivants ou les bonus |
-| **Checkpoint collectif #2** (si besoin) | 5–10 min | Bilan rapide, attentes pour la session suivante |
+| **Checkpoint collectif #2** | 5–10 min | Bilan rapide, attentes pour la session suivante, **5 min pour compléter le journal de bord** |
 
 ---
 
@@ -57,7 +58,7 @@
 
 Domaine codé en anglais : `User`, `Item` (un objet et sa quantité ; type d'objet libre, les exemples utilisent des légumes), `Trade`. Package racine `fr.cours.troc`, découpé par fonctionnalité (`user/`, `item/`, `trade/`).
 
-- **Présentation du cours (10 min)** : fil rouge, API REST, feuille de route, organisation, évaluation.
+- **Présentation du cours (10 min)** : fil rouge, API REST, feuille de route, organisation, évaluation, journal de bord (`JOURNAL.md`, à compléter à chaque TP).
 - **Théorie A (20 min)** : SOLID en survol, architecture en couches, couplage fort (`UserService` qui fait `new InMemoryUserRepository()`), inversion des dépendances. Pas une ligne de Spring.
 - **TP 1, expérimentation** (sandbox) : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade ; puis interfaces + injection manuelle (évolution 2 refaite : 1 fichier).
 - **Checkpoint #1 + théorie B (20 min)** : blocages Maven/IntelliJ, relevé des chiffres par groupe (pour les groupes qui ont fait l'expérimentation) ; injection par constructeur à la main, conteneur IoC, `@Service`/`@Repository`/`@RestController`, `ApplicationContext`, structure du projet.
@@ -144,6 +145,7 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 - **TP 9 — Sécurité** (`doc/tp/10-tp9-securite-authentification.md`) : inscription avec mot de passe haché (BCrypt), `POST /auth/token` qui délivre un JWT, Bearer exigé partout ailleurs, l'identité lue dans le jeton (`proposerId` et `userId` disparaissent des corps). Expérimentation : jouer Mallory (accepter le troc de Bob), ajouter le starter seul (401 partout), hacher un mot de passe, lire et falsifier un JWT. Le cours est l'annexe `doc/cours/05-annexe-spring-security.html`, à lire en autonomie. Fait passer les tests du TP 8 au rouge, puis les répare (`.with(jwt())`).
 - **TP 10 — Documentation OpenAPI** (`doc/tp/11-tp10-documentation-openapi.md`) : indépendant du TP 9 ; si la sécurité est en place, ouvrir les routes de springdoc et ajouter le bouton Authorize (bonus).
 - Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP 1 et 5. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
+- **Fin du cours : rétrospective du journal de bord.** Chaque groupe relit son `JOURNAL.md` et en tire 2 ou 3 enseignements pour la présentation finale (qu'auriez-vous fait plus tôt, ou autrement ? ex. : l'authentification dès le TP 2 plutôt qu'au TP 9 ?).
 - Simon disponible pour support technique ponctuel (à cadrer : combien de temps de présence prévu ?).
 
 ---

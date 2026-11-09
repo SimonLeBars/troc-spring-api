@@ -60,6 +60,21 @@ Chaque TP propose quelques bonus, pour aller plus loin sur le même concept. Ils
 - Une personne peut faire l'expérimentation pendant qu'une autre attaque la mise en place : mettez ensuite en commun ce que vous avez constaté.
 - Commitez à la fin de chaque TP (au minimum), avec un message qui dit ce qui a été fait. Le code d'expérimentation n'a pas besoin d'être commité.
 
+## Le journal de bord : notez vos observations à chaque TP
+
+Tenez un **journal de bord** de groupe : un fichier `JOURNAL.md` à la racine du dépôt, commité avec le reste. À la fin de chaque TP, prenez cinq minutes pour y noter, en quelques lignes :
+
+- **ce qui a posé problème** : une erreur incompréhensible, une notion floue, une étape qui vous a bloqués longtemps ;
+- **ce qui aurait pu être fait plus efficacement** : avec le recul, qu'auriez-vous fait autrement, ou plus tôt ?
+- **ce qui a bien fonctionné** : une organisation du groupe, un outil, une méthode de débogage ;
+- **ce qui était fluide ou intuitif** : ce qui s'est mis en place sans effort.
+
+Notez-le **sur le moment** : trois séances plus tard, on ne se souvient plus que de la solution, pas du chemin.
+
+Certaines questions ne prennent leur sens qu'avec le recul. Exemple : au TP 9, ajouter l'authentification oblige à retoucher des routes, des corps de requête et des tests écrits bien avant. Aurait-il fallu la mettre en place plus tôt pour limiter ces impacts ? Qu'est-ce que ça aurait coûté, à l'inverse, de la faire dès le départ ? Il n'y a pas de bonne réponse unique : ce qui compte, c'est l'argument.
+
+Ce journal sert directement l'évaluation : il est la matière première pour **détailler et justifier vos choix techniques** et pour préparer la présentation finale. Il sera rappelé en début et en fin de chaque séance.
+
 ## Tester les routes : Bruno
 
 Les routes sont testées avec [Bruno](https://www.usebruno.com/), un client HTTP dont les collections sont des fichiers texte versionnés dans le dépôt (dossier `bruno/`). La collection est rangée par dossiers : **Utilisateurs**, **Objets**, **Trocs**, et **Expérimentation** pour les routes temporaires des parties 1. Choisissez l'environnement **Local** (`baseUrl = http://localhost:8080`) en haut à droite.
