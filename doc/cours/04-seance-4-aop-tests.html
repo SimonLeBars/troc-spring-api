@@ -209,7 +209,7 @@
       <li><b>1 · Aspect de log</b> <span>le noyau : tout le monde le termine</span></li>
       <li><b>2 · Tests unitaires</b> <span>les règles d'acceptation de TradeService, avec Mockito</span></li>
       <li><b>3 · Test d'intégration</b> <span>l'API de bout en bout, avec MockMvc et une base de test</span></li>
-      <li><b>4 · En avance</b> <span>chronométrer avec @Around, tester le rollback, Spring Security</span></li>
+      <li><b>4 · En avance</b> <span>chronométrer avec @Around, tester le rollback, TP 9 (sécurité)</span></li>
       <li class="hl"><b>Si le temps manque</b> <span>on coupe par le bas de la liste, jamais par le haut</span></li>
     </ul>
     <div class="pageno">03</div>
@@ -743,7 +743,7 @@
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">TP 9 (OpenAPI), ou bonus : tester le rollback, @Around, Spring Security.</div>
+        <div class="v">TP 9 (sécurité), TP 10 (OpenAPI), ou bonus : tester le rollback, @Around.</div>
       </div>
     </div>
     <div class="pageno">20</div>
@@ -751,7 +751,7 @@
   <aside class="notes">
     <p>Durée indicative : 60 à 75 min. Les trois règles suggérées dans le support : stock insuffisant (409, rien d'écrit), mauvais destinataire (403), troc déjà exécuté (409). Plus le cas nominal si le temps le permet.</p>
     <p>L'expérience montre l'intérêt du test : une régression introduite volontairement est détectée en une seconde, avec un message qui pointe la règle cassée.</p>
-    <p>Spring Security : ajouter la dépendance suffit à tout verrouiller (401 partout) ; c'est une surprise instructive, à réserver aux groupes vraiment en avance. Le support donne une configuration minimale.</p>
+    <p>TP 9 (Spring Security) : son expérimentation commence par ajouter la dépendance seule, qui verrouille tout (401 partout) et fait échouer les tests d'intégration du TP 8. Le cours correspondant est l'annexe Spring Security, à lire en autonomie.</p>
   </aside>
 
   <!-- ============ 21 · BONUS @AROUND ============ -->
@@ -798,7 +798,7 @@
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">TP 9 (OpenAPI), ou bonus : rollback testé, @Around, Spring Security.</div>
+        <div class="v">TP 9 (sécurité), TP 10 (OpenAPI), ou bonus : rollback testé, @Around.</div>
       </div>
       <div class="card">
         <div class="k">SÉANCE 5</div>

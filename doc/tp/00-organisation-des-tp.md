@@ -17,7 +17,8 @@ Conséquence : **votre groupe avance à son rythme**. Un groupe qui a terminé u
 | 6 | Les transactions : accepter un troc, tout ou rien | `07-tp6-transactions.md` | séance 3 |
 | 7 | La programmation orientée aspect (AOP) | `08-tp7-aop.md` | séance 4 |
 | 8 | Les tests automatisés | `09-tp8-tests.md` | séance 4 |
-| 9 | Documenter l'API : OpenAPI et Swagger UI | `10-tp9-documentation-openapi.md` | séance 5 |
+| 9 | Sécuriser l'API : authentification et autorisation | `10-tp9-securite-authentification.md` | séance 5 |
+| 10 | Documenter l'API : OpenAPI et Swagger UI | `11-tp10-documentation-openapi.md` | séance 5 |
 
 Le **rythme indicatif** est celui que suit le cours magistral : c'est le minimum à atteindre pour suivre les checkpoints collectifs. Il n'est pas une limite.
 

@@ -722,7 +722,7 @@ $ curl -i -X DELETE localhost:8080/users/2
     <p>On retrouve le Trade de la diapo fil rouge de la séance 1, mais seulement sa première étape : « Proposé ».</p>
     <p>Chaque vérification qui échoue produit un code de statut différent. Pour le stock insuffisant, le code est laissé au choix des groupes (400, 409 ou 422) : c'est un choix technique à justifier, exactement ce qui est évalué.</p>
     <p>Le TP ajoute deux vérifications en 400 qui ne figurent pas sur le schéma : troquer avec soi-même, quantités ≤ 0.</p>
-    <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigerait avec Spring Security, qui reste un bonus de la séance 4.</p>
+    <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigera avec Spring Security, au TP 9.</p>
   </aside>
 
   <!-- ============ 20 · REQUÊTE ≠ ENTITÉ ============ -->

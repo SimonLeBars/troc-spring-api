@@ -339,11 +339,9 @@ doCallRealMethod().doThrow(new IllegalStateException("panne simulée"))
 
 Une fois le test vert, retirez `@Transactional` de `accept` : le test doit passer au rouge. Remettez-le.
 
-### Bonus 4 — Premiers pas avec Spring Security
+### Et ensuite
 
-Ajoutez la dépendance `spring-boot-starter-security`, relancez, et appelez `GET /users` dans Bruno. Relancez `./mvnw test` : que deviennent les tests d'intégration ?
-
-Ajouter la dépendance suffit à **tout verrouiller** : chaque route répond `401`, et un mot de passe généré s'affiche au démarrage. Pour aller plus loin, suivez l'annexe du cours sur Spring Security, puis le guide [Securing a Web Application](https://spring.io/guides/gs/securing-web/). Retirez la dépendance si vous n'allez pas au bout : un projet où toutes les routes répondent `401` n'est plus testable dans Bruno.
+Le TP 9 ajoute Spring Security : il fera passer vos tests d'intégration au rouge (`401`), puis vous les adapterez. Un projet couvert par des tests est un projet où l'on voit tout de suite ce qu'un changement casse.
 
 ## Pour aller plus loin
 

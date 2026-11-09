@@ -17,7 +17,8 @@ Ajouter les dépendances progressivement, en suivant les TP, pas tout d'un coup 
 - TP 1 : `spring-boot-starter-web` seulement.
 - TP 5 : Spring Data JDBC + H2 (persistance).
 - TP 7-8 : `spring-boot-starter-aspectj`, tests.
-- TP 9 : springdoc-openapi.
+- TP 9 : Spring Security (`spring-boot-starter-security`, `-security-oauth2-resource-server`, `-security-test`).
+- TP 10 : springdoc-openapi.
 
 Le `pom.xml` doit refléter ce que les étudiants ont vu à un instant donné du cours.
 

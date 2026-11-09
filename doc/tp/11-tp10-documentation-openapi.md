@@ -1,6 +1,6 @@
-# TP 9 — Documenter l'API : OpenAPI et Swagger UI
+# TP 10 — Documenter l'API : OpenAPI et Swagger UI
 
-> Rythme indicatif : séance 5 (autonomie). Point de départ : n'importe quelle mise en place à partir du TP 4 ; plus l'API a de routes, plus ce TP est parlant. Aucune nouvelle route n'est à écrire : on documente l'existant.
+> Rythme indicatif : séance 5 (autonomie). Point de départ : n'importe quelle mise en place à partir du TP 4 ; plus l'API a de routes, plus ce TP est parlant. Aucune nouvelle route n'est à écrire : on documente l'existant. Ce TP ne dépend pas du TP 9 (sécurité) ; si vous l'avez fait, lisez l'encadré « Avec Spring Security » ci-dessous.
 
 ## Le concept en bref
 
@@ -70,6 +70,8 @@ Remarquez la balise `<version>` : c'est la première fois qu'on en écrit une. J
 
 > **Piège** : une version de springdoc prévue pour une autre version de Spring Boot compile souvent sans erreur, puis plante au démarrage avec une `NoSuchMethodError` ou une `ClassNotFoundException`. Vérifiez d'abord la compatibilité des versions.
 
+> **Avec Spring Security (TP 9)** : Swagger UI et la description OpenAPI sont des routes comme les autres, donc fermées par défaut. Ouvrez-les dans votre `SecurityFilterChain` : `/swagger-ui.html`, `/swagger-ui/**` et `/v3/api-docs/**`. Pour essayer les routes protégées depuis Swagger UI, voir le bonus 2.
+
 ### Syntaxes utiles
 
 #### Régler Swagger UI
@@ -109,7 +111,7 @@ Swagger UI ne remplace pas Bruno : Bruno garde vos requêtes et vos environnemen
 - [ ] Un utilisateur créé depuis Swagger UI apparaît dans `GET /users`.
 - [ ] Si vous avez fait le TP 8 : `./mvnw test` est toujours au vert.
 
-## Bonus — Enrichir la documentation
+## Bonus 1 — Enrichir la documentation
 
 springdoc déduit beaucoup de choses, mais pas l'intention. Des annotations complètent la description d'une route :
 
@@ -123,6 +125,22 @@ import io.swagger.v3.oas.annotations.Operation;
 Ajoutez un `@Operation` sur les routes de `TradeController`, et regardez le résultat. N'en mettez pas partout : une annotation qui répète le nom de la méthode n'apporte rien. Réservez-les aux routes dont les règles ne se devinent pas (qui peut accepter ? que se passe-t-il pour les stocks ?).
 
 Pour aller plus loin : `@ApiResponse` documente chaque code de réponse possible (`403`, `409`…), avec sa signification.
+
+## Bonus 2 — Le bouton Authorize (si vous avez fait le TP 9)
+
+Déclarez à springdoc que l'API attend un jeton Bearer, avec une annotation sur une classe `@Configuration` :
+
+```java
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+
+@OpenAPIDefinition(security = @SecurityRequirement(name = "bearer"))
+@SecurityScheme(name = "bearer", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
+```
+
+Un bouton **Authorize** apparaît en haut de Swagger UI : collez-y un jeton obtenu avec `POST /auth/token`, et toutes les requêtes suivantes l'envoient. Documentation : [springdoc — Security](https://springdoc.org/#how-do-i-add-authorization-header-in-requests).
 
 ## Pour aller plus loin
 

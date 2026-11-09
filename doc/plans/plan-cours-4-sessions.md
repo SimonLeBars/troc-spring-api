@@ -35,7 +35,8 @@
 | 6 | Transactions : accepter un troc | `doc/tp/07-tp6-transactions.md` | 3 |
 | 7 | AOP : tracer chaque troc | `doc/tp/08-tp7-aop.md` | 4 |
 | 8 | Tests automatisés | `doc/tp/09-tp8-tests.md` | 4 |
-| 9 | Documentation OpenAPI / Swagger UI | `doc/tp/10-tp9-documentation-openapi.md` | 5 |
+| 9 | Sécurité : authentification par jeton (Spring Security, JWT) | `doc/tp/10-tp9-securite-authentification.md` | 5 |
+| 10 | Documentation OpenAPI / Swagger UI | `doc/tp/11-tp10-documentation-openapi.md` | 5 |
 
 ## Structure type d'une session (3h45 = 225 min)
 
@@ -118,7 +119,7 @@ Supports : `doc/cours/03-seance-3-persistance-transactions.html`, `doc/tp/06-tp5
 - **TP 7 — AOP** : aspect de logging sur le service de troc. Expérimentation : le proxy de `@Transactional` (`getClass()`, pile d'appels au debugger), journalisation écrite à la main.
 - **Checkpoint #1** : blocages config AOP/tests.
 - **TP 8 — Tests** : tests unitaires du service + un test d'intégration sur l'API. Expérimentation : bug caché à retrouver avec Bruno, puis un test tout fait qui le trouve en une seconde.
-- **Bonus / si le temps le permet** : introduction sécurité (Spring Security basique) ; aspect avancé (`@Around` avec mesure de temps d'exécution).
+- **Bonus / si le temps le permet** : aspect avancé (`@Around` avec mesure de temps d'exécution) ; les groupes en avance passent au TP 9 (sécurité).
 
 Supports : `doc/cours/04-seance-4-aop-tests.html`, `doc/tp/08-tp7-aop.md`, `doc/tp/09-tp8-tests.md`.
 
@@ -127,7 +128,7 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 1. Logging AOP (le noyau, non-négociable)
 2. Tests unitaires
 3. Test d'intégration
-4. Sécurité (bonus, saute en premier)
+4. Bonus (sautent en premier) ; la sécurité est reportée au TP 9, en séance 5
 
 À annoncer explicitement aux étudiants dès le départ pour gérer leurs attentes.
 
@@ -139,7 +140,9 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 
 ## Session 5 — Autonomie de groupe
 
-- Travail en autonomie sur le projet final, sans cours magistral. TP 9 (documentation OpenAPI, `doc/tp/10-tp9-documentation-openapi.md`), et rattrapage des TP non terminés.
+- Travail en autonomie sur le projet final, sans cours magistral, et rattrapage des TP non terminés.
+- **TP 9 — Sécurité** (`doc/tp/10-tp9-securite-authentification.md`) : inscription avec mot de passe haché (BCrypt), `POST /auth/token` qui délivre un JWT, Bearer exigé partout ailleurs, l'identité lue dans le jeton (`proposerId` et `userId` disparaissent des corps). Expérimentation : jouer Mallory (accepter le troc de Bob), ajouter le starter seul (401 partout), hacher un mot de passe, lire et falsifier un JWT. Le cours est l'annexe `doc/cours/05-annexe-spring-security.html`, à lire en autonomie. Fait passer les tests du TP 8 au rouge, puis les répare (`.with(jwt())`).
+- **TP 10 — Documentation OpenAPI** (`doc/tp/11-tp10-documentation-openapi.md`) : indépendant du TP 9 ; si la sécurité est en place, ouvrir les routes de springdoc et ajouter le bouton Authorize (bonus).
 - Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP 1 et 5. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
 - Simon disponible pour support technique ponctuel (à cadrer : combien de temps de présence prévu ?).
 

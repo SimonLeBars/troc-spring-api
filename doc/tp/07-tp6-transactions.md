@@ -176,7 +176,7 @@ public record TradeDecisionRequest(Long userId) {
 }
 ```
 
-> Dans une vraie application, l'identité viendrait de l'authentification (un jeton, une session), jamais du corps : n'importe qui peut écrire `"userId": 2`. C'est le sujet de Spring Security, en annexe du cours.
+> Dans une vraie application, l'identité viendrait de l'authentification (un jeton, une session), jamais du corps : n'importe qui peut écrire `"userId": 2`. C'est le sujet du TP 9 (Spring Security).
 
 `403 Forbidden` dit : « je sais ce que vous demandez, mais **vous** n'avez pas le droit ». C'est différent de `401 Unauthorized` : « je ne sais pas qui vous êtes ».
 
