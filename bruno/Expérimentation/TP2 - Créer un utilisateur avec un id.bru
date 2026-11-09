@@ -1,0 +1,22 @@
+meta {
+  name: TP2 - Créer un utilisateur avec un id
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id": 1,
+    "name": "Pirate"
+  }
+}

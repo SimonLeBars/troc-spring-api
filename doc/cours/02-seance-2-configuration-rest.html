@@ -178,8 +178,8 @@
     <div class="pageno">01</div>
   </section>
   <aside class="notes">
-    <p>Déroulé : 30 min de théorie d'un seul bloc, pause, TP bloc 1, checkpoint #1 (10 min, avec la transition vers les trocs), TP bloc 2, checkpoint #2.</p>
-    <p>Avant de commencer : faire lever la main aux groupes dont GET / POST /users ne tourne pas encore. Ils démarrent le bloc 1 par là, c'est la base commune.</p>
+    <p>Déroulé : 30 min de théorie d'un seul bloc, pause, TP 2 et 3, checkpoint #1 (10 min, avec la transition vers les trocs), TP 4, checkpoint #2. Rythme indicatif : les groupes en avance continuent sur les TP suivants.</p>
+    <p>Avant de commencer : faire lever la main aux groupes dont GET / POST /users ne tourne pas encore. Ils terminent d'abord la mise en place du TP 1, c'est la base commune.</p>
   </aside>
 
   <!-- ============ 02 · OÙ EN EST-ON ============ -->
@@ -237,7 +237,7 @@
     <div class="pageno">04</div>
   </section>
   <aside class="notes">
-    <p>Règle métier choisie pour la séance : un utilisateur ne peut pas proposer plus de N objets différents. C'est elle que les groupes externaliseront dans le TP bloc 1.</p>
+    <p>Règle métier choisie pour la séance : un utilisateur ne peut pas proposer plus de N objets différents. C'est elle que les groupes externaliseront dans le TP 3.</p>
     <p>Demander à la salle : « qui décide de ce 20 ? » → le client, pas le développeur. Une valeur qui peut changer sans que le code change n'a rien à faire dans le code.</p>
     <p>Même raisonnement que l'évolution 2 de la séance 1 : on veut changer un comportement sans toucher aux classes.</p>
   </aside>
@@ -292,7 +292,7 @@ server.port=8080
   <aside class="notes">
     <p>Le fichier existe déjà dans le projet généré à la séance 1, il était vide (ou ne contenait que spring.application.name).</p>
     <p>Préfixer ses propres clés (ici troc.) évite toute collision avec les clés de Spring. Les tirets (max-per-user) sont la convention recommandée.</p>
-    <p>Deuxième règle, troc.trade.max-pending : nombre maximum de trocs en attente par utilisateur. Elle servira au TP bloc 2.</p>
+    <p>Deuxième règle, troc.trade.max-pending : nombre maximum de trocs en attente par utilisateur. Elle servira au TP 4.</p>
   </aside>
 
   <!-- ============ 06 · @VALUE ============ -->
@@ -393,8 +393,8 @@ server.port=8080
   <aside class="notes">
     <p>Liste simplifiée : Spring Boot connaît d'autres sources, mais ces cinq couvrent 99 % des besoins.</p>
     <p>Variable d'environnement : majuscules, points remplacés par des underscores, tirets supprimés. Dans IntelliJ, elle se règle dans la configuration de lancement (Environment variables).</p>
-    <p>Fichier de profil : activé avec spring.profiles.active=dev. C'était un bonus de la séance 1, certains groupes l'ont déjà fait.</p>
-    <p>Usage dans le TP bloc 2 : relancer avec TROC_TRADE_MAXPENDING=1 pour provoquer facilement l'erreur « trop de trocs en attente ».</p>
+    <p>Fichier de profil : activé avec spring.profiles.active=dev. C'était un bonus du TP 1, certains groupes l'ont déjà fait.</p>
+    <p>Usage dans le TP 4 : relancer avec TROC_TRADE_MAXPENDING=1 pour provoquer facilement l'erreur « trop de trocs en attente ».</p>
   </aside>
 
   <!-- ============ 09 · SECTION 02 ============ -->
@@ -503,7 +503,7 @@ server.port=8080
   <aside class="notes">
     <p>Contre-exemples à citer à l'oral : POST /createUser, GET /deleteUser?id=3. Le second est dangereux : un GET doit pouvoir être rejoué sans effet de bord (un navigateur ou un robot peut le déclencher).</p>
     <p>PUT remplace la ressource entière ; PATCH (modification partielle) existe aussi, mais n'est pas demandé dans le TP.</p>
-    <p>La dernière ligne prépare le bloc 2 : même une action métier se modélise comme une ressource qu'on crée.</p>
+    <p>La dernière ligne prépare le TP 4 : même une action métier se modélise comme une ressource qu'on crée.</p>
   </aside>
 
   <!-- ============ 13 · CODES DE STATUT ============ -->
@@ -578,7 +578,7 @@ server.port=8080
     <p>Rappel de la séance 1 : notre POST /users renvoyait 200. Voici comment renvoyer le 201 attendu, avec l'en-tête Location qui indique où trouver la ressource créée.</p>
     <p>Trois outils : ResponseEntity quand le code ou les en-têtes dépendent du cas ; @ResponseStatus quand le code est toujours le même ; ResponseStatusException pour interrompre le traitement avec une erreur.</p>
     <p>Limite assumée : ResponseStatusException dans le service mélange un peu web et métier. Le bonus @ControllerAdvice permet de lancer une exception métier (NotFoundException) et de la traduire en 404 côté web.</p>
-    <p>Le TP fait passer findById à Optional (bloc 1, étape 2.1) : le code de la diapo est celui que les étudiants écrivent.</p>
+    <p>Le TP fait passer findById à Optional (TP 2, mise en place) : le code de la diapo est celui que les étudiants écrivent.</p>
   </aside>
 
   <!-- ============ 15 · TESTER ============ -->
@@ -613,8 +613,8 @@ $ curl -i -X DELETE localhost:8080/users/2
   <!-- ============ 16 · CONSIGNE TP 1 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP · BLOC 1</div>
-    <h2>TP bloc 1 : users et items, de bout en bout</h2>
+    <div class="tag">TP 2 · TP 3</div>
+    <h2>TP 2 et 3 : users et items, de bout en bout</h2>
     <div class="grid">
       <div class="card">
         <div class="k">À FAIRE</div>
@@ -634,7 +634,7 @@ $ curl -i -X DELETE localhost:8080/users/2
   <aside class="notes">
     <p>Durée indicative : 60 à 75 min. Le détail des endpoints attendus (verbes, chemins, codes) est dans le support de TP.</p>
     <p>Suggestion d'organisation pour les groupes de 4 : deux personnes sur user/, deux sur item/. Le découpage par fonctionnalité s'y prête.</p>
-    <p>Les groupes en avance attaquent les bonus : @ControllerAdvice, puis @Valid.</p>
+    <p>Les groupes en avance passent au TP 4, ou attaquent les bonus : @RestControllerAdvice, puis @Valid. Les expérimentations des TP 2 et 3 sont facultatives.</p>
   </aside>
 
   <!-- ============ 17 · SECTION CHECKPOINT ============ -->
@@ -644,7 +644,7 @@ $ curl -i -X DELETE localhost:8080/users/2
     <div>
       <h2>Vers les trocs</h2>
       <div class="list">
-        <div>Les pièges REST / JSON du bloc 1</div>
+        <div>Les pièges REST / JSON des TP 2 et 3</div>
         <div>Proposer un troc</div>
         <div>Ce que le client envoie ≠ ce qu'on stocke</div>
       </div>
@@ -678,7 +678,7 @@ $ curl -i -X DELETE localhost:8080/users/2
   <!-- ============ 19 · PROPOSER UN TROC ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
-    <div class="tag">CHECKPOINT #1 · OBJECTIF DU BLOC 2</div>
+    <div class="tag">CHECKPOINT #1 · OBJECTIF DU TP 4</div>
     <h3>Proposer un troc : POST /trades</h3>
     <svg viewBox="0 0 800 290" role="img" aria-label="Une requête POST /trades est vérifiée par TradeService puis crée un Trade au statut PROPOSED, avec une réponse 201">
       <rect class="box" x="0" y="0" width="280" height="206" rx="4"/>
@@ -783,8 +783,8 @@ $ curl -i -X DELETE localhost:8080/users/2
   <!-- ============ 21 · CONSIGNE TP 2 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP · BLOC 2</div>
-    <h2>TP bloc 2 : proposer un troc</h2>
+    <div class="tag">TP 4</div>
+    <h2>TP 4 : proposer un troc</h2>
     <div class="grid">
       <div class="card">
         <div class="k">À FAIRE</div>
@@ -796,7 +796,7 @@ $ curl -i -X DELETE localhost:8080/users/2
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">@ControllerAdvice pour centraliser les erreurs, @Valid pour valider les entrées.</div>
+        <div class="v">TP 5 (persistance), ou bonus : @RestControllerAdvice, @Valid.</div>
       </div>
     </div>
     <div class="pageno">21</div>
@@ -822,7 +822,7 @@ $ curl -i -X DELETE localhost:8080/users/2
       </div>
       <div class="card">
         <div class="k">EN AVANCE ?</div>
-        <div class="v">Bonus : erreurs centralisées (@ControllerAdvice), validation des entrées (@Valid).</div>
+        <div class="v">TP 5, ou bonus : erreurs centralisées (@RestControllerAdvice), validation (@Valid).</div>
       </div>
       <div class="card">
         <div class="k">SÉANCE 3</div>
@@ -832,7 +832,7 @@ $ curl -i -X DELETE localhost:8080/users/2
     <div class="pageno">22</div>
   </section>
   <aside class="notes">
-    <p>Diapo projetée pendant le TP bloc 2 et reprise au checkpoint #2 pour le bilan.</p>
+    <p>Diapo projetée pendant le TP 4 et reprise au checkpoint #2 pour le bilan.</p>
     <p>Annonce séance 3 : les données vont enfin survivre au redémarrage de l'application. Les repositories en mémoire seront remplacés sans toucher aux services : c'est la promesse de la séance 1 qui se réalise.</p>
   </aside>
 

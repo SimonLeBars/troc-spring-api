@@ -1,4 +1,6 @@
-# Session 1 — Initialiser le projet avec Spring Initializr
+# Initialiser le projet avec Spring Initializr
+
+> À faire avant le TP 1. Ce support n'a pas de partie expérimentation : il prépare le projet commun à tous les TP.
 
 ## Pourquoi Spring Initializr ?
 
@@ -38,7 +40,7 @@ Vous avez deux façons équivalentes de faire ; utilisez celle qui vous met le p
 | Java | 25 |
 | Dependencies | **Spring Web** uniquement |
 
-⚠️ Ne rajoutez pas d'autres dépendances (base de données, tests, sécurité...) pour l'instant — on les ajoutera au fur et à mesure des prochaines sessions, quand elles auront du sens. Un `pom.xml` qui ne contient que ce dont on a besoin est plus facile à comprendre.
+⚠️ Ne rajoutez pas d'autres dépendances (base de données, tests, sécurité...) pour l'instant — on les ajoutera au fur et à mesure des TP, quand elles auront du sens. Un `pom.xml` qui ne contient que ce dont on a besoin est plus facile à comprendre.
 
 ## Étape 2 — Repérer la structure du projet
 
@@ -50,11 +52,11 @@ troc-api/
 └── src/
     ├── main/java/fr/cours/troc/
     │   └── TrocApplication.java             ← point d'entrée de l'application
-    ├── main/resources/application.properties ← configuration (séance 2)
-    └── test/java/fr/cours/troc/             ← tests (séance 4)
+    ├── main/resources/application.properties ← configuration (TP 3)
+    └── test/java/fr/cours/troc/             ← tests (TP 8)
 ```
 
-Dans ce projet, le code est rangé **par fonctionnalité** : tout ce qui concerne les utilisateurs ira dans un package `fr.cours.troc.user`, tout ce qui concerne les objets échangés dans `fr.cours.troc.item`, etc. Créez toujours ces packages **sous** `fr.cours.troc` : vous verrez au bloc 2 pourquoi Spring en a besoin.
+Dans ce projet, le code est rangé **par fonctionnalité** : tout ce qui concerne les utilisateurs ira dans un package `fr.cours.troc.user`, tout ce qui concerne les objets échangés dans `fr.cours.troc.item`, etc. Créez toujours ces packages **sous** `fr.cours.troc` : vous verrez au TP 1 pourquoi Spring en a besoin.
 
 ## Étape 3 — Vérifier que tout fonctionne
 
@@ -68,7 +70,7 @@ Dans un terminal, à la racine du projet :
 mvnw.cmd spring-boot:run
 ```
 
-Vous devriez voir les logs Spring Boot démarrer, avec une ligne du type `Tomcat started on port 8080`. Arrêtez avec `Ctrl+C`. Si ça compile et démarre sans erreur, votre projet est prêt — vous n'avez pas encore d'endpoint (ça vient dans la suite du TP), c'est normal de ne voir qu'une page d'erreur si vous ouvrez `localhost:8080` dans un navigateur.
+Vous devriez voir les logs Spring Boot démarrer, avec une ligne du type `Tomcat started on port 8080`. Arrêtez avec `Ctrl+C`. Si ça compile et démarre sans erreur, votre projet est prêt — vous n'avez pas encore d'endpoint (ça vient au TP 1), c'est normal de ne voir qu'une page d'erreur si vous ouvrez `localhost:8080` dans un navigateur.
 
 ## Pour aller plus loin
 

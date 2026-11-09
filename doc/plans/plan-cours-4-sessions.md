@@ -15,9 +15,27 @@
 - Diapo + support de cours/TP fournis en amont (lecture non obligatoire avant la session).
 - Le support de TP doit être **assez détaillé pour être auto-suffisant** : les étudiants y cherchent comment réussir chaque étape, avec des liens vers de la documentation externe pédagogique en complément.
 - Tous les supports (sessions 1 à 4) sont rédigés **en amont**, avant le début du cours.
-- Objectif final commun (l'API de troc complète), décliné en jalons obligatoires par session pour garder le groupe synchronisé.
-- Les groupes en avance reçoivent des **features bonus**, pas un accès anticipé au programme suivant — pour que les checkpoints collectifs restent utiles à tout le monde.
-- Checkpoints collectifs à heure fixe (pas déclenchés à la volée), pour que les groupes s'organisent autour.
+- Objectif final commun (l'API de troc complète), décliné en jalons obligatoires (un rythme minimum par session) pour garder le groupe synchronisé.
+- **Un TP = un concept, pas une session** (voir `doc/tp/00-organisation-des-tp.md`). Chaque TP se découpe en deux parties :
+  - **Expérimentation** (facultative) : provoquer le problème que le concept résout, avec du code jetable dans le package `fr.cours.troc.sandbox`. Les étudiants qui savent déjà répondre aux questions d'entrée la sautent.
+  - **Mise en place** (obligatoire) : objectifs, syntaxes et indices, sans solution complète ; l'implémentation est laissée à la réflexion du groupe. Se termine par une liste de vérification.
+- Les groupes en avance **passent au TP suivant** sans attendre la session d'après (supports auto-suffisants, diapos disponibles dès le début) ; les bonus de chaque TP restent une alternative pour approfondir.
+- Checkpoints collectifs à heure fixe (pas déclenchés à la volée), pour que les groupes s'organisent autour. Ils portent sur le TP du rythme indicatif : les groupes en avance y partagent ce qu'ils ont rencontré.
+
+## Correspondance TP / sessions (rythme indicatif)
+
+| TP | Concept | Support | Session |
+|---|---|---|---|
+| — | Initialisation du projet | `doc/tp/01-initialisation.md` | 1 |
+| 1 | Inversion de contrôle et injection de dépendances | `doc/tp/02-tp1-injection-dependances.md` | 1 |
+| 2 | API REST : verbes, chemins, codes de statut | `doc/tp/03-tp2-api-rest.md` | 2 |
+| 3 | Configuration externalisée | `doc/tp/04-tp3-configuration.md` | 2 |
+| 4 | DTO et règles métier : proposer un troc | `doc/tp/05-tp4-dto-proposer-troc.md` | 2 |
+| 5 | Persistance : H2 et Spring Data JDBC | `doc/tp/06-tp5-persistance.md` | 3 |
+| 6 | Transactions : accepter un troc | `doc/tp/07-tp6-transactions.md` | 3 |
+| 7 | AOP : tracer chaque troc | `doc/tp/08-tp7-aop.md` | 4 |
+| 8 | Tests automatisés | `doc/tp/09-tp8-tests.md` | 4 |
+| 9 | Documentation OpenAPI / Swagger UI | `doc/tp/10-tp9-documentation-openapi.md` | 5 |
 
 ## Structure type d'une session (3h45 = 225 min)
 
@@ -25,9 +43,9 @@
 |---|---|---|
 | Théorie | 30 min | Concepts schématiques + mise en place Spring (diapo) |
 | Pause | 15 min | |
-| TP — bloc 1 | 60–75 min | Étapes obligatoires (noyau) |
+| TP — 1er concept | 60–75 min | Expérimentation (facultative) puis mise en place (obligatoire) |
 | **Checkpoint collectif #1** | 10 min | Lever blocages communs + transition vers la notion suivante |
-| TP — bloc 2 | 60–75 min | Suite du noyau, ou features bonus pour les groupes en avance |
+| TP — concept suivant | 60–75 min | Suite du rythme indicatif ; les groupes en avance continuent sur les TP suivants ou les bonus |
 | **Checkpoint collectif #2** (si besoin) | 5–10 min | Bilan rapide, attentes pour la session suivante |
 
 ---
@@ -40,13 +58,13 @@ Domaine codé en anglais : `User`, `Item` (un objet et sa quantité ; type d'obj
 
 - **Présentation du cours (10 min)** : fil rouge, API REST, feuille de route, organisation, évaluation.
 - **Théorie A (20 min)** : SOLID en survol, architecture en couches, couplage fort (`UserService` qui fait `new InMemoryUserRepository()`), inversion des dépendances. Pas une ligne de Spring.
-- **TP bloc 1 (noyau)** : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade.
-- **Checkpoint #1 + théorie B (20 min)** : blocages Maven/IntelliJ, relevé des chiffres par groupe ; injection par constructeur à la main, conteneur IoC, `@Service`/`@Repository`/`@RestController`, `ApplicationContext`, structure du projet.
-- **TP bloc 2 (noyau)** : interfaces + injection manuelle (évolution 2 refaite : 1 fichier), puis Spring (`@Repository`/`@Service`, injection par constructeur sans `@Autowired`), `UserController` (`GET`/`POST /users`), évolution 2 refaite avec Spring (déplacer `@Repository`).
-- **Bonus (groupes avancés)** : profils Spring (`@Profile("dev")`) ; endpoint supplémentaire `GET /users/{id}`.
-- La testabilité (4e problème du couplage fort) est volontairement gardée pour la séance 4.
+- **TP 1, expérimentation** (sandbox) : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade ; puis interfaces + injection manuelle (évolution 2 refaite : 1 fichier).
+- **Checkpoint #1 + théorie B (20 min)** : blocages Maven/IntelliJ, relevé des chiffres par groupe (pour les groupes qui ont fait l'expérimentation) ; injection par constructeur à la main, conteneur IoC, `@Service`/`@Repository`/`@RestController`, `ApplicationContext`, structure du projet.
+- **TP 1, mise en place** : `user`/`item` avec interfaces, `@Repository`/`@Service`, injection par constructeur sans `@Autowired`, `UserController` (`GET`/`POST /users`).
+- **Bonus** : profils Spring (`@Profile("dev")`) ; règles de `ItemService`. Les groupes en avance peuvent aussi attaquer le TP 2.
+- La testabilité (5e problème du couplage fort) est volontairement gardée pour le TP 8.
 
-Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-session1-initialisation.md`, `doc/tp/02-session1-tp-bloc1-couplage-fort.md`, `doc/tp/03-session1-tp-bloc2-ioc.md`.
+Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-initialisation.md`, `doc/tp/02-tp1-injection-dependances.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP détaillé (étapes couplage fort → IoC → Spring Boot)
@@ -60,12 +78,13 @@ Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-session1-initiali
 **Objectif : approfondir le Hello World avec de vrais endpoints REST et de la config externalisée.**
 
 - **Théorie (30 min)** : `application.properties`/`yml`, `@Value`/`@ConfigurationProperties` ; `@PathVariable`/`@RequestParam`/`@RequestBody` ; codes de statut HTTP.
-- **TP bloc 1 (noyau)** : endpoints CRUD basiques (users, objets) sur données en mémoire ; externalisation d'un paramètre métier (ex : nombre max d'objets par échange).
+- **TP 2 — API REST** : endpoints CRUD (users, objets) sur données en mémoire, codes de statut. Expérimentation : jouer le client (codes renvoyés, ressource inconnue en `200`, `id` imposé par le client).
 - **Checkpoint #1** : blocages REST/JSON courants.
-- **TP bloc 2 (noyau)** : endpoints pour proposer/consulter un troc (sans persistance ni double validation pour l'instant).
-- **Bonus** : gestion d'erreurs globale (`@ControllerAdvice`) ; validation des entrées (`@Valid`).
+- **TP 3 — Configuration** : `troc.item.max-per-user` via `@ConfigurationProperties`, priorité des sources. Expérimentation : valeur en dur vs `--server.port` sur le `.jar`.
+- **TP 4 — DTO et règles métier** : proposer/consulter un troc (sans persistance ni double validation). Expérimentation : *mass assignment* sur une entité reçue telle quelle.
+- **Bonus** : gestion d'erreurs globale (`@RestControllerAdvice`) ; validation des entrées (`@Valid`) ; profils.
 
-Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/04-session2-tp-bloc1-crud-configuration.md`, `doc/tp/05-session2-tp-bloc2-proposer-troc.md`.
+Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/03-tp2-api-rest.md`, `doc/tp/04-tp3-configuration.md`, `doc/tp/05-tp4-dto-proposer-troc.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP (externalisation + endpoints CRUD + troc)
@@ -78,10 +97,12 @@ Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/04-session2-
 **Objectif : données réelles en base, avec un workflow de troc transactionnellement correct.**
 
 - **Théorie (30 min)** : Spring Data JDBC, entités/PK-FK ; lien explicite entre le workflow métier (double validation d'un échange) et la transaction technique (`@Transactional`, rollback si une opération échoue).
-- **TP bloc 1 (noyau)** : brancher une vraie base (H2), persister users/objets/trocs.
+- **TP 5 — Persistance** : brancher une vraie base (H2), persister users/objets/trocs. Expérimentation : redémarrage, deux instances, données orphelines.
 - **Checkpoint #1** : blocages config datasource/mapping.
-- **TP bloc 2 (noyau)** : workflow de troc complet — validation par les deux parties, puis exécution atomique du double transfert d'objets dans une transaction unique (si le retrait de l'objet A réussit mais l'ajout de l'objet B échoue, tout est annulé).
+- **TP 6 — Transactions** : workflow de troc complet — validation par les deux parties, puis exécution atomique du double transfert d'objets dans une transaction unique. Expérimentation : un déplacement de stock en sandbox qui échoue au milieu, sans puis avec `@Transactional`, et les pièges du proxy. La preuve sur `accept` reste dans la mise en place (attendue dans le rapport).
 - **Bonus** : gestion de la concurrence (deux trocs simultanés sur le même objet) ; requêtes personnalisées ; index.
+
+Supports : `doc/cours/03-seance-3-persistance-transactions.html`, `doc/tp/06-tp5-persistance.md`, `doc/tp/07-tp6-transactions.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP (Spring Data JDBC + transaction du workflow de troc)
@@ -94,15 +115,15 @@ Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/04-session2-
 **Objectif : logging transverse + couverture de tests minimale.**
 
 - **Théorie (30 min)** : AOP (cross-cutting concerns, ex : logger/auditer chaque tentative de troc) ; tests Spring (`@SpringBootTest`, `MockMvc`, unitaire vs intégration).
-- **TP bloc 1 (noyau)** : aspect de logging sur le service de troc.
+- **TP 7 — AOP** : aspect de logging sur le service de troc. Expérimentation : le proxy de `@Transactional` (`getClass()`, pile d'appels au debugger), journalisation écrite à la main.
 - **Checkpoint #1** : blocages config AOP/tests.
-- **TP bloc 2 (noyau)** : tests unitaires du service + un test d'intégration sur l'API.
+- **TP 8 — Tests** : tests unitaires du service + un test d'intégration sur l'API. Expérimentation : bug caché à retrouver avec Bruno, puis un test tout fait qui le trouve en une seconde.
 - **Bonus / si le temps le permet** : introduction sécurité (Spring Security basique) ; aspect avancé (`@Around` avec mesure de temps d'exécution).
 
-Supports : `doc/cours/04-seance-4-aop-tests.html`, `doc/tp/08-session4-tp-bloc1-aspect-log.md`, `doc/tp/09-session4-tp-bloc2-tests.md`.
+Supports : `doc/cours/04-seance-4-aop-tests.html`, `doc/tp/08-tp7-aop.md`, `doc/tp/09-tp8-tests.md`.
 
 ### ⚠️ Point de vigilance
-Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de TP net. Si du retard s'est accumulé sur les sessions précédentes, c'est ici qu'il faudra couper en premier — **ordre de priorité si le temps manque** :
+Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de TP net. Les groupes qui ont pris de l'avance aux sessions précédentes peuvent l'aborder plus tôt ; les autres peuvent sauter les expérimentations des TP 7 et 8. Si du retard s'est accumulé sur les sessions précédentes, c'est ici qu'il faudra couper en premier — **ordre de priorité si le temps manque** :
 1. Logging AOP (le noyau, non-négociable)
 2. Tests unitaires
 3. Test d'intégration
@@ -118,8 +139,8 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 
 ## Session 5 — Autonomie de groupe
 
-- Travail en autonomie sur le projet final, sans cours magistral.
-- Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP des séances 1 et 3. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
+- Travail en autonomie sur le projet final, sans cours magistral. TP 9 (documentation OpenAPI, `doc/tp/10-tp9-documentation-openapi.md`), et rattrapage des TP non terminés.
+- Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP 1 et 5. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
 - Simon disponible pour support technique ponctuel (à cadrer : combien de temps de présence prévu ?).
 
 ---
@@ -127,6 +148,5 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 ## Sujets non encore tranchés / à trancher plus tard
 
 - Contenu exact et volume des features bonus par session (à détailler session par session).
-- Format précis des supports de TP auto-suffisants (structure des étapes, niveau de détail des liens de doc externe).
 - Présence/disponibilité de Simon pendant la session 5 (autonomie).
 - Sécurité : contenu minimal si elle est abordée (actuellement en bonus session 4).
