@@ -16,7 +16,7 @@ Une classe a besoin d'autres objets pour travailler : un service a besoin d'un r
 
 **Vous pouvez passer à la partie 2 si vous savez répondre à ces questions :**
 
-- Pourquoi deux services qui font chacun `new InMemoryUserRepository()` peuvent-ils voir des données différentes ?
+- Quand chaque classe fabrique elle-même ses dépendances avec `new`, qui décide combien d'instances d'une même dépendance existent dans l'application ? Citez des ressources qui doivent être partagées (une seule instance pour toute l'application) et ce qui se passe si chaque classe crée la sienne (pensez à un pool de connexions, un cache, un compteur).
 - Que faut-il modifier dans le code pour remplacer une implémentation de repository par une autre, quand chaque service fait son propre `new` ? Et quand les services reçoivent le repository par leur constructeur ?
 - Qu'est-ce que l'« effet cascade » d'un changement de constructeur ?
 
