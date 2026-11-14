@@ -42,7 +42,7 @@ public class ConfigDemoController {
 Fabriquez l'application **telle qu'on la livrerait**, sous forme d'un fichier `.jar`, puis lancez ce fichier :
 
 ```bash
-./mvnw package                                  # Windows : mvnw.cmd package
+./mvnw package                                  # Windows : .\mvnw.cmd package
 java -jar target/troc-api-0.0.1-SNAPSHOT.jar
 ```
 
