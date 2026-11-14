@@ -14,7 +14,7 @@ personnel de Simon** — pas le squelette distribué aux étudiants.
 ## Dépendances Maven
 
 Ajouter les dépendances progressivement, en suivant les TP, pas tout d'un coup :
-- TP 1 : `spring-boot-starter-web` seulement.
+- TP 1 : `spring-boot-starter-webmvc` seulement.
 - TP 5 : Spring Data JDBC + H2 (persistance).
 - TP 7-8 : `spring-boot-starter-aspectj`, tests.
 - TP 9 : Spring Security (`spring-boot-starter-security`, `-security-oauth2-resource-server`, `-security-test`).

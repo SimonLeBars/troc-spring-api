@@ -20,7 +20,7 @@ Une classe a besoin d'autres objets pour travailler : un service a besoin d'un r
 - Que faut-il modifier dans le code pour remplacer une implémentation de repository par une autre, quand chaque service fait son propre `new` ? Et quand les services reçoivent le repository par leur constructeur ?
 - Qu'est-ce que l'« effet cascade » d'un changement de constructeur ?
 
-Dans cette partie, on écrit du code **sans** Spring, en Java pur, avec un couplage fort : chaque classe fabrique ce dont elle a besoin avec `new`. Le but n'est pas d'écrire du « bon » code, mais de **ressentir** les problèmes : le client va demander trois évolutions, et pour chacune vous noterez les fichiers impactés que vous avez dû modifier.
+Dans cette partie, on écrit du code **sans** Spring, en Java pur, avec un couplage fort : chaque classe fabrique ce dont elle a besoin avec `new`. Le but n'est pas d'écrire du « bon » code, mais de **ressentir** les problèmes : le client va demander trois évolutions, et pour chacune vous noterez combien de fichiers vous avez dû modifier.
 
 Tout le code de cette partie va dans le package **`fr.cours.troc.sandbox.couplage`** qui sera supprimé à la fin. Une partie du code produit pourra être repris comme base pour la partie 2. Aucune annotation Spring pour le moment.
 

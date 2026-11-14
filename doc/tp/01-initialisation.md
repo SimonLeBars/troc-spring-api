@@ -111,7 +111,7 @@ Vous devriez voir les logs Spring Boot démarrer, avec une ligne du type `Tomcat
 </dependency>
 ```
 
-Si ce n'est pas le cas, ajoutez-la (à la place de `spring-boot-starter` s'il est présent), rechargez Maven dans IntelliJ (icône **Load Maven Changes**, ou fenêtre **Maven** > **Reload**), puis relancez.
+Si ce n'est pas le cas, ajoutez-la, rechargez Maven dans IntelliJ (icône **Load Maven Changes**, ou fenêtre **Maven** > **Reload**), puis relancez.
 
 ## Pour aller plus loin
 
