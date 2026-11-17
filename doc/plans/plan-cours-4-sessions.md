@@ -59,11 +59,15 @@
 
 Domaine codé en anglais : `User`, `Item` (un objet et sa quantité ; type d'objet libre, les exemples utilisent des légumes), `Trade`. Package racine `fr.cours.troc`, découpé par fonctionnalité (`user/`, `item/`, `trade/`).
 
-- **Présentation du cours (10 min)** : fil rouge, rappel express de ce qu'est une API REST (déjà connu), feuille de route, organisation, évaluation, journal de bord (`JOURNAL.md`, à compléter à chaque TP).
-- **Théorie A (20 min)** : SOLID en survol, architecture en couches, couplage fort (`UserService` qui fait `new InMemoryUserRepository()`), inversion des dépendances. Pas une ligne de Spring.
-- **TP 1, expérimentation** (sandbox) : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade ; puis interfaces + injection manuelle (évolution 2 refaite : 1 fichier).
-- **Checkpoint #1 + théorie B (20 min)** : blocages Maven/IntelliJ, relevé des chiffres par groupe (pour les groupes qui ont fait l'expérimentation) ; injection par constructeur à la main, conteneur IoC, `@Service`/`@Repository`/`@RestController`, `ApplicationContext`, structure du projet.
+Exception à la structure type : toute la théorie est présentée d'un seul bloc de 40 min en ouverture, puis le TP 1 occupe le reste de la séance, sans checkpoint #1.
+
+- **Partie 01 · Organisation du cours (8 min)** : fil rouge, rappel express de ce qu'est une API REST (déjà connu), feuille de route, méthode de travail, évaluation, journal de bord (`JOURNAL.md`, à compléter à chaque TP).
+- **Partie 02 · Pourquoi Spring ? (7 min)** : état des lieux chiffré de Java/Spring en entreprise (sources citées), typage strict de Java (record, enum + switch exhaustif, `var`), pourquoi Spring est né (EJB, frise condensée), Spring vs Spring Boot.
+- **Partie 03 · SOLID & inversion des dépendances (12 min)** : SOLID en survol, architecture en couches, couplage fort (`UserService` qui fait `new InMemoryUserRepository()`) et ses conséquences, inversion des dépendances, analogie de la prise. Pas une ligne de Spring.
+- **Partie 04 · IoC avec Spring (13 min)** : injection par constructeur à la main et sa limite (50 classes), conteneur IoC et `ApplicationContext`, `@Service`/`@Repository`/`@RestController`, structure du projet.
+- **TP 1, expérimentation (facultative, au choix de chaque groupe)** (sandbox) : `User` + `UserService` couplé en dur, lancé par un `main` en Java pur, puis 3 évolutions demandées par le client, en comptant les fichiers modifiés : (1) `Item` + `ItemService` → bug « utilisateur introuvable » (deux stockages), (2) `LoggingUserRepository` → modifier chaque service, (3) préfixe passé au constructeur → effet cascade ; puis interfaces + injection manuelle (évolution 2 refaite : 1 fichier).
 - **TP 1, mise en place** : `user`/`item` avec interfaces, `@Repository`/`@Service`, injection par constructeur sans `@Autowired`, `UserController` (`GET`/`POST /users`).
+- **Bilan de fin de séance (checkpoint #2)** : partage des chiffres des groupes qui ont fait l'expérimentation, 5 min de journal de bord.
 - **Bonus** : profils Spring (`@Profile("dev")`) ; règles de `ItemService`. Les groupes en avance peuvent aussi attaquer le TP 2.
 - La testabilité (5e problème du couplage fort) est volontairement gardée pour le TP 8.
 

@@ -105,3 +105,74 @@ Spring qui fabrique l'implémentation.
 - [Spring Framework — Using `@Autowired`](https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/autowired.html) (injection de collections et de maps)
 - [Spring Framework — Fine-tuning with `@Primary`](https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/autowired-primary.html)
 - [Wikipédia — Stratégie (patron de conception)](https://fr.wikipedia.org/wiki/Strat%C3%A9gie_(patron_de_conception))
+
+### Quelle est la différence entre `@SpringBootApplication`, `@Service`, `@Repository`… puisque ce sont tous des beans au final ?
+
+Ce sont bien tous des beans : Spring les détecte au démarrage, les crée et les injecte de la même
+façon. Ces annotations se distinguent sur deux points :
+
+1. **Le sens** : elles indiquent le rôle de la classe dans l'architecture.
+2. **Le comportement** : certaines ajoutent un traitement en plus de « je suis un bean ».
+
+#### La base : `@Component`
+
+`@Service`, `@Repository` et `@Controller` sont des **stéréotypes** : chacune est elle-même
+annotée `@Component`. Si on ouvre le code de `@Service`, on trouve à peu près ceci :
+
+```java
+@Component
+public @interface Service { … }
+```
+
+Le scan de composants cherche `@Component`, directement ou à travers une autre annotation. C'est
+pour ça qu'elles produisent toutes un bean.
+
+#### Ce que chacune ajoute
+
+| Annotation | Ce qu'elle apporte en plus de `@Component` |
+|---|---|
+| `@Service` | **Rien de technique.** Elle sert à documenter que la classe contient de la logique métier. Elle est aussi utile pour cibler « toutes les classes de service » d'un coup (aspects, TP 7). |
+| `@Repository` | La **traduction des exceptions** : les exceptions propres à la base (`SQLException`, erreurs du pilote…) sont converties en `DataAccessException`, une hiérarchie commune à Spring. Le code appelant ne dépend donc pas de la base utilisée. |
+| `@Controller` | Spring MVC repère la classe et enregistre ses méthodes `@GetMapping`, `@PostMapping`… comme des routes HTTP. |
+| `@RestController` | `@Controller` + `@ResponseBody` : la valeur renvoyée est convertie en JSON au lieu d'être vue comme le nom d'une page HTML à afficher. |
+| `@Configuration` | La classe sert de source de définitions `@Bean`. Spring l'entoure d'un proxy pour qu'un appel entre méthodes `@Bean` renvoie le même singleton au lieu de créer une nouvelle instance. |
+
+Au TP 5, avec Spring Data, une interface qui étend `ListCrudRepository` n'a pas besoin de
+`@Repository` : Spring Data la détecte et l'implémente lui-même.
+
+#### `@SpringBootApplication` : un cas à part
+
+Elle ne se range pas avec les autres. Ce n'est pas un rôle de couche mais un **raccourci pour
+trois annotations** :
+
+```java
+@SpringBootConfiguration   // = @Configuration → la classe est bien un bean
+@EnableAutoConfiguration   // active l'auto-configuration selon les dépendances présentes
+@ComponentScan             // scanne le package de cette classe et ses sous-packages
+```
+
+C'est elle qui démarre tout le mécanisme :
+
+- **`@ComponentScan`** explique pourquoi la classe principale doit être à la racine
+  (`fr.cours.troc`). Un `@Service` placé dans un package frère, hors de `fr.cours.troc`, ne serait
+  jamais trouvé.
+- **`@EnableAutoConfiguration`** crée lui-même des beans selon les dépendances présentes. Par
+  exemple, la dépendance web suffit pour obtenir un serveur Tomcat et la conversion JSON sans
+  rien écrire.
+
+#### En résumé
+
+Toutes ces annotations produisent un bean. `@Service` indique seulement l'intention.
+`@Repository` et `@Controller`/`@RestController` déclenchent en plus un traitement spécifique.
+`@Configuration` déclare d'autres beans. `@SpringBootApplication` lance le scan et
+l'auto-configuration qui font apparaître tous les autres.
+
+Techniquement, mettre `@Component` partout fonctionnerait pour les services. En revanche, on
+perdrait la traduction des exceptions des repositories, la lisibilité, et la possibilité de cibler
+les classes selon leur rôle.
+
+#### Pour aller plus loin
+
+- [Spring Framework — Classpath Scanning and Managed Components](https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html) (`@Component` et stéréotypes)
+- [Spring Framework — Exception Translation](https://docs.spring.io/spring-framework/reference/data-access/orm/general.html#orm-exception-translation) (`@Repository`)
+- [Spring Boot — Using the `@SpringBootApplication` Annotation](https://docs.spring.io/spring-boot/reference/using/using-the-springbootapplication-annotation.html)
