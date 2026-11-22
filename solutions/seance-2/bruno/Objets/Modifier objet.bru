@@ -1,0 +1,23 @@
+meta {
+  name: Modifier objet
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/items/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "tomates",
+    "quantity": 12,
+    "ownerId": 1
+  }
+}

@@ -691,7 +691,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
 }</pre>
       </div>
       <ul class="pts">
-        <li><b>Données incohérentes</b><span>deux services, deux new : deux stockages qui s'ignorent</span></li>
+        <li><b>Ressources dupliquées</b><span>chaque service crée son propre pool de connexions : la base sature</span></li>
         <li><b>Changer d'implémentation</b><span>nouveau stockage = modifier chaque service qui fait new</span></li>
         <li><b>Effet cascade</b><span>le constructeur du repository change ? Plus rien ne compile</span></li>
         <li><b>Deux métiers dans une classe</b><span>il gère les utilisateurs ET fabrique ses outils (le S de SOLID)</span></li>
@@ -701,6 +701,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
   </section>
   <aside class="notes">
     <p>Code volontairement naïf, c'est ce que tout le monde écrit spontanément. Demander à la salle « qu'est-ce qui vous gêne ici ? » en ne montrant que le code, puis valider avec la liste.</p>
+    <p>Ressources dupliquées : chaque <code>new</code> crée une nouvelle instance, même quand l'application ne devrait en avoir qu'une. Exemple pro : 10 services × un pool de 10 connexions = 100 connexions, la base refuse au-delà de sa limite. Dans le TP, avec un stockage en mémoire, le symptôme est encore plus visible : deux maps, Alice introuvable.</p>
     <p>Ces problèmes sont exactement ceux que l'expérimentation du TP 1 fait vivre, via trois évolutions demandées par le client. Les groupes qui les comprennent déjà pourront la sauter.</p>
     <p>Un cinquième problème existe (impossible de tester UserService seul, sans son vrai stockage) : ne pas le développer, on y reviendra au TP 8 (tests).</p>
   </aside>
@@ -1005,7 +1006,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
     <div class="grid two">
       <div class="card opt">
         <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
-        <div class="v">Coder un UserService couplé en dur, traiter les 3 évolutions du client et compter les fichiers modifiés.<br><br>À sauter si vous savez expliquer : qui décide du nombre d'instances d'une dépendance, ce qu'il faut modifier pour changer de repository, et ce qu'est l'effet cascade.</div>
+        <div class="v">Coder un UserService couplé en dur, traiter les 3 évolutions du client et compter les fichiers modifiés.<br><br>À sauter si vous savez expliquer : ce qui se passe quand deux services font chacun <code>new</code> du même repository, ce qu'il faut modifier pour changer de repository, et ce qu'est l'effet cascade.</div>
       </div>
       <div class="card">
         <div class="k">PARTIE 2 · MISE EN PLACE · OBLIGATOIRE</div>

@@ -70,7 +70,7 @@ démarrage.
 | `FileStorage` | `S3FileStorage` (cloud), `LocalFileStorage` (disque local) | `@ConditionalOnProperty(name = "storage.type", havingValue = "s3")` |
 | `UserRepository` | `InMemoryUserRepository`, puis une version avec base de données | on remplace la classe, les services ne bougent pas |
 
-- C'est ce que fait le **Bonus 1** du TP 1 avec `LoggingUserRepository` et `@Profile("dev")`.
+- C'est ce que fait le **Bonus 2** du TP 1 avec `LoggingUserRepository` et `@Profile("dev")`.
 - Le **TP 5** en est un exemple grandeur nature : le stockage en mémoire est remplacé par une
   base de données, sans toucher aux services.
 

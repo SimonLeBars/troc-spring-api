@@ -148,6 +148,18 @@ Le texte passé à `new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisate
 spring.web.error.include-message=always
 ```
 
+## ⌨️ IntelliJ · `TP 2`
+
+⭐ = aide Spring, IntelliJ **Ultimate** (licence étudiante gratuite) · raccourcis Windows / Linux ; macOS et liste générale : [fiche 10](10-raccourcis-intellij.md)
+
+| Raccourci | Effet |
+|---|---|
+| ⭐ **View > Tool Windows > Endpoints** | toutes les routes de l'API, double-clic → la méthode du contrôleur |
+| `Ctrl+Shift+F` `"/items"` | retrouver la méthode d'un chemin (sans ⭐) |
+| `HttpStatus.` + `Ctrl+Espace` | tous les codes par leur nom (`CONFLICT`, `NOT_FOUND`) |
+| `Ctrl+P` dans `new ResponseStatusException(` | les paramètres attendus |
+| `Ctrl+Q` sur une annotation (`@PathVariable`) | sa documentation, sans quitter le code |
+
 ## 🔗 Pour aller plus loin
 
 [MDN — Méthodes](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods) · [MDN — Codes](https://developer.mozilla.org/fr/docs/Web/HTTP/Status) · [Spring — Contrôleurs](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html)

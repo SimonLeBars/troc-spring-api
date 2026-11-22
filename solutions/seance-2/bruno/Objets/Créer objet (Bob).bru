@@ -1,0 +1,23 @@
+meta {
+  name: Créer objet (Bob)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/items
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "carottes",
+    "quantity": 5,
+    "ownerId": 2
+  }
+}

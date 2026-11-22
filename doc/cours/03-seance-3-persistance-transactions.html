@@ -43,7 +43,7 @@
   .s-title{ display:flex; }
   .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
   .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
-  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .half .leaf{ width:50%; height:auto; aspect-ratio:1; align-self:center; fill:#fff; }
   .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
   .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
   .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
@@ -68,9 +68,18 @@
   .s-content li::before{ content:"→"; color:var(--green-dark); font-family:var(--font-code); font-size:15px; }
   .s-content li b{ color:var(--text); font-weight:600; white-space:nowrap; }
   .s-content li span{ color:var(--text-muted); margin-left:6px; }
-  /* [AJOUT] ligne mise en avant */
   .s-content li.hl{ background:var(--surface); border-left:3px solid var(--green); padding-left:12px; margin-left:-15px; }
   .s-content li.hl span{ color:var(--text); }
+  .s-content li .dur{ margin-left:auto; font-family:var(--font-code); font-size:13px; color:var(--green-dark); white-space:nowrap; }
+  /* Variante compacte (liste + cartes sur la même slide) */
+  .s-content.compact h3{ margin-bottom:16px; }
+  .s-content.compact li{ padding:7px 0; font-size:15px; }
+  .s-content .cards{ display:flex; gap:20px; margin-top:22px; }
+  .s-content .cards .card{ flex:1; border-top:3px solid var(--green); padding-top:10px; }
+  .s-content .cards .k{ font-family:var(--font-code); color:var(--green-dark); font-size:11.5px; margin-bottom:6px; }
+  .s-content .cards .v{ font-size:13.5px; color:var(--text-muted); line-height:1.45; }
+  .s-content .memo{ margin-top:18px; padding:8px 14px; border-left:3px solid var(--green); background:var(--surface); font-size:13.5px; line-height:1.45; }
+  .s-content .memo b{ font-family:var(--font-code); font-size:11.5px; color:var(--green-dark); margin-right:8px; }
 
   /* Code */
   .s-code{ padding:70px 80px 40px; }
@@ -81,14 +90,14 @@
   .s-code .kw{ color:#9FD88D; }
   .s-code .an{ color:#6DB33F; }
   .s-code .cm{ color:#6E7C68; }
-  /* [AJOUT] ligne de code signalée, légende sous la fenêtre, variante compacte */
   .s-code .bad{ background:rgba(181,83,60,.32); display:inline-block; width:100%; }
   .s-code .good{ background:rgba(109,179,63,.22); display:inline-block; width:100%; }
   .s-code .caption{ margin-top:14px; font-size:15px; color:var(--text-muted); line-height:1.5; }
   .s-code .caption b{ color:var(--text); }
+  .s-code .caption code{ font-family:var(--font-code); font-size:13.5px; color:var(--text); }
   .s-code.dense pre{ font-size:13px; line-height:1.55; padding:16px 22px; }
 
-  /* [AJOUT] Avant / après côte à côte */
+  /* Avant / après côte à côte */
   .s-code.compare{ padding:70px 56px 40px; }
   .compare .cols{ display:flex; gap:20px; }
   .compare .col{ flex:1; min-width:0; }
@@ -96,9 +105,20 @@
   .compare .label.before{ color:var(--warn); }
   .compare pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
 
-  /* [AJOUT] Schéma SVG */
+  /* Code à gauche, points à droite */
+  .s-code.split{ padding:70px 56px 40px; }
+  .split .cols{ display:flex; gap:28px; align-items:flex-start; }
+  .split .win{ flex:1.15; min-width:0; }
+  .split pre{ font-size:12.5px; line-height:1.6; padding:16px 18px; }
+  .split .pts{ flex:1; list-style:none; margin:0; padding:0; }
+  .split .pts li{ padding:9px 0; border-bottom:1px solid var(--rule); font-size:14.5px; line-height:1.4; }
+  .split .pts li b{ display:block; color:var(--warn); font-weight:600; }
+  .split .pts li span{ color:var(--text-muted); }
+
+  /* Schéma SVG */
   .s-diagram{ padding:70px 80px 40px; }
   .s-diagram h3{ font-family:var(--font-display); font-size:26px; margin:0 0 18px; font-weight:600; }
+  .s-diagram .quote{ font-family:var(--font-display); font-size:19px; color:var(--green-dark); margin:-8px 0 16px; }
   .s-diagram svg{ display:block; width:100%; height:auto; }
   .s-diagram .caption{ margin-top:12px; font-size:15px; color:var(--text-muted); line-height:1.5; }
   .s-diagram .caption b{ color:var(--text); }
@@ -126,14 +146,20 @@
   .s-close .card{ width:230px; border-top:3px solid var(--green); padding-top:14px; }
   .s-close .card .k{ font-family:var(--font-code); color:var(--green-dark); font-size:12px; margin-bottom:8px; }
   .s-close .card .v{ font-size:15px; color:var(--text-muted); line-height:1.5; }
-  /* [AJOUT] grille 4 cartes + citation */
   .s-close .grid.four{ gap:24px; }
   .s-close .grid.four .card{ width:182px; }
+  .s-close .grid.two{ gap:40px; }
+  .s-close .grid.two .card{ width:380px; }
+  .s-close .card.opt{ border-top-style:dashed; }
   .s-close .quote{ font-family:var(--font-display); font-size:22px; color:var(--green-dark); margin:-12px 0 30px; }
   .s-close .memo{ margin-top:30px; max-width:820px; padding:10px 16px; border-left:3px solid var(--green); background:var(--surface); font-size:15px; line-height:1.5; color:var(--text); }
   .s-close .memo b{ font-family:var(--font-code); font-size:12px; color:var(--green-dark); margin-right:8px; }
+  /* Chiffres clés */
+  .s-close .card .n{ font-family:var(--font-display); font-size:44px; font-weight:700; color:var(--green-dark); line-height:1; margin-bottom:10px; }
+  .s-close .card .n.word{ font-size:19px; line-height:1.25; padding-top:2px; margin-bottom:10px; }
+  .s-close .src{ position:absolute; bottom:24px; left:80px; right:90px; font-family:var(--font-code); font-size:10.5px; color:var(--text-muted); line-height:1.5; }
 
-  /* [AJOUT] Notes orateur — touche N pour afficher/masquer */
+  /* Notes orateur — touche N pour afficher/masquer */
   .notes{ display:none; width:960px; background:#141A12; color:#C9D6C1; border-left:3px solid var(--green);
           padding:14px 20px; font-size:14px; line-height:1.55; margin-top:-14px; }
   .notes::before{ content:"NOTES ORATEUR"; display:block; font-family:var(--font-code); font-size:11px; color:var(--green); margin-bottom:6px; }
@@ -165,8 +191,7 @@
   <!-- ============ 01 · TITRE ============ -->
   <section class="slide s-title">
     <div class="half">
-      <div class="course">JOUR 03 / 05</div>
-      <div class="leaf">Sp</div>
+      <svg class="leaf" viewBox="0 0 24 24" role="img" aria-label="Logo Spring"><path d="M21.8537 1.4158a10.4504 10.4504 0 0 1-1.284 2.2471A11.9666 11.9666 0 1 0 3.8518 20.7757l.4445.3951a11.9543 11.9543 0 0 0 19.6316-8.2971c.3457-3.0126-.568-6.8649-2.0743-11.458zM5.5805 20.8745a1.0174 1.0174 0 1 1-.1482-1.4323 1.0396 1.0396 0 0 1 .1482 1.4323zm16.1991-3.5806c-2.9385 3.9263-9.2601 2.5928-13.2852 2.7904 0 0-.7161.0494-1.4323.1481 0 0 .2717-.1234.6174-.2469 2.8398-.9877 4.1732-1.1853 5.9018-2.0743 3.2349-1.6545 6.4698-5.2844 7.1118-9.0379-1.2347 3.6053-4.9881 6.7167-8.3959 7.9761-2.3459.8643-6.5685 1.7039-6.5685 1.7039l-.1729-.0988c-2.8645-1.4076-2.9632-7.6304 2.2718-9.6306 2.2966-.889 4.4696-.395 6.9637-.9877 2.6422-.6174 5.7043-2.5929 6.939-5.1857 1.3828 4.1732 3.062 10.643.0493 14.6434z"/></svg>
     </div>
     <div class="content">
       <h1>Persistance &amp; transactions</h1>
@@ -180,7 +205,7 @@
     <div class="pageno">01</div>
   </section>
   <aside class="notes">
-    <p>Déroulé : 30 min de théorie d'un seul bloc (≈ 15 min persistance, 15 min transactions), pause, TP 5, checkpoint #1 (10 min), TP 6, checkpoint #2. Rythme indicatif : les groupes en avance continuent sur les TP suivants.</p>
+    <p>Accueil. Déroulé : 30 min de théorie d'un seul bloc (≈ 15 min persistance, 15 min transactions), pause, TP 5, checkpoint #1 (10 min), TP 6, checkpoint #2. Rythme indicatif : les groupes en avance continuent sur les TP suivants.</p>
     <p>Faire lever la main aux groupes dont POST /trades ne tourne pas encore. Pas bloquant pour le TP 5 : la persistance de users et items suit exactement le même schéma, et trades vient ensuite.</p>
   </aside>
 
@@ -204,9 +229,27 @@
     <p>Rappeler la promesse de la séance 1 : on va remplacer le stockage sans réécrire les services. C'est le moment où l'injection par constructeur paie.</p>
   </aside>
 
-  <!-- ============ 03 · SECTION 01 ============ -->
+  <!-- ============ 03 · SOMMAIRE ============ -->
+  <section class="slide s-content">
+    <div class="bar"></div>
+    <div class="tag">SOMMAIRE · 30 MIN DE THÉORIE</div>
+    <h3>Au programme</h3>
+    <ul>
+      <li><b>01 · Des données qui survivent</b> <span>Spring Data JDBC, schéma, entité et repository</span><span class="dur">15 min</span></li>
+      <li><b>02 · Tout ou rien</b> <span>cycle de vie d'un troc, @Transactional, pièges</span><span class="dur">15 min</span></li>
+      <li class="hl"><b>Puis · TP 5</b> <span>users, items et trades en base H2</span></li>
+      <li><b>03 · Checkpoint #1 : vers l'acceptation</b> <span>pièges du mapping, ce que la base garantit</span><span class="dur">10 min</span></li>
+      <li class="hl"><b>Puis · TP 6</b> <span>accepter un troc, puis checkpoint #2 et journal de bord</span></li>
+    </ul>
+    <div class="pageno">03</div>
+  </section>
+  <aside class="notes">
+    <p>Les parties 01 et 02 sont présentées d'un seul bloc, avant la pause. Le checkpoint #1 arrive quand les groupes ont globalement fini le TP 5. Dans chaque TP, l'expérimentation reste facultative, la mise en place obligatoire.</p>
+  </aside>
+
+  <!-- ============ 04 · SECTION 01 ============ -->
   <section class="slide s-section">
-    <div class="tag">THÉORIE · 30 MIN</div>
+    <div class="tag">PARTIE 01 · 15 MIN</div>
     <div class="num">01</div>
     <div>
       <h2>Des données qui survivent</h2>
@@ -217,16 +260,16 @@
         <div>Entité et repository</div>
       </div>
     </div>
-    <div class="pageno">03</div>
+    <div class="pageno">04</div>
   </section>
   <aside class="notes">
     <p>Environ 15 minutes sur cette partie, 15 sur les transactions.</p>
   </aside>
 
-  <!-- ============ 04 · CE QUI CHANGE ============ -->
+  <!-- ============ 05 · CE QUI CHANGE ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · VUE D'ENSEMBLE</div>
+    <div class="tag">01 · VUE D'ENSEMBLE</div>
     <h3>On ne change qu'une brique</h3>
     <svg viewBox="0 0 800 250" role="img" aria-label="Le contrôleur et le service restent inchangés ; l'implémentation en mémoire du repository est remplacée par une implémentation générée par Spring Data JDBC, qui parle à la base H2">
       <text class="tk" x="0" y="16">INCHANGÉS</text>
@@ -263,17 +306,17 @@
       <text class="t tw" x="710" y="108" text-anchor="middle" font-size="12.5">fichier ./data/troc</text>
     </svg>
     <div class="caption">Le service dépend toujours de <b>l'interface</b>. Qui l'implémente change ; lui ne le voit pas. C'est l'évolution 2 de la séance 1, en vrai.</div>
-    <div class="pageno">04</div>
+    <div class="pageno">05</div>
   </section>
   <aside class="notes">
     <p>Faire le lien explicitement : en séance 1, on comptait les fichiers modifiés pour changer de stockage. Aujourd'hui : on supprime les classes en mémoire, on fait étendre les interfaces, et les services ne bougent (presque) pas.</p>
-    <p>« Presque » : les noms de méthodes des repositories peuvent changer (countByOwner → countByOwnerId). On le verra diapo 09.</p>
+    <p>« Presque » : les noms de méthodes des repositories peuvent changer (countByOwner → countByOwnerId). On le verra diapo 10.</p>
   </aside>
 
-  <!-- ============ 05 · POURQUOI JDBC ============ -->
+  <!-- ============ 06 · POURQUOI JDBC ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · CHOIX TECHNIQUE</div>
+    <div class="tag">01 · CHOIX TECHNIQUE</div>
     <h3>Spring Data JDBC plutôt que JPA</h3>
     <ul>
       <li><b>On écrit le schéma</b> <span>CREATE TABLE à la main : PK, FK et index restent sous vos yeux</span></li>
@@ -282,7 +325,7 @@
       <li><b>Ce qu'on perd</b> <span>relations objet automatiques : on manipule des identifiants (ownerId)</span></li>
       <li class="hl"><b>Pour ce cours</b> <span>la note porte sur les concepts SQL : autant qu'ils restent visibles</span></li>
     </ul>
-    <div class="pageno">05</div>
+    <div class="pageno">06</div>
   </section>
   <aside class="notes">
     <p>JPA/Hibernate est très répandu en entreprise et reste un bon choix. Mais il génère le SQL, suit les objets modifiés et les enregistre « tout seul » en fin de transaction : puissant, mais déroutant pour une première approche.</p>
@@ -290,10 +333,10 @@
     <p>C'est un exemple de choix technique justifié, exactement ce qu'on attend d'eux dans le projet : une alternative, un critère, une décision.</p>
   </aside>
 
-  <!-- ============ 06 · BRANCHER H2 ============ -->
+  <!-- ============ 07 · BRANCHER H2 ============ -->
   <section class="slide s-code compare">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · MISE EN PLACE</div>
+    <div class="tag">01 · BRANCHER H2</div>
     <h3>Brancher une base : trois dépendances, quatre lignes</h3>
     <div class="cols">
       <div class="col" style="flex:1.2">
@@ -338,7 +381,7 @@ spring.h2.console.enabled=true
       </div>
     </div>
     <div class="caption"><b>file:</b> les données survivent au redémarrage. <b>mem:</b> elles disparaissent à l'arrêt, pratique pour les tests.</div>
-    <div class="pageno">06</div>
+    <div class="pageno">07</div>
   </section>
   <aside class="notes">
     <p>H2 est une base écrite en Java, embarquée dans l'application : rien à installer. Le même code tournerait sur PostgreSQL en changeant la dépendance et l'URL (et, idéalement, en passant le mot de passe par variable d'environnement, cf. séance 2).</p>
@@ -348,10 +391,10 @@ spring.h2.console.enabled=true
     <p>Ajouter data/ au .gitignore : la base n'a rien à faire dans git.</p>
   </aside>
 
-  <!-- ============ 07 · LE SCHÉMA ============ -->
+  <!-- ============ 08 · LE SCHÉMA ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · LE SCHÉMA</div>
+    <div class="tag">01 · LE SCHÉMA</div>
     <h3>Trois tables, reliées par des clés étrangères</h3>
     <svg viewBox="0 0 800 270" role="img" aria-label="Schéma relationnel : items.owner_id référence users.id ; trades référence deux fois users (proposeur, destinataire) et deux fois items (objet offert, objet demandé)">
       <!-- users -->
@@ -405,7 +448,7 @@ spring.h2.console.enabled=true
       <path class="ln" d="M580,72 L564,72 L564,258 L100,258 L100,127" marker-end="url(#arr)"/>
       <path class="ln" d="M580,98 L564,98"/>
     </svg>
-    <div class="pageno">07</div>
+    <div class="pageno">08</div>
   </section>
   <aside class="notes">
     <p>Toutes les flèches pointent vers une clé primaire : une clé étrangère dit « cette valeur doit exister là-bas ». Impossible d'enregistrer un objet dont le propriétaire n'existe pas, même avec un bug dans le code.</p>
@@ -413,10 +456,10 @@ spring.h2.console.enabled=true
     <p>CHECK et UNIQUE : on y revient au checkpoint #1, ce sont des filets de sécurité qui serviront pendant la preuve du TP 6.</p>
   </aside>
 
-  <!-- ============ 08 · SCHEMA.SQL ============ -->
+  <!-- ============ 09 · SCHEMA.SQL ============ -->
   <section class="slide s-code dense">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · SCHEMA.SQL</div>
+    <div class="tag">01 · SCHEMA.SQL</div>
     <h3>Le schéma s'écrit en SQL, à la main</h3>
     <div class="win">
       <div class="winbar">src/main/resources/schema.sql</div>
@@ -436,7 +479,7 @@ spring.h2.console.enabled=true
 <span class="cm">-- trades : même principe, 4 clés étrangères, status VARCHAR(20) NOT NULL</span></pre>
     </div>
     <div class="caption"><b>IF NOT EXISTS</b> : le script est rejoué à chaque démarrage, il ne doit pas échouer si la table existe déjà.</div>
-    <div class="pageno">08</div>
+    <div class="pageno">09</div>
   </section>
   <aside class="notes">
     <p>IDENTITY : c'est la base qui attribue l'identifiant à l'insertion. Fini le compteur Java des repositories en mémoire.</p>
@@ -444,10 +487,10 @@ spring.h2.console.enabled=true
     <p>Corollaire de IF NOT EXISTS : modifier une table existante ne marchera pas en éditant le CREATE. Pendant le cours, le plus simple est de supprimer le dossier data/ et de redémarrer. En entreprise, on utiliserait un outil de migration (Flyway, Liquibase).</p>
   </aside>
 
-  <!-- ============ 09 · ENTITÉ ET REPOSITORY ============ -->
+  <!-- ============ 10 · ENTITÉ ET REPOSITORY ============ -->
   <section class="slide s-code compare">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · DANS LE CODE</div>
+    <div class="tag">01 · ENTITÉ ET REPOSITORY</div>
     <h3>L'entité décrit une ligne, l'interface suffit</h3>
     <div class="cols">
       <div class="col">
@@ -489,7 +532,7 @@ spring.h2.console.enabled=true
       </div>
     </div>
     <div class="caption"><b>ownerId</b> devient <b>owner_id</b> tout seul. Spring lit le nom <b>findByOwnerIdAndName</b> et en déduit le WHERE.</div>
-    <div class="pageno">09</div>
+    <div class="pageno">10</div>
   </section>
   <aside class="notes">
     <p>save() décide seul entre INSERT et UPDATE : id null → INSERT (et l'id généré est renseigné dans l'objet retourné), id non null → UPDATE.</p>
@@ -498,10 +541,10 @@ spring.h2.console.enabled=true
     <p>L'enum TradeStatus est stocké en texte dans la colonne status, sans configuration.</p>
   </aside>
 
-  <!-- ============ 10 · CE QUI CHANGE DANS LE PROJET ============ -->
+  <!-- ============ 11 · CE QUI CHANGE DANS LE PROJET ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">PERSISTANCE · VOTRE PROJET</div>
+    <div class="tag">01 · VOTRE PROJET</div>
     <h3>Ce qui change dans votre code</h3>
     <ul>
       <li><b>InMemory…Repository</b> <span>supprimées : l'interface étend ListCrudRepository</span></li>
@@ -510,16 +553,16 @@ spring.h2.console.enabled=true
       <li><b>Les contrôleurs</b> <span>inchangés</span></li>
       <li class="hl"><b>Le test</b> <span>redémarrer l'application : les données sont toujours là</span></li>
     </ul>
-    <div class="pageno">10</div>
+    <div class="pageno">11</div>
   </section>
   <aside class="notes">
     <p>Si un groupe constate qu'il doit modifier beaucoup de services, c'est un bon sujet de discussion : leurs services dépendaient sans doute de la classe concrète et non de l'interface.</p>
     <p>Transition : « Les données sont en base. Maintenant, que se passe-t-il quand un troc modifie plusieurs lignes à la fois ? »</p>
   </aside>
 
-  <!-- ============ 11 · SECTION 02 ============ -->
+  <!-- ============ 12 · SECTION 02 ============ -->
   <section class="slide s-section">
-    <div class="tag">THÉORIE · SUITE</div>
+    <div class="tag">PARTIE 02 · 15 MIN</div>
     <div class="num">02</div>
     <div>
       <h2>Tout ou rien</h2>
@@ -530,16 +573,16 @@ spring.h2.console.enabled=true
         <div>Les pièges</div>
       </div>
     </div>
-    <div class="pageno">11</div>
+    <div class="pageno">12</div>
   </section>
   <aside class="notes">
     <p>Les transactions SQL font partie des prérequis (BEGIN, COMMIT, ROLLBACK). L'enjeu ici n'est pas la notion, mais le lien avec le métier et comment Spring les déclenche.</p>
   </aside>
 
-  <!-- ============ 12 · CYCLE DE VIE ============ -->
+  <!-- ============ 13 · CYCLE DE VIE ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
-    <div class="tag">TRANSACTIONS · LE MÉTIER</div>
+    <div class="tag">02 · CYCLE DE VIE</div>
     <h3>Un troc, deux accords</h3>
     <svg viewBox="0 0 800 230" role="img" aria-label="Un troc proposé (accord du proposeur) peut être accepté par le destinataire, il passe alors à EXECUTED dans une seule transaction, ou refusé, il passe à REJECTED">
       <text class="tc" x="0" y="106" font-weight="600">POST /trades</text>
@@ -570,7 +613,7 @@ spring.h2.console.enabled=true
       <text class="t tm" x="694" y="198">intacts</text>
     </svg>
     <div class="caption"><b>POST /trades/{id}/accept</b> et <b>POST /trades/{id}/reject</b>, avec le destinataire dans le corps : <b>{ "userId": 2 }</b>.</div>
-    <div class="pageno">12</div>
+    <div class="pageno">13</div>
   </section>
   <aside class="notes">
     <p>Proposer, c'est déjà donner son accord ; accepter, c'est le second accord. L'exécution a lieu au moment de l'acceptation : pas d'état intermédiaire « accepté mais pas encore échangé ».</p>
@@ -578,10 +621,10 @@ spring.h2.console.enabled=true
     <p>userId dans le corps, comme proposerId en séance 2 : faute d'authentification, le client se déclare. Si ce n'est pas le destinataire : 403 Forbidden. Si le troc n'est plus PROPOSED : 409.</p>
   </aside>
 
-  <!-- ============ 13 · CINQ ÉCRITURES ============ -->
+  <!-- ============ 14 · CINQ ÉCRITURES ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
-    <div class="tag">TRANSACTIONS · LE PROBLÈME</div>
+    <div class="tag">02 · CINQ ÉCRITURES</div>
     <h3>Accepter un troc, c'est cinq écritures</h3>
     <svg viewBox="0 0 800 236" role="img" aria-label="Les cinq écritures d'un troc ; si la troisième échoue sans transaction, Alice a perdu ses tomates sans rien recevoir ; avec une transaction, tout est annulé">
       <text class="tk" x="0" y="12">ALICE OFFRE 3 TOMATES · BOB OFFRE 4 CAROTTES</text>
@@ -616,7 +659,7 @@ spring.h2.console.enabled=true
       <text class="t tw" x="518" y="198">la base revient exactement</text>
       <text class="t tw" x="518" y="218">à l'état d'avant.</text>
     </svg>
-    <div class="pageno">13</div>
+    <div class="pageno">14</div>
   </section>
   <aside class="notes">
     <p>Pourquoi l'étape 3 échoue-t-elle ? Bob avait 5 carottes à la proposition, il en a donné 4 ailleurs entre-temps. Le stock a changé entre la proposition et l'acceptation : il faut revérifier au moment d'exécuter.</p>
@@ -625,10 +668,10 @@ spring.h2.console.enabled=true
     <p>Ordre réel du code de référence : chaque transfert débite puis crédite (l'objet offert, puis l'objet demandé). C'est exactement ce qu'on observe dans la preuve du TP 6 : Alice à 7 tomates, une ligne « tomates » à 3 chez Bob, troc toujours PROPOSED.</p>
   </aside>
 
-  <!-- ============ 14 · @TRANSACTIONAL ============ -->
+  <!-- ============ 15 · @TRANSACTIONAL ============ -->
   <section class="slide s-code dense">
     <div class="bar"></div>
-    <div class="tag">TRANSACTIONS · @TRANSACTIONAL</div>
+    <div class="tag">02 · @TRANSACTIONAL</div>
     <h3>Une annotation, une méthode, une transaction</h3>
     <div class="win">
       <div class="winbar">trade/TradeService.java</div>
@@ -650,7 +693,7 @@ spring.h2.console.enabled=true
 }</pre>
     </div>
     <div class="caption"><b>itemService.transfer</b> : débit de l'objet, crédit de l'autre. Une exception sort de la méthode ? <b>Rien</b> n'est enregistré.</div>
-    <div class="pageno">14</div>
+    <div class="pageno">15</div>
   </section>
   <aside class="notes">
     <p>L'annotation va sur le service : c'est lui qui connaît l'opération métier complète. Ni sur le contrôleur (trop haut), ni sur chaque méthode du repository (trop bas, chaque écriture aurait sa propre transaction).</p>
@@ -659,10 +702,10 @@ spring.h2.console.enabled=true
     <p>Crédit : chercher la ligne (owner, name) avec findByOwnerIdAndName ; si elle existe on ajoute la quantité, sinon on crée une nouvelle ligne. Question à poser aux groupes : la création d'une ligne doit-elle respecter troc.item.max-per-user ? C'est un choix à justifier.</p>
   </aside>
 
-  <!-- ============ 15 · LE PROXY ============ -->
+  <!-- ============ 16 · LE PROXY ============ -->
   <section class="slide s-diagram">
     <div class="bar"></div>
-    <div class="tag">TRANSACTIONS · SOUS LE CAPOT</div>
+    <div class="tag">02 · SOUS LE CAPOT</div>
     <h3>Spring s'intercale entre l'appelant et votre méthode</h3>
     <svg viewBox="0 0 800 230" role="img" aria-label="Le contrôleur appelle un proxy généré par Spring qui ouvre la transaction, appelle accept, puis valide si tout s'est bien passé ou annule en cas de RuntimeException">
       <rect class="box" x="0" y="82" width="140" height="64" rx="4"/>
@@ -695,17 +738,17 @@ spring.h2.console.enabled=true
       <text class="t tm" x="694" y="186" text-anchor="middle">RuntimeException</text>
     </svg>
     <div class="caption">Le contrôleur croit appeler <b>TradeService</b> : il reçoit en fait un proxy, injecté par le conteneur vu en séance 1.</div>
-    <div class="pageno">15</div>
+    <div class="pageno">16</div>
   </section>
   <aside class="notes">
     <p>C'est le conteneur IoC qui rend ça possible : comme c'est lui qui crée et injecte les beans, il peut injecter un « emballage » autour de TradeService plutôt que l'objet lui-même.</p>
     <p>Teaser pour la séance 4 : ce mécanisme d'interception, c'est de la programmation orientée aspect. @Transactional est un aspect fourni par Spring ; jeudi prochain, on écrira le nôtre pour journaliser les trocs.</p>
   </aside>
 
-  <!-- ============ 16 · PIÈGES @TRANSACTIONAL ============ -->
+  <!-- ============ 17 · PIÈGES @TRANSACTIONAL ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">TRANSACTIONS · LES PIÈGES</div>
+    <div class="tag">02 · LES PIÈGES</div>
     <h3>Quand @Transactional ne fait rien</h3>
     <ul>
       <li><b>Appel interne</b> <span>this.accept() depuis la même classe ne passe pas par le proxy</span></li>
@@ -714,7 +757,7 @@ spring.h2.console.enabled=true
       <li><b>Méthode non publique</b> <span>l'annotation doit être sur une méthode publique d'un bean</span></li>
       <li class="hl"><b>La règle simple</b> <span>sur la méthode publique du service, appelée par le contrôleur</span></li>
     </ul>
-    <div class="pageno">16</div>
+    <div class="pageno">17</div>
   </section>
   <aside class="notes">
     <p>Les trois premiers pièges ont la même cause : le proxy de la diapo précédente. S'il n'est pas traversé, ou s'il ne voit pas l'exception, il n'y a rien à annuler.</p>
@@ -722,36 +765,34 @@ spring.h2.console.enabled=true
     <p>Garder la transaction courte : pas d'appel réseau ni d'attente à l'intérieur, elle bloque des lignes pendant ce temps.</p>
   </aside>
 
-  <!-- ============ 17 · CONSIGNE TP 1 ============ -->
+  <!-- ============ 18 · TP 5 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 5</div>
-    <h2>TP 5 : tout en base</h2>
-    <div class="grid">
-      <div class="card">
-        <div class="k">À FAIRE</div>
-        <div class="v">H2 et schema.sql, puis users, items et trades en Spring Data JDBC. Supprimer les classes en mémoire.</div>
+    <div class="tag">TP 5 · 05-tp5-persistance.md</div>
+    <h2>Place au TP 5</h2>
+    <div class="grid two">
+      <div class="card opt">
+        <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
+        <div class="v">Observer les limites de la mémoire : redémarrer, lancer deux instances, obtenir des données incohérentes.<br><br>À sauter si vous savez expliquer : ce qu'apporte une base au-delà du redémarrage, ce que refuse une clé étrangère, à quoi sert une contrainte si le code vérifie déjà.</div>
       </div>
       <div class="card">
-        <div class="k">À VÉRIFIER</div>
-        <div class="v">Redémarrer : les données sont toujours là. Les voir dans /h2-console avec un SELECT.</div>
-      </div>
-      <div class="card">
-        <div class="k">CHECKPOINT #1</div>
-        <div class="v">Quand tout le monde a globalement fini : les pièges du mapping, puis l'acceptation du troc.</div>
+        <div class="k">PARTIE 2 · MISE EN PLACE · OBLIGATOIRE</div>
+        <div class="v">H2 et schema.sql, puis <b>users</b>, <b>items</b> et <b>trades</b> en Spring Data JDBC. Supprimer les classes en mémoire.<br><br>Redémarrer : les données sont toujours là, visibles dans /h2-console.</div>
       </div>
     </div>
-    <div class="pageno">17</div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 6 (transactions), ou bonus : data.sql, profil demo, dater les trocs.</div>
+    <div class="pageno">18</div>
   </section>
   <aside class="notes">
+    <p>Diapo projetée pendant le TP 5. Checkpoint #1 quand tout le monde a globalement fini : les pièges du mapping, puis l'acceptation du troc.</p>
     <p>Durée indicative : 60 à 75 min. Le support de TP détaille l'ordre conseillé : users d'abord (le plus simple), puis items (la clé étrangère), puis trades.</p>
     <p>Répartition possible dans un groupe de 4 : une personne sur le schéma SQL, les autres sur une fonctionnalité chacune. Le schéma doit être fini en premier.</p>
     <p>Les fichiers de requêtes de test de la séance 2 servent de non-régression : tout doit répondre pareil qu'avant.</p>
   </aside>
 
-  <!-- ============ 18 · SECTION CHECKPOINT ============ -->
+  <!-- ============ 19 · SECTION CHECKPOINT ============ -->
   <section class="slide s-section">
-    <div class="tag">CHECKPOINT #1 · 10 MIN</div>
+    <div class="tag">PARTIE 03 · CHECKPOINT #1 · 10 MIN</div>
     <div class="num">03</div>
     <div>
       <h2>Vers l'acceptation</h2>
@@ -761,16 +802,16 @@ spring.h2.console.enabled=true
         <div>L'expérience du TP 6</div>
       </div>
     </div>
-    <div class="pageno">18</div>
+    <div class="pageno">19</div>
   </section>
   <aside class="notes">
     <p>Faire remonter les blocages des groupes avant de projeter la diapo suivante : souvent, ils sont tous dedans.</p>
   </aside>
 
-  <!-- ============ 19 · PIÈGES MAPPING ============ -->
+  <!-- ============ 20 · PIÈGES MAPPING ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">CHECKPOINT #1 · PIÈGES COURANTS</div>
+    <div class="tag">03 · PIÈGES COURANTS</div>
     <h3>Ça ne démarre pas : que dit la console ?</h3>
     <ul>
       <li><b>Table "users" not found</b> <span>;CASE_INSENSITIVE_IDENTIFIERS=TRUE oublié dans l'URL</span></li>
@@ -780,18 +821,18 @@ spring.h2.console.enabled=true
       <li><b>Failed to instantiate Item</b> <span>pas de constructeur utilisable : en ajouter un sans argument</span></li>
       <li><b>Rien dans /h2-console</b> <span>pas la même URL que spring.datasource.url</span></li>
     </ul>
-    <div class="pageno">19</div>
+    <div class="pageno">20</div>
   </section>
   <aside class="notes">
     <p>Les messages réels sont plus longs : chercher la dernière ligne « Caused by » de la pile d'exception, c'est presque toujours elle qui dit la vérité.</p>
     <p>Console vide : se connecter à jdbc:h2:mem:testdb (valeur par défaut proposée) crée une base vide différente. L'URL doit être recopiée exactement.</p>
-    <p>Schéma modifié qui ne s'applique pas : supprimer le dossier data/ et redémarrer (cf. diapo 08).</p>
+    <p>Schéma modifié qui ne s'applique pas : supprimer le dossier data/ et redémarrer (cf. diapo 09).</p>
   </aside>
 
-  <!-- ============ 20 · CE QUE LA BASE GARANTIT ============ -->
+  <!-- ============ 21 · CE QUE LA BASE GARANTIT ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">CHECKPOINT #1 · CONTRAINTES ET INDEX</div>
+    <div class="tag">03 · CONTRAINTES ET INDEX</div>
     <h3>Le code vérifie, la base garantit</h3>
     <ul>
       <li><b>FOREIGN KEY</b> <span>supprimer un utilisateur qui a des objets est refusé : 409 ou suppression en cascade ?</span></li>
@@ -800,39 +841,12 @@ spring.h2.console.enabled=true
       <li><b>INDEX</b> <span>GET /trades?userId= lit trades par participant : à indexer</span></li>
       <li class="hl"><b>À justifier</b> <span>chaque contrainte et chaque index : c'est noté dans le projet</span></li>
     </ul>
-    <div class="pageno">20</div>
+    <div class="pageno">21</div>
   </section>
   <aside class="notes">
     <p>FK : DELETE /users/1 alors qu'il possède des objets → la base lève une exception d'intégrité → 500 si on ne fait rien. Aux groupes de choisir : vérifier et renvoyer 409, ou supprimer d'abord ses objets. Les deux se défendent.</p>
     <p>Index : CREATE INDEX IF NOT EXISTS idx_trades_recipient ON trades(recipient_id); idem sur proposer_id. Un index accélère les lectures mais ralentit un peu les écritures : on indexe ce qu'on interroge. Selon le SGBD, une clé étrangère n'est pas indexée automatiquement (PostgreSQL ne le fait pas, H2 si).</p>
     <p>Transition vers le TP 6 : la contrainte CHECK va servir de déclencheur dans l'expérience.</p>
-  </aside>
-
-  <!-- ============ 21 · CONSIGNE TP 2 ============ -->
-  <section class="slide s-close">
-    <div class="bar"></div>
-    <div class="tag">TP 6</div>
-    <h2>TP 6 : accepter un troc</h2>
-    <div class="grid">
-      <div class="card">
-        <div class="k">À FAIRE</div>
-        <div class="v">POST /trades/{id}/accept et /reject. L'échange des stocks dans une seule méthode @Transactional.</div>
-      </div>
-      <div class="card">
-        <div class="k">L'EXPÉRIENCE</div>
-        <div class="v">Sans @Transactional ni vérif. du stock de Bob, stock à 1, accept : que reste-t-il à Alice ? Puis avec.</div>
-      </div>
-      <div class="card">
-        <div class="k">EN AVANCE ?</div>
-        <div class="v">TP 7, ou bonus : deux acceptations simultanées, index justifiés, une requête @Query.</div>
-      </div>
-    </div>
-    <div class="pageno">21</div>
-  </section>
-  <aside class="notes">
-    <p>Durée indicative : 60 à 75 min. Expérience détaillée dans le support : retirer temporairement @Transactional et la vérification du stock du destinataire, passer les carottes de Bob à 1 (requête Bruno « Réduire le stock de Bob »), accepter → 500 (contrainte CHECK). Dans /h2-console, le stock d'Alice a baissé. Remettre @Transactional, recommencer : même 500, mais stock d'Alice intact. Remettre enfin la vérification : 409 propre.</p>
-    <p>À noter dans le rapport du projet : c'est une preuve concrète, reproductible, du rôle de la transaction.</p>
-    <p>Bonus concurrence : deux acceptations en parallèle peuvent toutes deux passer la vérification de stock. Pistes : UPDATE conditionnel (… SET quantity = quantity - :qty WHERE id = :id AND quantity &gt;= :qty, avec @Modifying et @Query, en testant le nombre de lignes modifiées), ou verrouillage optimiste avec @Version.</p>
   </aside>
 
   <!-- ============ 22 · SYNTHÈSE ============ -->
@@ -843,29 +857,53 @@ spring.h2.console.enabled=true
     <div class="quote">Un troc, c'est une transaction : tout ou rien.</div>
     <div class="grid four">
       <div class="card">
-        <div class="k">CONCEPT CLÉ</div>
-        <div class="v">Le service vérifie, la transaction protège, les contraintes garantissent.</div>
+        <div class="k">LA PERSISTANCE</div>
+        <div class="v">Seul le repository change : une interface Spring Data JDBC, un schéma SQL écrit à la main.</div>
+      </div>
+      <div class="card">
+        <div class="k">LA TRANSACTION</div>
+        <div class="v">Une méthode @Transactional, appelée de l'extérieur : tout est écrit, ou rien.</div>
+      </div>
+      <div class="card">
+        <div class="k">LA BASE GARANTIT</div>
+        <div class="v">Le service vérifie, les contraintes (FK, CHECK, UNIQUE) garantissent.</div>
       </div>
       <div class="card">
         <div class="k">OBJECTIF DU JOUR</div>
         <div class="v">Données en H2, accept et reject, échange des stocks atomique.</div>
       </div>
-      <div class="card">
-        <div class="k">EN AVANCE ?</div>
-        <div class="v">TP 7, ou bonus : concurrence, index, requêtes @Query.</div>
-      </div>
-      <div class="card">
-        <div class="k">SÉANCE 4</div>
-        <div class="v">Journaliser chaque troc avec un aspect, et tester sans base.</div>
-      </div>
     </div>
-    <div class="memo"><b>JOURNAL DE BORD</b>Avant de partir, 5 min dans JOURNAL.md : ce qui a bloqué, ce que vous feriez autrement ou plus tôt, ce qui a bien marché, ce qui était fluide.</div>
+    <div class="memo"><b>SÉANCE 4</b>Journaliser chaque troc avec un aspect, et tester sans base.</div>
     <div class="pageno">22</div>
   </section>
   <aside class="notes">
-    <p>Journal de bord : laisser 5 minutes en fin de checkpoint #2 pour le compléter. Faire citer une ou deux entrées à voix haute : ce qui a bloqué aujourd'hui sert de point de départ au rappel de la prochaine séance.</p>
-    <p>Diapo projetée pendant le TP 6 et reprise au checkpoint #2 pour le bilan.</p>
+    <p>Synthèse avant de lancer le TP 6. Elle sera reprise au checkpoint #2 pour le bilan.</p>
     <p>Annonce séance 4 : le proxy vu aujourd'hui, on va en écrire un nous-mêmes (AOP). Et on testera TradeService avec un faux repository, grâce à l'injection par constructeur de la séance 1. Prévenir que la séance 4 est dense : arriver avec un projet qui tourne.</p>
+  </aside>
+
+  <!-- ============ 23 · TP 6 ============ -->
+  <section class="slide s-close">
+    <div class="bar"></div>
+    <div class="tag">TP 6 · 06-tp6-transactions.md</div>
+    <h2>Place au TP 6</h2>
+    <div class="grid two">
+      <div class="card opt">
+        <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
+        <div class="v">Deux écritures dont la seconde échoue : sans transaction, puis avec @Transactional.<br><br>À sauter si vous savez expliquer : ce que deviennent les écritures déjà faites, l'effet d'une exception attrapée, pourquoi <code>this.methode()</code> échappe à @Transactional.</div>
+      </div>
+      <div class="card">
+        <div class="k">PARTIE 2 · MISE EN PLACE · OBLIGATOIRE</div>
+        <div class="v"><b>POST /trades/{id}/accept</b> et <b>/reject</b> : l'échange des stocks dans une seule méthode @Transactional.<br><br>La preuve : sans @Transactional, stock de Bob à 1, accept. Que reste-t-il à Alice ? Puis avec.</div>
+      </div>
+    </div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 7 (AOP) ou bonus : concurrence, index justifiés. <b>FIN DE SÉANCE</b>Checkpoint #2 : bilan collectif, puis 5 min de journal de bord.</div>
+    <div class="pageno">23</div>
+  </section>
+  <aside class="notes">
+    <p>Diapo projetée pendant tout le TP 6. Durée indicative : 60 à 75 min. Expérience détaillée dans le support : retirer temporairement @Transactional et la vérification du stock du destinataire, passer les carottes de Bob à 1 (requête Bruno « Réduire le stock de Bob »), accepter → 500 (contrainte CHECK). Dans /h2-console, le stock d'Alice a baissé. Remettre @Transactional, recommencer : même 500, mais stock d'Alice intact. Remettre enfin la vérification : 409 propre.</p>
+    <p>À noter dans le rapport du projet : c'est une preuve concrète, reproductible, du rôle de la transaction.</p>
+    <p>Bonus concurrence : deux acceptations en parallèle peuvent toutes deux passer la vérification de stock. Pistes : UPDATE conditionnel (… SET quantity = quantity - :qty WHERE id = :id AND quantity &gt;= :qty, avec @Modifying et @Query, en testant le nombre de lignes modifiées), ou verrouillage optimiste avec @Version.</p>
+    <p>Journal de bord : laisser 5 minutes en fin de checkpoint #2 pour le compléter (ce qui a bloqué, ce que vous feriez autrement ou plus tôt, ce qui a bien marché, ce qui était fluide). Faire citer une ou deux entrées à voix haute : ce qui a bloqué aujourd'hui sert de point de départ au rappel de la prochaine séance.</p>
   </aside>
 
 </div>

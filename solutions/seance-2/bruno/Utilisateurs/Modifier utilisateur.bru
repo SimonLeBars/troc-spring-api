@@ -1,0 +1,21 @@
+meta {
+  name: Modifier utilisateur
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/users/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Alice Martin"
+  }
+}

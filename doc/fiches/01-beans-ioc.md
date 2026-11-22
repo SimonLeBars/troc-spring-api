@@ -134,6 +134,19 @@ flowchart LR
 2. ✅ garder un seul sens : dans troc-api, seul `TradeService` reçoit les autres services ;
 3. 💡 si deux services ont vraiment besoin l'un de l'autre, déplacer le code commun dans un troisième service.
 
+## ⌨️ IntelliJ · `TP 1`
+
+⭐ = aide Spring, IntelliJ **Ultimate** (licence étudiante gratuite) · raccourcis Windows / Linux ; macOS et liste générale : [fiche 10](10-raccourcis-intellij.md)
+
+| Raccourci | Effet |
+|---|---|
+| `Alt+Inser` > **Constructor** | génère le constructeur des champs `final` (tout cocher) |
+| `Alt+Entrée` sur un champ `final` souligné | **Add constructor parameter** : le champ rejoint le constructeur |
+| `Ctrl+Alt+B` sur `ItemRepository` | aller à l'implémentation (`InMemoryItemRepository`, `TP 1 → 4`) |
+| `Ctrl+Alt+H` sur une méthode | qui l'appelle, et qui appelle l'appelant (hiérarchie d'appels) |
+| ⭐ icône 🍃 dans la marge | aller au bean injecté · voir qui injecte ce bean |
+| ⭐ `Could not autowire. No beans of '…' type found` | la même erreur qu'au démarrage, vue **avant** de lancer |
+
 ## 🚨 Erreurs au démarrage
 
 | Message | 🔎 Cause | TP |

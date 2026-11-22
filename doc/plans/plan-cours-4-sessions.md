@@ -84,11 +84,13 @@ Supports : `../cours/01-seance-1-fondations.html`, `../tp/00-initialisation.md`,
 
 **Objectif : approfondir le Hello World avec de vrais endpoints REST et de la config externalisée.**
 
-- **Théorie (30 min)** : configuration externalisée (~20 min, la vraie nouveauté) : `application.properties`/`yml`, `@Value`/`@ConfigurationProperties`, priorité des sources. Puis REST en Spring (~10 min) : une diapo de rappel REST (verbes, codes, URLs, 400 vs 409), `@PathVariable`/`@RequestParam`/`@RequestBody`, `ResponseEntity`/`@ResponseStatus`/`ResponseStatusException`.
+Exception à la structure type : pas de checkpoint #1. Toute la théorie (y compris la transition vers les trocs) est présentée d'un seul bloc de 35 min en ouverture, puis les TP 2, 3 et 4 s'enchaînent jusqu'au checkpoint de fin de séance.
+
+- **Théorie (35 min)** : configuration externalisée (~20 min, la vraie nouveauté) : `application.properties`/`yml`, `@Value`/`@ConfigurationProperties`, priorité des sources. Puis REST en Spring (~10 min) : une diapo de rappel REST (verbes, codes, URLs, 400 vs 409), `@PathVariable`/`@RequestParam`/`@RequestBody`, `ResponseEntity`/`@ResponseStatus`/`ResponseStatusException`, et les pièges REST/JSON courants (415, 400, 405, champ à `null`) pour que les groupes se débloquent seuls. Puis vers les trocs (~5 min) : objectif du TP 4 (`POST /trades`), requête ≠ entité.
 - **TP 2 — API REST** : endpoints CRUD (users, objets) sur données en mémoire, moins guidés qu'en séance 1 (table de correspondance « vous connaissez → en Spring », solutions repliées). Expérimentation : jouer le client (codes renvoyés, ressource inconnue en `200`, `id` imposé par le client).
-- **Checkpoint #1** : blocages REST/JSON courants côté Spring.
 - **TP 3 — Configuration** : `troc.item.max-per-user` via `@ConfigurationProperties`, priorité des sources. Expérimentation : valeur en dur vs `--server.port` sur le `.jar`.
 - **TP 4 — DTO et règles métier** : proposer/consulter un troc (sans persistance ni double validation). Expérimentation : *mass assignment* sur une entité reçue telle quelle.
+- **Bilan de fin de séance (checkpoint)** : synthèse, blocages rencontrés, 5 min de journal de bord.
 - **Bonus** : gestion d'erreurs globale (`@RestControllerAdvice`) ; validation des entrées (`@Valid`) ; profils. Le temps gagné sur les rappels REST doit permettre à la plupart des groupes d'atteindre au moins le premier. Ils restent en bonus (pas dans le noyau) : les supports des séances 3 et 4 et le code de référence s'appuient sur `ResponseStatusException`, et `@Valid` demande une dépendance supplémentaire.
 
 Supports : `../cours/02-seance-2-configuration-rest.html`, `../tp/02-tp2-api-rest.md`, `../tp/03-tp3-configuration.md`, `../tp/04-tp4-dto-proposer-troc.md`.

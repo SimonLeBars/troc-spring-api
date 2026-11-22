@@ -16,11 +16,11 @@ Une classe a besoin d'autres objets pour travailler : un service a besoin d'un r
 
 **Vous pouvez passer à la partie 2 si vous savez répondre à ces questions :**
 
-- Quand chaque classe fabrique elle-même ses dépendances avec `new`, qui décide combien d'instances d'une même dépendance existent dans l'application ? Citez des ressources qui doivent être partagées (une seule instance pour toute l'application) et ce qui se passe si chaque classe crée la sienne (pensez à un pool de connexions, un cache, un compteur).
+- Que se passe-t-il quand deux services font chacun `new` du même repository ? Citez d'autres ressources qui doivent être partagées (une seule instance pour toute l'application) et ce qui se passe si chaque classe crée la sienne (pensez à un pool de connexions, un cache, un compteur).
 - Que faut-il modifier dans le code pour remplacer une implémentation de repository par une autre, quand chaque service fait son propre `new` ? Et quand les services reçoivent le repository par leur constructeur ?
 - Qu'est-ce que l'« effet cascade » d'un changement de constructeur ?
 
-Dans cette partie, on écrit du code **sans** Spring, en Java pur, avec un couplage fort : chaque classe fabrique ce dont elle a besoin avec `new`. Le but n'est pas d'écrire du « bon » code, mais de **ressentir** les problèmes : le client va demander trois évolutions, et pour chacune vous noterez combien de fichiers vous avez dû modifier.
+Dans cette partie, on écrit du code **sans** Spring, en Java pur, avec un couplage fort : chaque classe fabrique ce dont elle a besoin avec `new`. Le but n'est pas d'écrire du « bon » code, mais de **ressentir** les problèmes : le client va demander trois évolutions, et chacune montre ce que coûte un changement quand les classes sont couplées. Rien n'est à rendre : c'est un terrain d'essai pour mettre en pratique les notions du cours et voir de vos yeux ce qu'elles résolvent.
 
 Tout le code de cette partie va dans le package **`fr.cours.troc.sandbox.couplage`** qui sera supprimé à la fin. Une partie du code produit pourra être repris comme base pour la partie 2. Aucune annotation Spring pour le moment.
 
@@ -103,13 +103,7 @@ Rappel de l'architecture en couches : un **service** porte les règles métier, 
 
 ### Étape 2 — Les évolutions demandées par le client
 
-Pour chaque évolution, remplissez ce tableau (sur papier ou dans un fichier texte) :
-
-| Évolution | Fichiers créés | Fichiers existants modifiés | Problème rencontré |
-|---|---|---|---|
-| 1 — Les objets | | | |
-| 2 — Les traces | | | |
-| 3 — Le préfixe | | | |
+À chaque évolution, gardez un œil sur ce que le changement vous oblige à toucher : quels fichiers vous ouvrez, et pourquoi. Le bilan est fait à la fin de la partie, dans « Ce qu'il faut retenir ».
 
 #### Évolution 1 — Les utilisateurs déclarent leurs objets
 
@@ -161,7 +155,7 @@ Relancez. Le programme s'arrête sur `IllegalArgumentException: Utilisateur intr
 
 </details>
 
-Ne corrigez pas : notez le bug dans le tableau, et mettez en commentaire la ligne `itemService.create(tomatoes);` pour continuer.
+Ne corrigez pas encore : c'est le premier symptôme du couplage fort, le remède arrive à l'étape 3. Mettez en commentaire la ligne `itemService.create(tomatoes);` pour continuer.
 
 #### Évolution 2 — Tracer les opérations
 
@@ -170,7 +164,7 @@ Ne corrigez pas : notez le bug dans le tableau, et mettez en commentaire la lign
 1. Créez `LoggingUserRepository` : une copie d'`InMemoryUserRepository` dont chaque méthode affiche aussi une ligne, par exemple `System.out.println("[USERS] save " + user.getId() + " " + user.getName());`.
 2. Faites en sorte que **tous** les services utilisent ce nouveau stockage.
 
-Combien de fichiers avez-vous dû ouvrir pour le point 2 ? Imaginez la même demande sur un projet de 30 services.
+Pour le point 2, il a fallu ouvrir chaque service qui fait `new InMemoryUserRepository()`. Ici, deux fichiers ; imaginez la même demande sur un projet de 30 services.
 
 #### Évolution 3 — Choisir le préfixe des traces
 
@@ -211,10 +205,10 @@ Toujours dans le sandbox, corrigez le code en trois gestes :
 
 Décommentez `itemService.create(tomatoes);` et relancez : `1 objet(s) déclaré(s)`. Les deux services reçoivent **le même** objet `users` : le bug de l'évolution 1 a disparu.
 
-Refaites maintenant l'évolution 2 (repasser au stockage avec traces). Combien de fichiers modifiez-vous ?
+Refaites maintenant l'évolution 2 (repasser au stockage avec traces) et comparez avec la première fois : qu'avez-vous dû toucher ?
 
 <details>
-<summary>Réponse</summary>
+<summary>Ce qu'on constate</summary>
 
 Un seul : la première ligne de `ManualDemo`, qui devient `new LoggingUserRepository("[USERS]")`. Les services n'ont pas bougé : ils dépendent d'un contrat, pas d'une implémentation. C'est le **D** de SOLID (inversion des dépendances). Même chose pour l'évolution 3 : un changement de constructeur ne touche que l'endroit qui fait le `new`.
 
@@ -226,7 +220,7 @@ Le code couplé fonctionnait : le problème n'est jamais « ça ne marche pas »
 
 | Problème du couplage fort | Dans l'expérience | Dans la vraie vie |
 |---|---|---|
-| **Données incohérentes** : chaque classe décide qu'elle aura **son propre** objet | deux maps d'utilisateurs, Alice « introuvable » | un pool de connexions à la base créé par chaque service, qui finit par épuiser les connexions acceptées ; un limiteur « 100 appels par minute » dupliqué, donc une limite réelle multipliée |
+| **Ressources dupliquées** : chaque classe décide qu'elle aura **son propre** objet | deux maps d'utilisateurs, Alice « introuvable » | un pool de connexions à la base créé par chaque service, qui finit par épuiser les connexions acceptées ; un limiteur « 100 appels par minute » dupliqué, donc une limite réelle multipliée |
 | **Changer d'implémentation = modifier chaque service** | évolution 2 | migrer d'Oracle vers PostgreSQL, ou changer de fournisseur cloud : des centaines de modifications dispersées, autant de risques de régression |
 | **Effet cascade** | évolution 3 | une bibliothèque dont un constructeur change bloque toute l'équipe tant que chaque appel n'est pas corrigé |
 | **Deux métiers dans une classe** | `UserService` a changé pour des raisons sans rapport avec les utilisateurs | contraire au **S** de SOLID : une classe, une seule raison de changer |
@@ -382,7 +376,11 @@ Spring dit précisément ce qui manque : `ItemService` demande un `UserRepositor
 
 ## Bonus
 
-### Bonus 1 — Choisir l'implémentation selon l'environnement (profils Spring)
+### Bonus 1 — Documenter l'API : OpenAPI et Swagger UI
+
+Une page web qui liste vos routes et permet de les essayer, générée à partir de votre code : c'est l'objet de l'[annexe 1](annexe-1-documentation-openapi.md). Une fois en place, elle suit l'API jusqu'à la fin du cours sans rien refaire.
+
+### Bonus 2 — Choisir l'implémentation selon l'environnement (profils Spring)
 
 Créez une deuxième implémentation, `LoggingUserRepository`, qui affiche une trace à chaque opération. Plutôt que de déplacer `@Repository` d'une classe à l'autre, laissez Spring choisir au démarrage selon un **profil** actif :
 
@@ -391,20 +389,10 @@ Créez une deuxième implémentation, `LoggingUserRepository`, qui affiche une t
 
 Les traces apparaissent sans qu'aucune classe n'ait été modifiée. Documentation : [Spring Boot — Profiles](https://docs.spring.io/spring-boot/reference/features/profiles.html).
 
-### Bonus 2 — Les règles des objets
-
-- Ajoutez une méthode `findByOwner(Long ownerId)` à `ItemService` et au repository.
-- Dans `ItemService.create`, refusez une quantité nulle ou négative (`IllegalArgumentException`).
-
-Ces règles seront exposées en HTTP au TP 2.
-
-### Bonus 3 — Documenter l'API : OpenAPI et Swagger UI
-
-Une page web qui liste vos routes et permet de les essayer, générée à partir de votre code : c'est l'objet de l'[annexe 1](annexe-1-documentation-openapi.md). Une fois en place, elle suit l'API jusqu'à la fin du cours sans rien refaire.
-
 ## Pour aller plus loin
 
 - [Spring Framework — The IoC Container](https://docs.spring.io/spring-framework/reference/core/beans.html) (référence complète, à parcourir)
 - [Spring — Guide « Building a RESTful Web Service »](https://spring.io/guides/gs/rest-service)
+- [roadmap.sh — Spring Boot](https://roadmap.sh/spring-boot) (carte des notions de l'écosystème Spring, avec des ressources pour chacune)
 - [Spring Boot — Structuring Your Code](https://docs.spring.io/spring-boot/reference/using/structuring-your-code.html) (pourquoi la classe principale doit être dans le package racine)
 - [Wikipédia — Couplage (informatique)](https://fr.wikipedia.org/wiki/Couplage_(informatique)), [SOLID](https://fr.wikipedia.org/wiki/SOLID_(informatique)) et [Inversion de contrôle](https://fr.wikipedia.org/wiki/Inversion_de_contr%C3%B4le)

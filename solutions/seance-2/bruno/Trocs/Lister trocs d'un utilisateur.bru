@@ -1,0 +1,15 @@
+meta {
+  name: Lister trocs d'un utilisateur
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/trades?userId=2
+  body: none
+  auth: none
+}
+
+params:query {
+  userId: 2
+}
