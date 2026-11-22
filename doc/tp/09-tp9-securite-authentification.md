@@ -335,7 +335,7 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 - `csrf.disable()` : la protection CSRF protège les cookies, que le navigateur envoie tout seul. Un jeton n'est jamais envoyé tout seul, donc la protection n'a pas d'objet ici. `STATELESS` : Spring ne crée pas de session, le jeton suffit.
 - Dès que ce bean existe, le compte `user` et son mot de passe généré disparaissent, ainsi que le formulaire de connexion et HTTP Basic.
 
-À vous de décider quelles routes ouvrir : relisez le tableau des objectifs. Pensez à la console H2 (`/h2-console/**`), et à Swagger UI si vous avez fait le TP 10.
+À vous de décider quelles routes ouvrir : relisez le tableau des objectifs. Pensez à la console H2 (`/h2-console/**`), et à Swagger UI si vous avez fait l'annexe 1 (elle donne aussi le bouton **Authorize**, pour essayer les routes protégées).
 
 #### Lire l'identité dans un contrôleur
 

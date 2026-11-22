@@ -1,6 +1,6 @@
 # TP 1 — Inversion de contrôle et injection de dépendances
 
-> Rythme indicatif : séance 1. Point de départ : le projet créé avec `01-initialisation.md`.
+> Rythme indicatif : séance 1. Point de départ : le projet créé avec `00-initialisation.md`.
 
 ## Le concept en bref
 
@@ -397,6 +397,10 @@ Les traces apparaissent sans qu'aucune classe n'ait été modifiée. Documentati
 - Dans `ItemService.create`, refusez une quantité nulle ou négative (`IllegalArgumentException`).
 
 Ces règles seront exposées en HTTP au TP 2.
+
+### Bonus 3 — Documenter l'API : OpenAPI et Swagger UI
+
+Une page web qui liste vos routes et permet de les essayer, générée à partir de votre code : c'est l'objet de l'[annexe 1](annexe-1-documentation-openapi.md). Une fois en place, elle suit l'API jusqu'à la fin du cours sans rien refaire.
 
 ## Pour aller plus loin
 

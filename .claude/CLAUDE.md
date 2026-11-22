@@ -18,7 +18,7 @@ Ajouter les dépendances progressivement, en suivant les TP, pas tout d'un coup 
 - TP 5 : Spring Data JDBC + H2 (persistance).
 - TP 7-8 : `spring-boot-starter-aspectj`, tests.
 - TP 9 : Spring Security (`spring-boot-starter-security`, `-security-oauth2-resource-server`, `-security-test`).
-- TP 10 : springdoc-openapi.
+- Annexe 1 (bonus du TP 1) : springdoc-openapi.
 
 Le `pom.xml` doit refléter ce que les étudiants ont vu à un instant donné du cours.
 
@@ -35,7 +35,10 @@ Le `pom.xml` doit refléter ce que les étudiants ont vu à un instant donné du
   les étudiants). La correspondance TP / sessions n'est qu'un rythme indicatif (tableau dans
   `doc/plans/plan-cours-4-sessions.md`) : les groupes en avance passent au TP suivant.
 - Fichiers numérotés `NN-tpX-concept.md` (numérotation globale à deux chiffres pour l'ordre de lecture,
-  `X` = numéro du TP), plus `00-organisation-des-tp.md` et `01-initialisation.md`.
+  `X` = numéro du TP), plus `00-organisation-des-tp.md` et `00-initialisation.md`.
+- Annexes : `annexe-N-concept.md`, des bonus rattachés à un TP (ex. annexe 1 = OpenAPI, bonus du TP 1),
+  sans partie expérimentation (concept en bref, mise en place, bonus), listées à part dans
+  `00-organisation-des-tp.md`.
 - Chaque TP a deux parties :
   - **Expérimentation (facultative)** : faire ressentir le problème que le concept résout, en le
     provoquant. Commence par des questions qui permettent aux étudiants expérimentés de la sauter.

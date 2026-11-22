@@ -28,17 +28,17 @@
 
 | TP | Concept | Support | Session |
 |---|---|---|---|
-| — | Initialisation du projet | `doc/tp/01-initialisation.md` | 1 |
-| 1 | Inversion de contrôle et injection de dépendances | `doc/tp/02-tp1-injection-dependances.md` | 1 |
-| 2 | API REST : verbes, chemins, codes de statut | `doc/tp/03-tp2-api-rest.md` | 2 |
-| 3 | Configuration externalisée | `doc/tp/04-tp3-configuration.md` | 2 |
-| 4 | DTO et règles métier : proposer un troc | `doc/tp/05-tp4-dto-proposer-troc.md` | 2 |
-| 5 | Persistance : H2 et Spring Data JDBC | `doc/tp/06-tp5-persistance.md` | 3 |
-| 6 | Transactions : accepter un troc | `doc/tp/07-tp6-transactions.md` | 3 |
-| 7 | AOP : tracer chaque troc | `doc/tp/08-tp7-aop.md` | 4 |
-| 8 | Tests automatisés | `doc/tp/09-tp8-tests.md` | 4 |
-| 9 | Sécurité : authentification par jeton (Spring Security, JWT) | `doc/tp/10-tp9-securite-authentification.md` | 5 |
-| 10 | Documentation OpenAPI / Swagger UI | `doc/tp/11-tp10-documentation-openapi.md` | 5 |
+| — | Initialisation du projet | `../tp/00-initialisation.md` | 1 |
+| 1 | Inversion de contrôle et injection de dépendances | `../tp/01-tp1-injection-dependances.md` | 1 |
+| 2 | API REST : verbes, chemins, codes de statut | `../tp/02-tp2-api-rest.md` | 2 |
+| 3 | Configuration externalisée | `../tp/03-tp3-configuration.md` | 2 |
+| 4 | DTO et règles métier : proposer un troc | `../tp/04-tp4-dto-proposer-troc.md` | 2 |
+| 5 | Persistance : H2 et Spring Data JDBC | `../tp/05-tp5-persistance.md` | 3 |
+| 6 | Transactions : accepter un troc | `../tp/06-tp6-transactions.md` | 3 |
+| 7 | AOP : tracer chaque troc | `../tp/07-tp7-aop.md` | 4 |
+| 8 | Tests automatisés | `../tp/08-tp8-tests.md` | 4 |
+| 9 | Sécurité : authentification par jeton (Spring Security, JWT) | `../tp/09-tp9-securite-authentification.md` | 5 |
+| Annexe 1 | Documentation OpenAPI / Swagger UI (bonus du TP 1) | `../tp/annexe-1-documentation-openapi.md` | 1 (bonus), ou plus tard |
 
 ## Structure type d'une session (3h45 = 225 min)
 
@@ -71,7 +71,7 @@ Exception à la structure type : toute la théorie est présentée d'un seul blo
 - **Bonus** : profils Spring (`@Profile("dev")`) ; règles de `ItemService`. Les groupes en avance peuvent aussi attaquer le TP 2.
 - La testabilité (5e problème du couplage fort) est volontairement gardée pour le TP 8.
 
-Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-initialisation.md`, `doc/tp/02-tp1-injection-dependances.md`.
+Supports : `../cours/01-seance-1-fondations.html`, `../tp/00-initialisation.md`, `../tp/01-tp1-injection-dependances.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP détaillé (étapes couplage fort → IoC → Spring Boot)
@@ -91,7 +91,7 @@ Supports : `doc/cours/01-seance-1-fondations.html`, `doc/tp/01-initialisation.md
 - **TP 4 — DTO et règles métier** : proposer/consulter un troc (sans persistance ni double validation). Expérimentation : *mass assignment* sur une entité reçue telle quelle.
 - **Bonus** : gestion d'erreurs globale (`@RestControllerAdvice`) ; validation des entrées (`@Valid`) ; profils. Le temps gagné sur les rappels REST doit permettre à la plupart des groupes d'atteindre au moins le premier. Ils restent en bonus (pas dans le noyau) : les supports des séances 3 et 4 et le code de référence s'appuient sur `ResponseStatusException`, et `@Valid` demande une dépendance supplémentaire.
 
-Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/03-tp2-api-rest.md`, `doc/tp/04-tp3-configuration.md`, `doc/tp/05-tp4-dto-proposer-troc.md`.
+Supports : `../cours/02-seance-2-configuration-rest.html`, `../tp/02-tp2-api-rest.md`, `../tp/03-tp3-configuration.md`, `../tp/04-tp4-dto-proposer-troc.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP (externalisation + endpoints CRUD + troc)
@@ -109,7 +109,7 @@ Supports : `doc/cours/02-seance-2-configuration-rest.html`, `doc/tp/03-tp2-api-r
 - **TP 6 — Transactions** : workflow de troc complet — validation par les deux parties, puis exécution atomique du double transfert d'objets dans une transaction unique. Expérimentation : un déplacement de stock en sandbox qui échoue au milieu, sans puis avec `@Transactional`, et les pièges du proxy. La preuve sur `accept` reste dans la mise en place (attendue dans le rapport).
 - **Bonus** : gestion de la concurrence (deux trocs simultanés sur le même objet) ; requêtes personnalisées ; index.
 
-Supports : `doc/cours/03-seance-3-persistance-transactions.html`, `doc/tp/06-tp5-persistance.md`, `doc/tp/07-tp6-transactions.md`.
+Supports : `../cours/03-seance-3-persistance-transactions.html`, `../tp/05-tp5-persistance.md`, `../tp/06-tp6-transactions.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP (Spring Data JDBC + transaction du workflow de troc)
@@ -127,7 +127,7 @@ Supports : `doc/cours/03-seance-3-persistance-transactions.html`, `doc/tp/06-tp5
 - **TP 8 — Tests** : tests unitaires du service + un test d'intégration sur l'API. Expérimentation : bug caché à retrouver avec Bruno, puis un test tout fait qui le trouve en une seconde.
 - **Bonus / si le temps le permet** : aspect avancé (`@Around` avec mesure de temps d'exécution) ; les groupes en avance passent au TP 9 (sécurité).
 
-Supports : `doc/cours/04-seance-4-aop-tests.html`, `doc/tp/08-tp7-aop.md`, `doc/tp/09-tp8-tests.md`.
+Supports : `../cours/04-seance-4-aop-tests.html`, `../tp/07-tp7-aop.md`, `../tp/08-tp8-tests.md`.
 
 ### ⚠️ Point de vigilance
 Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de TP net. Les groupes qui ont pris de l'avance aux sessions précédentes peuvent l'aborder plus tôt ; les autres peuvent sauter les expérimentations des TP 7 et 8. Si du retard s'est accumulé sur les sessions précédentes, c'est ici qu'il faudra couper en premier — **ordre de priorité si le temps manque** :
@@ -147,8 +147,8 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 ## Session 5 — Autonomie de groupe
 
 - Travail en autonomie sur le projet final, sans cours magistral, et rattrapage des TP non terminés.
-- **TP 9 — Sécurité** (`doc/tp/10-tp9-securite-authentification.md`) : inscription avec mot de passe haché (BCrypt), `POST /auth/token` qui délivre un JWT, Bearer exigé partout ailleurs, l'identité lue dans le jeton (`proposerId` et `userId` disparaissent des corps). Expérimentation : jouer Mallory (accepter le troc de Bob), ajouter le starter seul (401 partout), hacher un mot de passe, lire et falsifier un JWT. Le cours est l'annexe `doc/cours/05-annexe-spring-security.html`, à lire en autonomie. Fait passer les tests du TP 8 au rouge, puis les répare (`.with(jwt())`).
-- **TP 10 — Documentation OpenAPI** (`doc/tp/11-tp10-documentation-openapi.md`) : indépendant du TP 9 ; si la sécurité est en place, ouvrir les routes de springdoc et ajouter le bouton Authorize (bonus).
+- **TP 9 — Sécurité** (`../tp/09-tp9-securite-authentification.md`) : inscription avec mot de passe haché (BCrypt), `POST /auth/token` qui délivre un JWT, Bearer exigé partout ailleurs, l'identité lue dans le jeton (`proposerId` et `userId` disparaissent des corps). Expérimentation : jouer Mallory (accepter le troc de Bob), ajouter le starter seul (401 partout), hacher un mot de passe, lire et falsifier un JWT. Le cours est l'annexe `../cours/05-annexe-spring-security.html`, à lire en autonomie. Fait passer les tests du TP 8 au rouge, puis les répare (`.with(jwt())`).
+- **Annexe 1 — Documentation OpenAPI** (`../tp/annexe-1-documentation-openapi.md`) : bonus du TP 1, à rattraper ici si elle n'a pas été faite. Avec le TP 9, ouvrir les routes de springdoc et ajouter le bouton Authorize.
 - Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP 1 et 5. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
 - **Fin du cours : rétrospective du journal de bord.** Chaque groupe relit son `JOURNAL.md` et en tire 2 ou 3 enseignements pour la présentation finale (qu'auriez-vous fait plus tôt, ou autrement ? ex. : l'authentification dès le TP 2 plutôt qu'au TP 9 ?).
 - Simon disponible pour support technique ponctuel (à cadrer : combien de temps de présence prévu ?).

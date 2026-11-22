@@ -8,17 +8,22 @@ Conséquence : **votre groupe avance à son rythme**. Un groupe qui a terminé u
 
 | TP | Concept | Fichier | Rythme indicatif |
 |---|---|---|---|
-| — | Créer le projet | `01-initialisation.md` | séance 1 |
-| 1 | Inversion de contrôle et injection de dépendances | `02-tp1-injection-dependances.md` | séance 1 |
-| 2 | Une API REST : verbes, chemins, codes de statut | `03-tp2-api-rest.md` | séance 2 |
-| 3 | La configuration externalisée | `04-tp3-configuration.md` | séance 2 |
-| 4 | Objets de requête (DTO) et règles métier : proposer un troc | `05-tp4-dto-proposer-troc.md` | séance 2 |
-| 5 | La persistance : H2 et Spring Data JDBC | `06-tp5-persistance.md` | séance 3 |
-| 6 | Les transactions : accepter un troc, tout ou rien | `07-tp6-transactions.md` | séance 3 |
-| 7 | La programmation orientée aspect (AOP) | `08-tp7-aop.md` | séance 4 |
-| 8 | Les tests automatisés | `09-tp8-tests.md` | séance 4 |
-| 9 | Sécuriser l'API : authentification et autorisation | `10-tp9-securite-authentification.md` | séance 5 |
-| 10 | Documenter l'API : OpenAPI et Swagger UI | `11-tp10-documentation-openapi.md` | séance 5 |
+| — | Créer le projet | `00-initialisation.md` | séance 1 |
+| 1 | Inversion de contrôle et injection de dépendances | `01-tp1-injection-dependances.md` | séance 1 |
+| 2 | Une API REST : verbes, chemins, codes de statut | `02-tp2-api-rest.md` | séance 2 |
+| 3 | La configuration externalisée | `03-tp3-configuration.md` | séance 2 |
+| 4 | Objets de requête (DTO) et règles métier : proposer un troc | `04-tp4-dto-proposer-troc.md` | séance 2 |
+| 5 | La persistance : H2 et Spring Data JDBC | `05-tp5-persistance.md` | séance 3 |
+| 6 | Les transactions : accepter un troc, tout ou rien | `06-tp6-transactions.md` | séance 3 |
+| 7 | La programmation orientée aspect (AOP) | `07-tp7-aop.md` | séance 4 |
+| 8 | Les tests automatisés | `08-tp8-tests.md` | séance 4 |
+| 9 | Sécuriser l'API : authentification et autorisation | `09-tp9-securite-authentification.md` | séance 5 |
+
+Les **annexes** sont des bonus rattachés à un TP, à faire dès que ce TP est terminé :
+
+| Annexe | Concept | Fichier | Après |
+|---|---|---|---|
+| 1 | Documenter l'API : OpenAPI et Swagger UI | `annexe-1-documentation-openapi.md` | TP 1 |
 
 Le **rythme indicatif** est celui que suit le cours magistral : c'est le minimum à atteindre pour suivre les checkpoints collectifs. Il n'est pas une limite.
 

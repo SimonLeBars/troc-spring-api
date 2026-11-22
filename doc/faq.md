@@ -5,6 +5,52 @@ pour approfondir.
 
 ---
 
+## Généralités — Pourquoi Spring
+
+### 65 % des développeurs Java utilisent Spring. Que font les autres ?
+
+Les 35 % restants n'utilisent pas tous un autre framework. L'enquête autorise plusieurs réponses,
+et une bonne partie des développeurs Java n'écrit pas d'applications web côté serveur.
+
+#### 1. Des backends construits avec un autre framework
+
+| Framework | Où on le rencontre |
+|---|---|
+| **Jakarta EE** (ex-Java EE), sur un serveur d'applications (WildFly/JBoss, WebLogic, WebSphere, Payara) | Banque, assurance, administration : des applications anciennes, toujours maintenues |
+| **Quarkus** (Red Hat), **Micronaut** | Applications pensées pour le cloud et Kubernetes : démarrage rapide, peu de mémoire, compilation native avec GraalVM |
+| **Helidon**, **Vert.x**, **Javalin**, **Dropwizard**, **Play** (et **Ktor** en Kotlin) | Usages plus légers ou plus spécialisés (réactif, micro-services minimalistes) |
+
+#### 2. Java sans framework web
+
+- **Android** : des applications mobiles, historiquement en Java, aujourd'hui surtout en Kotlin.
+- **Big data et streaming** : Kafka, Spark, Flink, Hadoop et Elasticsearch tournent sur la JVM,
+  et on développe des traitements par-dessus.
+- **Applications desktop** : JavaFX, Swing. Les IDE IntelliJ IDEA et Eclipse sont eux-mêmes
+  écrits en Java.
+- **Outillage et bibliothèques** : plugins Maven ou Gradle, plugins d'IDE, bibliothèques open
+  source.
+- **Jeux** : Minecraft (édition Java), et libGDX pour d'autres jeux.
+- **Systèmes embarqués et cartes à puce** : Java Card, sur les cartes SIM et les cartes bancaires.
+- **Finance haute performance** : du trading à faible latence, en Java très optimisé et souvent
+  sans framework.
+
+#### Ce qu'il faut en retenir
+
+Pour les API et les backends d'entreprise, contexte du cours et de la plupart des offres
+d'alternance, Spring domine largement. Ses concurrents directs sont Jakarta EE pour l'ancien code
+et Quarkus/Micronaut pour le cloud-native. Les notions vues en cours (injection de dépendances,
+inversion de contrôle, API REST) se retrouvent dans tous ces frameworks : les apprendre avec Spring
+permet de passer facilement à un autre.
+
+#### Pour aller plus loin
+
+- [JetBrains — The State of Developer Ecosystem 2025](https://www.jetbrains.com/lp/devecosystem-2025/)
+- [Jakarta EE](https://jakarta.ee/)
+- [Quarkus](https://quarkus.io/)
+- [Micronaut](https://micronaut.io/)
+
+---
+
 ## TP 1 — Injection de dépendances
 
 ### On crée des interfaces pour pouvoir changer d'implémentation, mais Spring n'en injecte qu'une seule. A-t-on vraiment plusieurs implémentations d'une même interface dans la vraie vie ?
