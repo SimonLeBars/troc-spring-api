@@ -43,7 +43,7 @@
   .s-title{ display:flex; }
   .s-title .half{ width:38%; background:var(--green); display:flex; flex-direction:column; justify-content:center; padding:0 44px; }
   .s-title .half .course{ font-family:var(--font-code); color:#EAF6E2; font-size:13px; margin-bottom:14px; }
-  .s-title .half .leaf{ font-family:var(--font-display); font-size:64px; color:#fff; font-weight:700; line-height:1; }
+  .s-title .half .leaf{ width:50%; height:auto; aspect-ratio:1; align-self:center; fill:#fff; }
   .s-title .content{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 60px; }
   .s-title h1{ font-family:var(--font-display); font-size:38px; line-height:1.15; margin:0 0 18px; font-weight:600; max-width:420px; }
   .s-title .sub{ font-size:16px; color:var(--text-muted); max-width:400px; line-height:1.55; }
@@ -191,11 +191,10 @@
   <!-- ============ 01 · TITRE ============ -->
   <section class="slide s-title">
     <div class="half">
-      <div class="course">JOUR 01 / 05</div>
-      <div class="leaf">Sp</div>
+      <svg class="leaf" viewBox="0 0 24 24" role="img" aria-label="Logo Spring"><path d="M21.8537 1.4158a10.4504 10.4504 0 0 1-1.284 2.2471A11.9666 11.9666 0 1 0 3.8518 20.7757l.4445.3951a11.9543 11.9543 0 0 0 19.6316-8.2971c.3457-3.0126-.568-6.8649-2.0743-11.458zM5.5805 20.8745a1.0174 1.0174 0 1 1-.1482-1.4323 1.0396 1.0396 0 0 1 .1482 1.4323zm16.1991-3.5806c-2.9385 3.9263-9.2601 2.5928-13.2852 2.7904 0 0-.7161.0494-1.4323.1481 0 0 .2717-.1234.6174-.2469 2.8398-.9877 4.1732-1.1853 5.9018-2.0743 3.2349-1.6545 6.4698-5.2844 7.1118-9.0379-1.2347 3.6053-4.9881 6.7167-8.3959 7.9761-2.3459.8643-6.5685 1.7039-6.5685 1.7039l-.1729-.0988c-2.8645-1.4076-2.9632-7.6304 2.2718-9.6306 2.2966-.889 4.4696-.395 6.9637-.9877 2.6422-.6174 5.7043-2.5929 6.939-5.1857 1.3828 4.1732 3.062 10.643.0493 14.6434z"/></svg>
     </div>
     <div class="content">
-      <h1>Fondations : de SOLID à Spring Boot</h1>
+      <h1>Bases de Spring</h1>
       <div class="sub">Pourquoi Spring, et le principe qui est en son cœur : l'inversion de contrôle.</div>
     </div>
     <div class="meta">
@@ -217,9 +216,9 @@
     <h3>Au programme</h3>
     <ul>
       <li><b>01 · Organisation du cours</b> <span>fil rouge, feuille de route, méthode, évaluation</span><span class="dur">8 min</span></li>
-      <li><b>02 · Pourquoi Spring ?</b> <span>état des lieux, typage, un peu d'histoire</span><span class="dur">7 min</span></li>
+      <li><b>02 · Pourquoi Spring ?</b> <span>état des lieux, typage, un peu d'histoire</span><span class="dur">8 min</span></li>
       <li><b>03 · SOLID &amp; inversion des dépendances</b> <span>le couplage fort et son remède</span><span class="dur">12 min</span></li>
-      <li><b>04 · L'inversion de contrôle avec Spring</b> <span>conteneur, beans, annotations</span><span class="dur">13 min</span></li>
+      <li><b>04 · L'inversion de contrôle avec Spring</b> <span>conteneur, beans, annotations</span><span class="dur">12 min</span></li>
       <li class="hl"><b>Puis · TP 1</b> <span>expérimentation facultative, mise en place obligatoire</span></li>
     </ul>
     <div class="pageno">02</div>
@@ -364,7 +363,6 @@
     <ul>
       <li><b>Groupes de 4</b> <span>un projet par groupe, du premier au dernier jour</span></li>
       <li><b>Un TP = un concept</b> <span>expérimentation (facultative) pour ressentir le problème, puis mise en place (obligatoire)</span></li>
-      <li><b>Le support de TP est votre documentation</b> <span>chercher dedans d'abord, puis demander</span></li>
       <li><b>En avance ?</b> <span>passez au TP suivant, ou faites les bonus</span></li>
       <li><b>Séance 5</b> <span>travail de groupe en autonomie</span></li>
     </ul>
@@ -386,7 +384,7 @@
 
   <!-- ============ 08 · SECTION 02 ============ -->
   <section class="slide s-section">
-    <div class="tag">PARTIE 02 · 7 MIN</div>
+    <div class="tag">PARTIE 02 · 8 MIN</div>
     <div class="num">02</div>
     <div>
       <h2>Pourquoi Spring ?</h2>
@@ -791,7 +789,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
 
   <!-- ============ 19 · SECTION 04 ============ -->
   <section class="slide s-section">
-    <div class="tag">PARTIE 04 · 13 MIN</div>
+    <div class="tag">PARTIE 04 · 12 MIN</div>
     <div class="num">04</div>
     <div>
       <h2>L'inversion de contrôle avec Spring</h2>
@@ -1002,7 +1000,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
   <!-- ============ 25 · TP 1 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 1 · 02-tp1-injection-dependances.md</div>
+    <div class="tag">TP 1 · 01-tp1-injection-dependances.md</div>
     <h2>Place au TP 1</h2>
     <div class="grid two">
       <div class="card opt">
@@ -1014,7 +1012,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
         <div class="v">Interfaces, beans Spring injectés par constructeur, puis un UserController : <b>GET /users</b> et <b>POST /users</b>.<br><br>Objectif de fin de séance pour tous les groupes.</div>
       </div>
     </div>
-    <div class="memo"><b>EN AVANCE ?</b>TP 2 (API REST) ou bonus : profils Spring. <b>FIN DE SÉANCE</b>Bilan collectif, puis 5 min de journal de bord.</div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 2 (API REST) ou bonus : profils Spring, annexe 1 (Swagger UI). <b>FIN DE SÉANCE</b>Bilan collectif, puis 5 min de journal de bord.</div>
     <div class="pageno">25</div>
   </section>
   <aside class="notes">
