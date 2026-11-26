@@ -1,6 +1,6 @@
 # TP 3 — La configuration externalisée
 
-> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 2 terminée (CRUD `/users` et `/items`).
+> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 2 terminée (CRUD `/users` et `/items`). Peut commencer dès le TP 1 terminé, en parallèle du TP 2 : la règle se code dans `ItemService`, seule la vérification par Bruno attend `POST /items`. Peut aussi avancer en parallèle des TP 4 et 5.
 
 ## Le concept en bref
 

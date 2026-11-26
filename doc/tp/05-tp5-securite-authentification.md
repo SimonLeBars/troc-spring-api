@@ -1,12 +1,12 @@
-# TP 5 — Sécuriser l'API : authentification et autorisation
+# TP 5 — Sécuriser l'API : authentification par jeton
 
-> Rythme indicatif : séance 5 (autonomie). Point de départ : la mise en place du TP 9 terminée. Ce TP fait volontairement passer les tests du TP 9 au rouge, puis vous les réparez. Comptez environ 2 h 30 pour la mise en place.
+> Rythme indicatif : séance 2, à terminer entre les séances si besoin : **la séance 3 part de ce TP terminé**. Point de départ : la mise en place du TP 4 terminée (`POST /trades` répond). Peut commencer dès le TP 2 terminé, en parallèle des TP 3 et 4 : l'inscription et la connexion ne touchent que les utilisateurs ; seule l'étape « proposer un troc » attend le TP 4. Comptez environ 2 h pour la mise en place.
 >
-> Support complémentaire : l'annexe du cours `doc/cours/05-annexe-spring-security.html`, qui explique le mécanisme avec des schémas.
+> Support complémentaire : l'annexe du cours `doc/cours/05-annexe-spring-security.html`, qui explique le mécanisme en détail, avec des schémas.
 
 ## Le concept en bref
 
-Depuis le TP 4, le client **se déclare** lui-même : `"proposerId": 1` pour proposer un troc, `"userId": 2` pour l'accepter. Le serveur le croit sur parole. N'importe qui peut donc se faire passer pour n'importe qui.
+Depuis le TP 4, le client **se déclare** lui-même : `"proposerId": 1` pour proposer un troc. Le serveur le croit sur parole. N'importe qui peut donc se faire passer pour n'importe qui.
 
 Sécuriser une API, c'est répondre à deux questions, **toujours dans cet ordre** :
 
@@ -14,6 +14,8 @@ Sécuriser une API, c'est répondre à deux questions, **toujours dans cet ordre
 |---|---|---|
 | Qui es-tu ? | **authentification** : on le prouve (mot de passe, puis jeton) | `401 Unauthorized` (le nom est trompeur : il signifie « non authentifié ») |
 | As-tu le droit ? | **autorisation** : décidée une fois l'identité connue | `403 Forbidden` |
+
+Ce TP traite surtout la première question, et une première réponse à la seconde : chacun ne peut modifier ou supprimer que **son** compte. Au TP 7, la même logique décidera que seul le destinataire d'un troc peut l'accepter : c'est le jeton qui dira qui il est.
 
 Le mécanisme de ce TP est celui de la plupart des API actuelles :
 
@@ -30,7 +32,7 @@ Le mécanisme de ce TP est celui de la plupart des API actuelles :
 **Vous pouvez passer à la partie 2 si vous savez répondre à ces questions :**
 
 - Quelle est la différence entre un `401` et un `403` ?
-- Pourquoi ne stocke-t-on jamais un mot de passe en base, même chiffré ? Que stocke-t-on à la place ?
+- Pourquoi ne stocke-t-on jamais un mot de passe, même chiffré ? Que stocke-t-on à la place ?
 - Un JWT est-il chiffré ? Qu'est-ce qui empêche un client de modifier son contenu ?
 - Que se passe-t-il quand on ajoute `spring-boot-starter-security` à un projet, sans rien configurer ?
 
@@ -38,17 +40,18 @@ Le mécanisme de ce TP est celui de la plupart des API actuelles :
 
 Mallory est le prénom traditionnel de l'attaquant dans les exemples de sécurité. Avec la collection Bruno du projet :
 
-1. Créez Alice, Bob et un troisième utilisateur, Mallory (dossier **Utilisateurs**).
-2. Créez un objet pour Alice et un pour Bob, puis faites proposer un troc d'Alice à Bob (dossiers **Objets** et **Trocs**).
-3. Vous êtes maintenant Mallory. Votre `id` est 3, mais rien ne vous empêche d'écrire autre chose. Acceptez le troc **à la place de Bob**, avec `"userId": 2`.
+1. Créez Alice, Bob et un troisième utilisateur, Mallory (dossier **Utilisateurs** : Alice a l'`id` 1, Bob le 2, Mallory le 3).
+2. Créez un objet pour Alice et un pour Bob (**Objets > Créer objet (Alice)** et **Créer objet (Bob)** : 10 tomates, objet 1 ; 5 carottes, objet 2).
+3. Vous êtes maintenant Mallory. Votre `id` est 3, mais rien ne vous empêche d'écrire autre chose. Faites proposer par **Bob** un troc à Alice : modifiez le corps de **Trocs > Proposer troc**, avec `"proposerId": 2`, `"offeredItemId": 2` (ses carottes), `"recipientId": 1`, `"requestedItemId": 1` (les tomates d'Alice).
+4. Toujours en tant que Mallory, renommez Bob (**Utilisateurs > Modifier utilisateur** sur `/users/2`), puis supprimez son compte (**Supprimer utilisateur** sur `/users/2`).
 
 Puis répondez :
 
-- Quel code reçoit Mallory ? Les stocks de Bob ont-ils changé ?
-- Le `403` « seul le destinataire peut répondre » du TP 7 existe pourtant. Pourquoi ne protège-t-il rien ?
-- Avec la même méthode, Mallory peut-elle proposer un troc au nom d'Alice ?
+- Quels codes reçoit Mallory ? Bob a-t-il un moyen de prouver qu'il n'a jamais proposé ce troc ?
+- Quelle règle du TP 4 aurait dû l'en empêcher ? Pourquoi ne protège-t-elle rien ?
+- Que faudrait-il que le serveur sache, et qu'il ne sait pas aujourd'hui ?
 
-La règle métier est bonne : c'est l'information d'entrée, l'identité, qui n'est pas fiable.
+Les règles métier sont bonnes : c'est l'information d'entrée, l'identité, qui n'est pas fiable.
 
 ### Étape 2 — Ajouter Spring Security, sans rien configurer
 
@@ -70,7 +73,6 @@ Observez, et notez ce que vous constatez :
 | <http://localhost:8080/users> dans un navigateur | ? |
 | `GET /users` dans Bruno, onglet **Auth** > **Basic Auth**, identifiant `user`, mot de passe de la console | ? |
 | `POST /users` avec le même Basic Auth | ? |
-| `./mvnw test` | ? |
 
 Pour comprendre le refus du `POST`, ajoutez `logging.level.org.springframework.security=DEBUG` dans `application.properties`, relancez, et rejouez la requête : cherchez `CSRF` dans la console.
 
@@ -111,7 +113,7 @@ public class HashDemo {
 Répondez :
 
 1. Le même mot de passe donne deux hachés différents. Comment `matches` peut-il quand même répondre `true` ? (Indice : le haché contient un **sel**, une valeur aléatoire.)
-2. Combien de temps prend un hachage ? Pourquoi est-ce une bonne chose ? Pensez à un attaquant qui a volé la base et teste des milliards de mots de passe.
+2. Combien de temps prend un hachage ? Pourquoi est-ce une bonne chose ? Pensez à un attaquant qui a volé les données et teste des milliards de mots de passe.
 3. À quoi sert le préfixe `{bcrypt}` ?
 
 ### Étape 4 — Lire un jeton
@@ -128,8 +130,8 @@ eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cm9jLWFwaSIsInN1YiI6IjEiLCJ1c2VybmFtZSI6ImFsaWN
 
 ### Ce qu'il faut retenir
 
-- **Le client ne doit jamais déclarer son identité** dans le corps de la requête : il doit la **prouver**. Dans la vraie vie, une API qui croit le client sur parole laisse n'importe qui valider la commande d'un autre ou lire un dossier qui n'est pas le sien.
-- **Un mot de passe ne se stocke pas, seul son haché se stocke.** Les bases finissent par fuiter (sauvegarde perdue, injection SQL), et les gens réutilisent leurs mots de passe partout. BCrypt est lent exprès et salé : même haché, la base ne révèle pas les mots de passe.
+- **Le client ne doit jamais déclarer son identité** dans le corps de la requête : il doit la **prouver**. Dans la vraie vie, une API qui croit le client sur parole laisse n'importe qui passer une commande au nom d'un autre, ou clôturer le compte d'un client.
+- **Un mot de passe ne se stocke pas, seul son haché se stocke.** Les données finissent par fuiter (sauvegarde perdue, faille), et les gens réutilisent leurs mots de passe partout. BCrypt est lent exprès et salé : même volés, les hachés ne révèlent pas les mots de passe.
 - **Un JWT est encodé, pas chiffré** : tout le monde peut le lire, donc jamais de secret dedans. Mais personne ne peut le modifier sans la clé : sa signature garantit son contenu.
 - **Sécurisé par défaut** : ajouter Spring Security ferme tout. La configuration consiste à dire ce qu'on ouvre, et comment on s'authentifie.
 
@@ -137,7 +139,7 @@ Supprimez le package `sandbox`, ainsi que la ligne `logging.level.org.springfram
 
 ---
 
-## Partie 2 — Mise en place : des comptes, des jetons, des règles (obligatoire)
+## Partie 2 — Mise en place : des comptes, des jetons, des routes protégées (obligatoire)
 
 ### Objectifs
 
@@ -146,18 +148,19 @@ Supprimez le package `sandbox`, ainsi que la ligne `logging.level.org.springfram
 | `POST /users` | ouvert | **inscription** : `{ "name", "username", "password" }` → `201`. La réponse ne contient **jamais** le mot de passe ni son haché. `username` déjà pris → `409`. |
 | `POST /auth/token` | ouvert | **connexion** : `{ "username", "password" }` → `200` et `{ "token": "eyJ…", "expiresIn": 3600 }`. Identifiants faux → `401`, avec le **même message** que le compte existe ou non. |
 | toutes les autres | jeton exigé | sans jeton, avec un jeton modifié ou expiré → `401`. |
+| `PUT /users/{id}`, `DELETE /users/{id}` | jeton exigé | seulement sur **son propre** compte : l'`id` du chemin doit être celui du jeton, sinon `403`. |
 | `POST /trades` | jeton exigé | le proposeur est l'utilisateur **du jeton** : `proposerId` disparaît du corps. |
-| `POST /trades/{id}/accept`, `/reject` | jeton exigé | l'utilisateur est celui du jeton : plus de corps. Un utilisateur qui n'est pas le destinataire → `403`, et il ne peut plus mentir. |
 
 Et aussi :
 
-1. Le mot de passe est stocké **haché** (BCrypt) : vérifiez-le dans la console H2.
-2. **Aucune** réponse JSON ne contient de haché : ni `GET /users`, ni `GET /users/{id}`, ni `PUT /users/{id}`.
+1. Le mot de passe est conservé **haché** (BCrypt), jamais en clair.
+2. **Aucune** réponse JSON ne contient de haché : ni `POST /users`, ni `GET /users`, ni `GET /users/{id}`, ni `PUT /users/{id}`.
 3. La clé qui signe les jetons **n'est pas dans git** : elle vient de la variable d'environnement `TROC_JWT_SECRET`.
-4. `./mvnw test` est au vert : les tests du TP 9 sont adaptés, et deux nouveaux tests d'intégration vérifient le `401` sans jeton et le `403` d'un utilisateur qui n'est pas le destinataire.
-5. Dans Bruno, une requête de connexion enregistre le jeton, et toutes les autres requêtes l'envoient automatiquement.
+4. Dans Bruno, une requête de connexion enregistre le jeton, et toutes les autres requêtes l'envoient automatiquement.
 
-> Ordre conseillé : dépendances, puis comptes et inscription, puis jetons et connexion, puis règles d'accès et contrôleurs, puis tests et Bruno. Organisation possible pour un groupe de 4 : schéma, entité et inscription (1) ; clé, jetons et `POST /auth/token` (2) ; règles d'accès et contrôleurs (3) ; tests et Bruno (4).
+Les données restent **en mémoire** : les comptes disparaissent au redémarrage, comme le reste. La base arrive au TP 6.
+
+> Ordre conseillé : dépendances, puis comptes et inscription, puis jetons et connexion, puis règles d'accès, puis l'identité lue dans le jeton (son compte, puis le proposeur), puis Bruno. Organisation possible pour un groupe de 4 : comptes et inscription (1) ; clé, jetons et `POST /auth/token` (2) ; règles d'accès, puis `POST /trades` (3) ; `PUT` et `DELETE /users/{id}` sur son compte, puis Bruno et les vérifications (4). Les personnes 1 et 2 se mettent d'accord d'abord sur l'entité `User` et le `UserDetailsService`, qui servent aux deux.
 
 ### Les dépendances
 
@@ -172,12 +175,6 @@ Et aussi :
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
 </dependency>
-<!-- Simuler un utilisateur connecté dans les tests -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-security-test</artifactId>
-    <scope>test</scope>
-</dependency>
 ```
 
 Avec Spring Boot 4, les starters liés à la sécurité commencent par `spring-boot-starter-security-`. Les tutoriels pour Boot 3 écrivent `spring-boot-starter-oauth2-resource-server` : ce nom n'existe plus.
@@ -190,21 +187,18 @@ La sécurité est une fonctionnalité transverse : elle n'appartient ni à `user
 
 #### Les comptes
 
-Un compte, c'est trois colonnes de plus dans `users` :
+Un compte, c'est deux champs de plus dans l'entité `User` :
 
-| Colonne | Rôle | Contrainte |
+| Champ | Rôle | Règle |
 |---|---|---|
-| `username` | l'identifiant de connexion (`alice`) ; `name` reste le nom affiché (`Alice Martin`) | `VARCHAR(50)`, obligatoire, **unique** |
-| `password_hash` | le haché BCrypt, jamais le mot de passe | `VARCHAR(100)`, obligatoire |
-| `role` | `USER` ou `ADMIN` | `VARCHAR(20)`, obligatoire, `'USER'` par défaut |
+| `username` | l'identifiant de connexion (`alice`) ; `name` reste le nom affiché (`Alice Martin`) | obligatoire, **unique** |
+| `passwordHash` | le haché BCrypt, jamais le mot de passe | obligatoire |
 
-Ajoutez-les au `schema.sql` et à l'entité `User` (`passwordHash` en Java, `password_hash` en base, comme au TP 6). Comme au TP 6, `CREATE TABLE IF NOT EXISTS` ne modifie pas une table existante : supprimez le dossier `data/` avant de relancer.
-
-Il faudra retrouver un compte par son identifiant : c'est une requête dérivée (TP 6), qui renvoie un `Optional<User>`.
+Il faudra retrouver un compte par son identifiant. Ajoutez au repository une méthode qui renvoie un `Optional<User>` (vide si personne n'a cet identifiant), et nommez-la `findByUsername` : comme `findByOwnerId` au TP 2, ce nom servira au TP 6. En mémoire, un stream suffit, terminé par `.findFirst()`.
 
 #### Où Spring trouve les comptes : `UserDetailsService`
 
-Spring Security ne connaît pas votre table. Il appelle un bean `UserDetailsService`, que vous fournissez :
+Spring Security ne connaît pas votre repository. Il appelle un bean `UserDetailsService`, que vous fournissez :
 
 ```java
 // org.springframework.security.core.userdetails
@@ -218,8 +212,8 @@ Il est appelé **uniquement à la connexion**. `UserDetails` se construit avec u
 ```java
 org.springframework.security.core.userdetails.User
         .withUsername(...)
-        .password(...)   // le haché lu en base
-        .roles(...)      // "USER" devient le droit ROLE_USER
+        .password(...)   // le haché enregistré
+        .roles("USER")   // un droit, ROLE_USER : tous les comptes sont des utilisateurs ordinaires
         .build();
 ```
 
@@ -248,10 +242,11 @@ AuthenticationManager authenticationManager(UserDetailsService userDetailsServic
 
 #### L'inscription
 
-`POST /users` reçoit un **objet de requête** (TP 4) avec `name`, `username` et `password`, et renvoie un **objet de réponse** sans haché. Deux questions à vous poser avant d'écrire le code :
+`POST /users` reçoit un **objet de requête** (TP 4) avec `name`, `username` et `password`, et renvoie un **objet de réponse** sans haché. Trois questions à vous poser avant d'écrire le code :
 
-- Le client choisit son mot de passe. Doit-il pouvoir choisir son rôle ? Que se passerait-il si l'objet de requête avait un champ `role` ?
-- Aujourd'hui, `GET /users` et `PUT /users/{id}` renvoient l'entité `User`. Que contiendra leur JSON une fois `passwordHash` ajouté à l'entité ? Et que devient le haché d'un utilisateur si `PUT /users/{id}` enregistre l'entité reçue dans le corps, qui n'en contient pas ?
+- Le client choisit son mot de passe. Que doit-il pouvoir choisir d'autre ? Que se passerait-il si l'objet de requête recevait directement l'entité `User`, avec son champ `passwordHash` ?
+- Aujourd'hui, `GET /users` et `PUT /users/{id}` renvoient l'entité `User`. Que contiendra leur JSON une fois `passwordHash` ajouté à l'entité ?
+- Si `PUT /users/{id}` enregistre l'entité reçue dans le corps, qui ne contient pas de haché, que devient le mot de passe de l'utilisateur ?
 
 #### La clé et les jetons
 
@@ -263,7 +258,7 @@ troc.jwt.secret=${TROC_JWT_SECRET}
 troc.jwt.ttl=1h
 ```
 
-`${TROC_JWT_SECRET}` lit une variable d'environnement. Sans elle, l'application ne démarre pas : c'est voulu. Dans IntelliJ, renseignez-la dans **Run > Edit Configurations…** > **Environment variables**, avec une valeur d'au moins 32 caractères : HS256 exige une clé de 256 bits. Pour les tests, mettez une valeur de test dans `application-test.properties` (TP 9). Si vous avez fait le bonus « profils » du TP 3, un `application-dev.properties` non versionné convient aussi.
+`${TROC_JWT_SECRET}` lit une variable d'environnement. Sans elle, l'application ne démarre pas : c'est voulu. Dans IntelliJ, renseignez-la dans **Run > Edit Configurations…** > **Environment variables**, avec une valeur d'au moins 32 caractères : HS256 exige une clé de 256 bits. Si vous avez fait le bonus « profils » du TP 3, un `application-dev.properties` non versionné convient aussi.
 
 Lisez ces deux clés avec un record `@ConfigurationProperties("troc.jwt")`, comme au TP 3. Un `Duration` comprend directement `1h`, `30m`…
 
@@ -293,7 +288,6 @@ JwtClaimsSet claims = JwtClaimsSet.builder()
         .issuer("troc-api")
         .subject(...)                    // qui : l'id de l'utilisateur, en String
         .claim("username", ...)          // un champ libre, lisible par le client
-        .claim("roles", List.of(...))
         .issuedAt(maintenant)
         .expiresAt(maintenant.plus(...)) // Instant.plus(Duration)
         .build();
@@ -324,8 +318,7 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             .anyRequest().authenticated())                                     // toujours en dernier
         .oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()))        // jeton Bearer exigé
         .csrf(csrf -> csrf.disable())
-        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .headers(h -> h.frameOptions(f -> f.sameOrigin()));                   // pour la console H2
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     return http.build();
 }
 ```
@@ -335,32 +328,25 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 - `csrf.disable()` : la protection CSRF protège les cookies, que le navigateur envoie tout seul. Un jeton n'est jamais envoyé tout seul, donc la protection n'a pas d'objet ici. `STATELESS` : Spring ne crée pas de session, le jeton suffit.
 - Dès que ce bean existe, le compte `user` et son mot de passe généré disparaissent, ainsi que le formulaire de connexion et HTTP Basic.
 
-À vous de décider quelles routes ouvrir : relisez le tableau des objectifs. Pensez à la console H2 (`/h2-console/**`), et à Swagger UI si vous avez fait l'annexe 1 (elle donne aussi le bouton **Authorize**, pour essayer les routes protégées).
+À vous de décider quelles routes ouvrir : relisez le tableau des objectifs. Si vous avez fait l'annexe 1, pensez à Swagger UI (elle donne aussi le bouton **Authorize**, pour essayer les routes protégées).
 
 #### Lire l'identité dans un contrôleur
 
 ```java
-@PostMapping("/{id}/accept")
-public Trade accept(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
-    Long userId = Long.valueOf(jwt.getSubject());
+@PostMapping
+public ResponseEntity<Trade> propose(@RequestBody ProposeTradeRequest request, @AuthenticationPrincipal Jwt jwt) {
+    Long proposerId = Long.valueOf(jwt.getSubject());
     ...
 }
 ```
 
-`@AuthenticationPrincipal` injecte le jeton **déjà vérifié** en paramètre, comme `@PathVariable` injecte un morceau du chemin (`Jwt` vient de `org.springframework.security.oauth2.jwt`). Aucune requête en base n'est nécessaire : l'id est dans le jeton, et la signature garantit qu'il n'a pas été modifié.
+`@AuthenticationPrincipal` injecte le jeton **déjà vérifié** en paramètre, comme `@PathVariable` injecte un morceau du chemin (`Jwt` vient de `org.springframework.security.oauth2.jwt`). Aucune recherche n'est nécessaire : l'id est dans le jeton, et la signature garantit qu'il n'a pas été modifié.
 
-#### Les tests
+#### Refuser d'agir sur le compte d'un autre : `403`
 
-Les tests MockMvc du TP 9 envoient leurs requêtes sans jeton. `jwt()` simule un utilisateur connecté, sans signature à calculer :
+`PUT /users/{id}` et `DELETE /users/{id}` reçoivent deux identifiants : celui du chemin (le compte visé) et celui du jeton (qui le demande). S'ils diffèrent, la réponse est `403 Forbidden` : « je sais qui vous êtes, mais ce compte n'est pas le vôtre ». Comme les autres règles, c'est une décision métier : passez l'identifiant du jeton au service, qui lève `new ResponseStatusException(HttpStatus.FORBIDDEN, "…")`.
 
-```java
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-
-mvc.perform(get("/users").with(jwt()))                              // un utilisateur connecté
-mvc.perform(post("/trades/1/accept").with(jwt().jwt(j -> j.subject("3")))) // connecté en tant qu'utilisateur 3
-```
-
-N'utilisez pas `@WithMockUser`, fréquent dans les tutoriels : il ne fournit pas de `Jwt`, et `@AuthenticationPrincipal Jwt` recevrait `null`.
+Dans quel ordre vérifier « le compte existe » (`404`) et « c'est le vôtre » (`403`) ? Que révèle à Mallory un `404` sur `DELETE /users/42` ? Choisissez, et justifiez dans un commentaire.
 
 #### Bruno
 
@@ -372,38 +358,42 @@ N'utilisez pas `@WithMockUser`, fréquent dans les tutoriels : il ne fournit pas
 
 2. Dans les réglages de la collection (clic sur la collection > **Settings** > **Auth**), choisissez **Bearer Token** avec la valeur `{{token}}`.
 3. Dans chaque requête, onglet **Auth**, choisissez **Inherit** : la requête utilise l'authentification de la collection.
+4. Les requêtes de création d'utilisateur envoient maintenant un `username` et un `password` ; **Proposer troc** n'envoie plus de `proposerId`.
 
 Documentation : [Bruno — Authentication](https://docs.usebruno.com/auth/overview) et [Bruno — Script](https://docs.usebruno.com/testing/script/getting-started).
 
 ### Indices
 
-- L'ordre `UserDetailsService` → `PasswordEncoder` → `AuthenticationManager` → `JwtEncoder` → `POST /auth/token` : chaque étape se vérifie avant de passer à la suivante. Avant d'écrire `SecurityConfig`, tout est encore fermé par défaut : testez l'inscription et la connexion en ajoutant une première version de la chaîne qui ouvre ces deux routes.
-- Le service de troc **ne change presque pas** : il reçoit toujours un identifiant d'utilisateur. Seule la provenance de cet identifiant change, dans le contrôleur. Et `TradeServiceTest` ? Relancez-le pour voir.
-- `UserServiceTest` ne compile plus si `UserService` reçoit un `PasswordEncoder` dans son constructeur : c'est un test unitaire, donnez-lui un mock.
-- Le `403` « pas le destinataire » vient de votre service, après le passage de Spring Security. Le `401` vient de Spring Security, avant même votre contrôleur. Les deux sont des réponses correctes, à deux étapes différentes.
+- L'ordre `UserDetailsService` → `PasswordEncoder` → `AuthenticationManager` → `JwtEncoder` → `POST /auth/token` : chaque étape se vérifie avant de passer à la suivante. Avant d'écrire `SecurityFilterChain`, tout est encore fermé par défaut : testez l'inscription et la connexion en ajoutant une première version de la chaîne qui ouvre ces deux routes.
+- Le service de troc **ne change presque pas** : il reçoit toujours un identifiant de proposeur. Seule la provenance de cet identifiant change, dans le contrôleur. `ProposeTradeRequest` perd son composant `proposerId` : le compilateur vous montre où.
+- Le `400` « troc avec soi-même » et le `404` « proposeur inconnu » existent toujours. Le second peut-il encore arriver ? (Pensez à un compte supprimé après la connexion.)
+- `401` vient de Spring Security, avant même votre contrôleur. Les `400`, `403`, `404`, `409` viennent de votre service, après le passage de Spring Security : un jeton valide ne dispense d'aucune règle métier.
+- Comparez les deux identifiants avec `Objects.equals` (ou `.equals`), jamais avec `==` (TP 2). Le `subject` du jeton est un texte : convertissez-le avec `Long.valueOf(…)`.
 
 ### Vérifier
 
-Lancez l'application avec `TROC_JWT_SECRET`, après avoir supprimé `data/`. Puis, dans Bruno :
+Lancez l'application avec `TROC_JWT_SECRET`. Puis, dans Bruno :
 
 1. Inscrivez Alice, Bob et Mallory : `201`, et aucun haché dans les réponses. Une deuxième inscription de `bob` : `409`.
-2. Dans la console H2 : `SELECT username, password_hash FROM users`. Vous devez voir des `{bcrypt}$2a$10$…`.
-3. `GET /users` sans jeton (Auth : **No Auth**) : `401`. Lisez l'en-tête `WWW-Authenticate` de la réponse.
-4. Connectez-vous en tant qu'Alice, puis `GET /users` : `200`.
-5. Connexion avec un mauvais mot de passe, puis avec un identifiant qui n'existe pas : `401`, avec le même message.
-6. Toujours en tant qu'Alice : créez un objet, puis proposez un troc à Bob, **sans** `proposerId`. Faites de même pour Bob.
-7. Connectez-vous en tant que Mallory et acceptez le troc : `403`. Connectez-vous en tant que Bob et acceptez-le : `200`, `EXECUTED`.
-8. Copiez le jeton de Bob dans [jwt.io](https://jwt.io/), modifiez un caractère au milieu du contenu, et utilisez ce jeton modifié : `401`.
+2. `GET /users` sans jeton (Auth : **No Auth**) : `401`. Lisez l'en-tête `WWW-Authenticate` de la réponse.
+3. Connectez-vous en tant qu'Alice, puis `GET /users` : `200`, et toujours aucun haché.
+4. Connexion avec un mauvais mot de passe, puis avec un identifiant qui n'existe pas : `401`, avec le même message.
+5. Toujours en tant qu'Alice : créez un objet. Connectez-vous en tant que Bob, créez-en un, et proposez un troc à Alice, **sans** `proposerId` : `201`, et le proposeur est bien Bob.
+6. Connectez-vous en tant que Mallory et rejouez l'étape 1 de l'expérimentation : ajouter `"proposerId": 2` au corps ne change plus rien, le troc est proposé par Mallory (et refusé si l'objet offert n'est pas à elle). Renommer ou supprimer le compte de Bob (`/users/2`) : `403`. Renommer son propre compte (`/users/3`) : `200`.
+7. Copiez le jeton de Bob dans [jwt.io](https://jwt.io/), modifiez un caractère au milieu du contenu, et utilisez ce jeton modifié : `401`.
 
 - [ ] Inscription `201` sans haché dans la réponse, `409` si l'identifiant est pris.
-- [ ] Les mots de passe sont hachés en base.
-- [ ] Connexion : un jeton si les identifiants sont bons, `401` sinon.
+- [ ] Les mots de passe sont conservés hachés.
+- [ ] Connexion : un jeton si les identifiants sont bons, `401` sinon, avec le même message.
 - [ ] Toutes les routes, sauf l'inscription et la connexion, répondent `401` sans jeton valide.
-- [ ] `proposerId` et `userId` ont disparu des corps de requête ; Mallory reçoit `403`.
+- [ ] `proposerId` a disparu du corps de `POST /trades` : Mallory ne peut plus proposer au nom de Bob.
+- [ ] `PUT` et `DELETE /users/{id}` répondent `403` sur le compte d'un autre, et fonctionnent sur le sien.
+- [ ] L'ordre `404` / `403` est justifié dans un commentaire.
 - [ ] Aucun JSON de réponse ne contient `passwordHash`.
-- [ ] La clé n'est écrite dans aucun fichier versionné, sauf la valeur de test.
-- [ ] `./mvnw test` est au vert, avec un test `401` et un test `403`.
+- [ ] La clé n'est écrite dans aucun fichier versionné.
 - [ ] Dans Bruno, toutes les requêtes passent après une seule connexion.
+
+> **Question pour le checkpoint** : Mallory, connectée avec **son** jeton, peut encore créer des objets au nom de Bob (`ownerId` dans le corps de `POST /items`), ou supprimer ceux de Bob. Est-ce un problème d'authentification ou d'autorisation ? Le bonus 2 le corrige.
 
 ## Erreurs fréquentes
 
@@ -411,12 +401,13 @@ Lancez l'application avec `TROC_JWT_SECRET`, après avoir supprimé `data/`. Pui
 |---|---|
 | `401` partout, même sur `GET /users` avec Basic Auth | normal tant que `SecurityFilterChain` n'est pas déclarée : tout est fermé. Une fois déclarée, Basic Auth n'est plus accepté. |
 | L'inscription d'un `username` déjà pris répond `401` au lieu de `409`, avec un corps vide | En cas d'erreur, Spring redirige la requête vers la route `/error`, qui construit le JSON d'erreur… et cette route est protégée. Ouvrez `/error`. |
-| `401` avec un jeton | jeton expiré, mal copié, ou mot `Bearer` oublié. Lisez l'en-tête `WWW-Authenticate` de la réponse. |
+| `401` avec un jeton | jeton expiré, mal copié, ou mot `Bearer` oublié. Lisez l'en-tête `WWW-Authenticate` de la réponse. Après un redémarrage, les comptes ont disparu (données en mémoire) : réinscrivez-vous et reconnectez-vous. |
 | `403` sur chaque `POST`, `PUT`, `DELETE` | protection CSRF encore active : `csrf.disable()` oublié. |
+| `403` sur `PUT /users/{id}` de **son propre** compte | identifiants comparés avec `==`, ou `subject` (un texte) comparé à un `Long` sans conversion ; ou jeton d'un autre compte (dans Bruno, c'est la dernière connexion qui compte). |
 | L'application ne démarre pas : `The secret length must be at least 256 bits` | clé de moins de 32 caractères, ou variable `TROC_JWT_SECRET` absente de la configuration de lancement : Spring garde alors le texte `${TROC_JWT_SECRET}` tel quel, qui est trop court. |
-| `There is no PasswordEncoder mapped for the id "null"` | un mot de passe inséré en base à la main, sans haché ni préfixe `{bcrypt}`. |
-| Le contrôleur reçoit `jwt == null` | dans un test : `@WithMockUser` au lieu de `.with(jwt())`. |
-| Console H2 blanche | `frameOptions(… sameOrigin())` oublié. |
+| `There is no PasswordEncoder mapped for the id "null"` | un mot de passe enregistré sans passer par `passwordEncoder.encode(…)` : il n'a ni haché ni préfixe `{bcrypt}`. |
+| Le contrôleur reçoit `jwt == null` | la route est ouverte (`permitAll`) et la requête est partie sans jeton. Une route qui a besoin de l'identité doit exiger le jeton. |
+| `passwordHash` apparaît dans un JSON | une route renvoie encore l'entité `User` au lieu de l'objet de réponse. |
 | Un tutoriel utilise `WebSecurityConfigurerAdapter`, `antMatchers` ou `.and()` | il est écrit pour Spring Security 5. En version 7 : un bean `SecurityFilterChain`, `requestMatchers`, des lambdas. Beaucoup de tutoriels JWT écrivent aussi un filtre à la main avec la bibliothèque `jjwt` : inutile, `oauth2ResourceServer` le fait. |
 
 Pour comprendre un refus : `logging.level.org.springframework.security=DEBUG` affiche chaque filtre traversé et la raison de la décision.
@@ -425,7 +416,7 @@ Pour comprendre un refus : `logging.level.org.springframework.security=DEBUG` af
 
 ### Bonus 1 — Un administrateur
 
-Seul un administrateur peut supprimer un utilisateur. Les rôles sont dans le jeton (`"roles": ["USER"]`), mais Spring ne sait pas où les lire :
+Un administrateur peut supprimer **n'importe quel** compte, pas seulement le sien. Ajoutez un champ `role` à `User` (`USER` par défaut), utilisez-le dans le `UserDetailsService` (`.roles(…)`), et mettez-le dans le jeton : `.claim("roles", List.of(…))`. Spring ne sait pas où lire les rôles d'un jeton :
 
 ```properties
 # lire les droits dans le claim "roles", préfixés par ROLE_ ("ADMIN" devient ROLE_ADMIN)
@@ -433,28 +424,23 @@ spring.security.oauth2.resourceserver.jwt.authorities-claim-name=roles
 spring.security.oauth2.resourceserver.jwt.authority-prefix=ROLE_
 ```
 
-Puis, dans les règles : `.requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")`. Le rôle n'est jamais choisi par le client : passez un compte en `ADMIN` avec un `UPDATE` dans la console H2, puis reconnectez-vous. Pourquoi faut-il se reconnecter ?
+Le jeton vérifié porte alors le droit `ROLE_ADMIN`. Pour une route **entièrement** réservée aux administrateurs, une règle suffit : `.requestMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")`. Pourquoi ne convient-elle pas pour `DELETE /users/{id}`, que chacun peut appeler sur son propre compte ? La règle devient « c'est son compte, **ou** c'est un administrateur » : le service a besoin de savoir si l'utilisateur est administrateur (`jwt.getClaimAsStringList("roles")`). Le rôle n'est jamais choisi par le client : pourquoi l'objet de requête d'inscription ne doit-il pas avoir de champ `role` ? Pour avoir un administrateur, créez-le au démarrage (un bean `CommandLineRunner`, qui inscrit un compte `admin` si aucun n'existe). Que se passe-t-il pour un jeton délivré **avant** qu'un compte change de rôle ?
 
-Autre syntaxe : `@EnableMethodSecurity` sur la configuration, puis `@PreAuthorize("hasRole('ADMIN')")` sur la méthode du service. Elle repose sur un proxy, comme `@Transactional` (TP 7) et vos aspects (TP 8) : quelle limite en découle ?
+Autre syntaxe : `@EnableMethodSecurity` sur la configuration, puis `@PreAuthorize("hasRole('ADMIN')")` sur la méthode du service.
 
 ### Bonus 2 — Chacun ses objets
 
-Appliquez la même logique aux objets : le propriétaire d'un objet créé est l'utilisateur du jeton (`ownerId` disparaît du corps), et seul le propriétaire peut modifier ou supprimer son objet (`403` sinon). Même question pour `PUT /users/{id}` et `DELETE /users/{id}` : qui doit pouvoir les appeler ?
+Appliquez aux objets la logique des comptes : le propriétaire d'un objet créé est l'utilisateur du jeton (`ownerId` disparaît du corps), et seul le propriétaire peut modifier ou supprimer son objet. Où placer la vérification : dans le contrôleur, dans le service, dans `SecurityFilterChain` ? Justifiez.
 
 ### Bonus 3 — Mes trocs
 
 Remplacez `GET /trades?userId=…` par `GET /trades/mine`, qui renvoie les trocs de l'utilisateur connecté. Pourquoi l'ancienne route posait-elle un problème de confidentialité ?
-
-### Bonus 4 — Un test de bout en bout
-
-`jwt()` contourne la fabrication et la vérification du jeton. Écrivez un test d'intégration qui traverse tout : inscription, `POST /auth/token`, lecture du jeton dans la réponse (`JsonPath.read`, bonus 2 du TP 9), puis `GET /users` avec l'en-tête `Authorization: Bearer …`. Ajoutez le cas d'un jeton modifié.
 
 ## Pour aller plus loin
 
 - [Spring Security — Architecture](https://docs.spring.io/spring-security/reference/servlet/architecture.html) : la chaîne de filtres
 - [Spring Security — OAuth 2.0 Resource Server JWT](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
 - [Spring Security — Password Storage](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
-- [Spring Security — Testing with JWT](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/oauth2.html)
 - [OWASP — Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [jwt.io — Introduction aux JSON Web Tokens](https://jwt.io/introduction)
 - L'annexe du cours : `doc/cours/05-annexe-spring-security.html` (pourquoi un jeton plutôt que Basic ou une session, les pièges courants)

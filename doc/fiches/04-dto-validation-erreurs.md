@@ -17,7 +17,7 @@ flowchart LR
 | Contient | ce que le client **peut** choisir | tout ce qui est enregistré |
 | Construit par | Jackson, à partir du JSON | le **service**, après ses vérifications |
 | Forme | `record` (immuable) | classe avec getters / setters |
-| troc-api | `ProposeTradeRequest`, `TradeDecisionRequest` (TP 7) | `User`, `Item`, `Trade` |
+| troc-api | `ProposeTradeRequest`, la requête d'inscription (TP 5) | `User`, `Item`, `Trade` |
 
 - ❌ `@RequestBody Trade trade` : le client choisit `id`, `status`… (*mass assignment*)
 - ✅ `@RequestBody ProposeTradeRequest request` : une clé JSON inconnue (`"status"`, `"id"`) est **ignorée**
@@ -36,7 +36,7 @@ public record ProposeTradeRequest(Long proposerId, Long offeredItemId, int offer
 |---|---|
 | constructeur avec tous les composants | `new ProposeTradeRequest(1L, 1L, 3, 2L, 2L, 4)` |
 | un accesseur par composant (**sans** `get`) | `request.offeredQuantity()` |
-| `equals`, `hashCode`, `toString` | `ProposeTradeRequest[proposerId=1, …]` dans les logs (TP 8) |
+| `equals`, `hashCode`, `toString` | `ProposeTradeRequest[offeredItemId=1, …]` dans les logs (TP 8) |
 
 | Composant absent du JSON | Résultat |
 |---|---|

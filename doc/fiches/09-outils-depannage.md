@@ -24,10 +24,11 @@ Pas besoin d'installer Maven : `mvnw` télécharge la bonne version au premier l
 | `spring-boot-starter-webmvc` | 0 |
 | `springdoc-openapi-starter-webmvc-ui` (avec `<version>`) | Annexe 1 |
 | `spring-boot-starter-validation` | 2, 3 (bonus) |
+| `spring-boot-starter-security` · `-security-oauth2-resource-server` | 5 |
 | `spring-boot-starter-data-jdbc` · `h2` · `spring-boot-h2console` | 6 |
 | `spring-boot-starter-aspectj` | 8 |
 | `spring-boot-starter-webmvc-test` (`test`) | 9 (déjà là) |
-| `spring-boot-starter-security` · `-security-oauth2-resource-server` · `-security-test` | 5 |
+| `spring-boot-starter-security-test` (`test`) | 9 |
 
 💡 `spring-boot-starter-*` : pas de `<version>`, Spring Boot la choisit · une bibliothèque externe (springdoc) : à nous de choisir une version compatible
 
@@ -87,7 +88,7 @@ SELECT * FROM trades;
 | table inexistante, base vide | l'URL saisie n'est pas celle de l'application |
 | `404` sur `/h2-console` | `spring-boot-h2console` absent · `spring.h2.console.enabled=true` oublié |
 | « Database may be already in use » | une 2ᵉ instance tourne : l'arrêter |
-| page blanche (`TP 5`) | `frameOptions(… sameOrigin())`, et ouvrir `/h2-console/**` |
+| `401` ou page blanche (`TP 6`) | ouvrir `/h2-console/**`, et `frameOptions(… sameOrigin())` |
 
 🧹 **Repartir d'une base propre :** arrêter l'application → supprimer `data/` → relancer.
 

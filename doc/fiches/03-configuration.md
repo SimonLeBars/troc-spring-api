@@ -114,7 +114,7 @@ application-demo.properties        ← en plus, si le profil "demo" est actif (n
 | Profil | Fichier | Contenu | TP |
 |---|---|---|:-:|
 | `demo` | `src/main/resources/application-demo.properties` | `troc.item.max-per-user=3`, ou une base H2 en mémoire | 3, 6 |
-| `test` | `src/test/resources/application-test.properties` | base H2 en mémoire, secret JWT de test | 9, 5 |
+| `test` | `src/test/resources/application-test.properties` | base H2 en mémoire, secret JWT de test | 9 |
 
 ⚠️ `src/test/resources/application.properties` **remplace entièrement** celui de `main` : nommez-le `application-test.properties`.
 

@@ -1,6 +1,6 @@
 # TP 7 — Les transactions : accepter un troc, tout ou rien
 
-> Rythme indicatif : séance 3. Point de départ : la mise en place du TP 6 terminée (les trois tables, plus de classe `InMemory…`).
+> Rythme indicatif : séance 3. Point de départ : la mise en place du TP 6 terminée (les trois tables, plus de classe `InMemory…`, l'authentification du TP 5 en place). Peut commencer par `reject` dès que la table `trades` existe.
 
 ## Le concept en bref
 
@@ -68,7 +68,7 @@ public class StockMoveDemoController {
 
 ### Étape 2 — Premier essai : sans transaction
 
-Arrêtez l'application, **supprimez `data/`**, relancez. Dans Bruno, créez Alice et Bob, puis **Créer objet (Alice)** (10 tomates, objet 1) et **Créer objet (Bob)** (5 carottes, objet 2). Exécutez **Expérimentation > TP7 - Déplacer du stock** : 8 unités de l'objet 2 vers l'objet 1, alors que Bob n'en a que 5.
+Arrêtez l'application, **supprimez `data/`**, relancez. Dans Bruno, inscrivez Alice et Bob, connectez-vous, puis **Créer objet (Alice)** (10 tomates, objet 1) et **Créer objet (Bob)** (5 carottes, objet 2). Exécutez **Expérimentation > TP7 - Déplacer du stock** : 8 unités de l'objet 2 vers l'objet 1, alors que Bob n'en a que 5.
 
 Notez la réponse, la dernière ligne `Caused by` de la console, puis regardez la base (console H2) :
 
@@ -144,8 +144,8 @@ L'échange a lieu **au moment de l'acceptation** : pas d'état « accepté mais 
 
 | Verbe | Chemin | Corps | Rôle | Code si tout va bien | Codes d'erreur |
 |---|---|---|---|---|---|
-| `POST` | `/trades/{id}/reject` | `{"userId": 2}` | refuser un troc | `200` | `404` troc inconnu, `403` pas le destinataire, `409` déjà traité |
-| `POST` | `/trades/{id}/accept` | `{"userId": 2}` | accepter et exécuter un troc | `200` | les mêmes, et `409` stock insuffisant |
+| `POST` | `/trades/{id}/reject` | aucun | refuser un troc | `200` | `404` troc inconnu, `403` pas le destinataire, `409` déjà traité |
+| `POST` | `/trades/{id}/accept` | aucun | accepter et exécuter un troc | `200` | les mêmes, et `409` stock insuffisant |
 
 Accepter le troc d'Alice (3 tomates contre 4 carottes de Bob), ce sont **cinq écritures**, atomiques :
 
@@ -157,7 +157,7 @@ Accepter le troc d'Alice (3 tomates contre 4 carottes de Bob), ce sont **cinq é
 
 Règles :
 
-- seul le **destinataire** peut accepter ou refuser (`403` sinon) ;
+- seul le **destinataire** peut accepter ou refuser (`403` sinon) : celui qui répond est l'utilisateur **du jeton** ;
 - un troc qui n'est plus `PROPOSED` ne peut plus recevoir de réponse (`409`) ;
 - entre la proposition et l'acceptation, les stocks ont pu changer : ils sont **revérifiés au moment d'accepter, avant toute écriture** (`409`) ;
 - un stock qui tombe à 0 est un cas normal (Alice offre toutes ses tomates) ;
@@ -167,18 +167,19 @@ Règles :
 
 ### Syntaxes utiles
 
-#### Qui répond ? Le corps de la requête
+#### Qui répond ? L'utilisateur du jeton
 
-L'API n'a pas d'authentification : le client **se déclare** dans le corps, avec un objet de requête (TP 4) :
+Comme pour `propose` au TP 5, l'identité vient du jeton, jamais du corps : les deux routes n'ont **pas de corps**.
 
 ```java
-public record TradeDecisionRequest(Long userId) {
+@PostMapping("/{id}/accept")
+public Trade accept(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+    Long userId = Long.valueOf(jwt.getSubject());
+    ...
 }
 ```
 
-> Dans une vraie application, l'identité viendrait de l'authentification (un jeton, une session), jamais du corps : n'importe qui peut écrire `"userId": 2`. C'est le sujet du TP 5 (Spring Security).
-
-`403 Forbidden` dit : « je sais ce que vous demandez, mais **vous** n'avez pas le droit ». C'est différent de `401 Unauthorized` : « je ne sais pas qui vous êtes ».
+`403 Forbidden` dit : « je sais **qui** vous êtes, mais vous n'avez pas le droit ». C'est différent de `401 Unauthorized`, que Spring Security renvoie avant même votre contrôleur : « je ne sais pas qui vous êtes ». Le `403` de ce TP est une décision **métier** (seul le destinataire répond) : il est pris dans le service, qui reçoit l'identifiant lu dans le jeton.
 
 #### Une action métier sur une ressource
 
@@ -235,13 +236,14 @@ Item credited = repository.findBy…(…).orElseGet(() -> { /* construire un nou
 
 #### Les scénarios
 
-Repartez d'une base propre (arrêtez, supprimez `data/`, relancez), créez Alice, Bob, leurs objets (10 tomates, 5 carottes) et un troc (3 tomates contre 4 carottes), puis :
+Repartez d'une base propre (arrêtez, supprimez `data/`, relancez), inscrivez Alice et Bob, créez leurs objets (10 tomates, 5 carottes), et, connecté en tant qu'Alice, un troc (3 tomates contre 4 carottes). Puis, **connecté en tant que Bob** sauf mention contraire :
 
 | Scénario | Requête | Résultat attendu |
 |---|---|---|
 | Accepter un troc valide | **Trocs > Accepter troc** | `200`, `EXECUTED`, cinq écritures dans les traces SQL |
 | Accepter un troc inconnu | `POST /trades/99/accept` | `404` |
-| Accepter à la place du destinataire | **Accepter troc (pas le destinataire)** | `403` |
+| Accepter à la place du destinataire | connecté en tant qu'Alice (la proposeuse), **Accepter troc** | `403` |
+| Accepter sans être connecté | **Accepter troc**, Auth : **No Auth** | `401` |
 | Accepter deux fois | **Accepter troc**, deux fois | `409` la seconde fois |
 | Accepter alors que le stock a baissé | nouveau troc, **Objets > Réduire le stock de Bob**, puis **Accepter troc** | `409`, stocks intacts |
 | Refuser | **Refuser troc** sur un troc `PROPOSED` | `200`, `REJECTED`, stocks intacts |
@@ -266,7 +268,7 @@ SELECT * FROM items ORDER BY owner_id, name;
 C'est la démonstration attendue dans le rapport du projet : la même panne, sur **votre** `accept`, sans puis avec transaction.
 
 1. Mettez **temporairement** en commentaire la revérification du stock **demandé** dans `accept`, et retirez `@Transactional`. C'est le bug qu'on simule : un développeur a oublié une vérification.
-2. Base propre, données, troc, **Réduire le stock de Bob** (1 carotte), **Accepter troc**. Notez le code reçu et l'état de `items` et `trades`.
+2. Base propre, données, troc, **Réduire le stock de Bob** (1 carotte), **Accepter troc** en tant que Bob. Notez le code reçu et l'état de `items` et `trades`.
 3. Remettez `@Transactional`, et rejouez exactement le même scénario. Notez à nouveau.
 4. Remettez la vérification, et rejouez : `409`, sans aucune écriture tentée.
 
@@ -282,6 +284,7 @@ Gardez vos observations (état de la base avant et après chaque essai) : elles 
 
 - [ ] Toutes les lignes du tableau des scénarios répondent comme attendu.
 - [ ] La preuve est faite, et les observations notées.
+- [ ] `accept` et `reject` n'ont pas de corps : celui qui répond est l'utilisateur du jeton.
 - [ ] `@Transactional` est sur `accept`, et sur aucune méthode qui n'en a pas besoin.
 - [ ] Le choix pour `max-per-user` lors d'un crédit est justifié dans un commentaire.
 - [ ] Les requêtes des TP précédents répondent toujours comme avant.
@@ -292,7 +295,7 @@ Gardez vos observations (état de la base avant et après chaque essai) : elles 
 |---|---|
 | Avec ou sans `@Transactional`, même résultat | Import incorrect, annotation sur une méthode `private`, appel interne, ou application pas **relancée** après l'ajout. |
 | Les résultats de la preuve ne correspondent pas | La base n'a pas été remise à zéro entre deux essais : supprimez `data/` **avant** chaque essai. |
-| `403` alors que `userId` est bien le destinataire | Clé mal nommée dans le corps (`"user"` au lieu de `"userId"`) : `userId` arrive à `null`. Un corps absent, lui, donne `400`. |
+| `403` alors que vous êtes bien le destinataire | Le jeton envoyé est celui d'un autre compte : dans Bruno, c'est la **dernière** connexion qui compte. Ou deux `Long` comparés avec `==` (TP 2). |
 | `400 La quantité doit être positive` pendant un troc | Le transfert passe par `update`, qui refuse un stock à 0 : utilisez directement le repository. |
 | `500` « Unique index or primary key violation » pendant un troc | Le crédit crée une nouvelle ligne au lieu de compléter celle qui existe : vérifiez la recherche par propriétaire et nom (bons paramètres, dans le bon ordre). |
 | `500` « Referential integrity constraint violation » au crédit | La nouvelle ligne est créée avec un mauvais propriétaire. |

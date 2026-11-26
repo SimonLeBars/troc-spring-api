@@ -1,6 +1,6 @@
 # TP 9 — Les tests automatisés
 
-> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 7 terminée (le TP 8 n'est pas nécessaire). Si `accept` ne fonctionne pas chez vous, commencez par les tests de `UserService` et le test d'intégration : ils n'en dépendent pas.
+> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 7 terminée (le TP 8 n'est pas nécessaire) : peut avancer en parallèle du TP 8. Si `accept` ne fonctionne pas chez vous, commencez par les tests de `UserService` et le test d'intégration : ils n'en dépendent pas.
 
 ## Le concept en bref
 
@@ -46,9 +46,9 @@ package fr.cours.troc.user;
 
 import fr.cours.troc.item.ItemRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,29 +56,28 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     @Test
-    void createIgnoresIdSentByClient() {
-        // given : un faux repository, qui renvoie ce qu'on lui donne à enregistrer
+    void registerStoresHashNotPassword() {
+        // given : un faux repository, qui renvoie ce qu'on lui donne à enregistrer,
+        // et un faux encodeur, qui « hache » tomate42 en une valeur connue
         UserRepository users = mock(UserRepository.class);
         when(users.save(any())).thenAnswer(call -> call.getArgument(0));
-        UserService service = new UserService(users, mock(ItemRepository.class)); // adaptez à votre constructeur
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        when(encoder.encode("tomate42")).thenReturn("{bcrypt}haché-de-tomate42");
+        UserService service = new UserService(users, mock(ItemRepository.class), encoder); // adaptez à votre constructeur
 
-        User user = new User();
-        user.setId(42L);
-        user.setName("Alice");
+        // when : adaptez au nom de votre méthode et de votre objet de requête (TP 5)
+        User created = service.register(new RegisterRequest("Alice", "alice", "tomate42"));
 
-        // when
-        User created = service.create(user);
-
-        // then : le nom est conservé, l'id du client est effacé (c'est la base qui l'attribue)
-        assertEquals("Alice", created.getName());
-        assertNull(created.getId());
+        // then : c'est le haché qui est enregistré, jamais le mot de passe
+        assertEquals("alice", created.getUsername());
+        assertEquals("{bcrypt}haché-de-tomate42", created.getPasswordHash());
     }
 }
 ```
 
-Lancez-le avec la flèche verte dans la marge : il passe, en quelques millisecondes, sans démarrer Spring ni la base.
+Lancez-le avec la flèche verte dans la marge : il passe, en quelques millisecondes, sans démarrer Spring ni la base. Remarquez que le test ne calcule aucun vrai haché BCrypt : il vérifie que **le service** passe par l'encodeur, pas que BCrypt fonctionne.
 
-Introduisez maintenant un bug dans `UserService.create` : supprimez la ligne qui efface l'`id` envoyé par le client (TP 2). Relancez le test. Que dit le message ? Combien de temps a-t-il fallu ? Remettez la ligne.
+Introduisez maintenant un bug dans l'inscription de `UserService` : enregistrez le mot de passe tel quel, sans `encode(…)`. Relancez le test. Que dit le message ? Combien de temps a-t-il fallu ? Remettez la ligne.
 
 ### Étape 3 — Et avec le couplage fort ?
 
@@ -117,12 +116,16 @@ Vous pouvez garder `UserServiceTest` : il fait partie de la mise en place.
    | Le troc a déjà reçu une réponse | `409` | `acceptRefusedWhenAlreadyExecuted` |
 
    Chacun vérifie aussi l'exigence commune : quand la règle refuse, **rien n'est écrit** (aucun transfert, aucun `save`).
-4. `UserApiTest` : deux tests d'**intégration** de l'API : un utilisateur créé par `POST /users` apparaît dans `GET /users` ; `GET /users/999` répond `404`.
-5. `./mvnw test` : tous les tests au vert.
+4. `UserApiTest` : trois tests d'**intégration** de l'API, avec un utilisateur connecté simulé (`jwt()`, voir plus bas) :
+   - un utilisateur inscrit par `POST /users` apparaît dans `GET /users` ;
+   - `GET /users/999` répond `404` ;
+   - `GET /users` **sans jeton** répond `401`.
+5. `TradeApiTest` : un test d'intégration `acceptByNonRecipientIsForbidden` : un troc est proposé par Alice à Bob, Alice essaie de l'accepter : `403`.
+6. `./mvnw test` : tous les tests au vert.
 
 Chaque test porte le **nom de la règle qu'il protège** : quand il passera au rouge dans six mois, son nom doit suffire à dire ce qui est cassé. `test1` ne dit rien.
 
-> Ordre de priorité si le temps manque : la base de test, puis les tests unitaires, puis le test d'intégration.
+> Ordre de priorité si le temps manque : la base de test, puis les tests unitaires, puis `UserApiTest`, puis `TradeApiTest`.
 
 ### Ce qui est déjà en place
 
@@ -134,6 +137,17 @@ Ouvrez `pom.xml` : start.spring.io a ajouté dès le départ la dépendance `spr
 
 Si elle est absente, ajoutez-la et rechargez Maven.
 
+Les outils de test de Spring Security, eux, ne sont pas encore là. Ajoutez :
+
+```xml
+<!-- Simuler un utilisateur connecté dans les tests -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security-test</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
 Un test existe aussi : `TrocApplicationTests`, qui vérifie seulement que l'application **démarre** (`contextLoads`). Il démarre l'application avec sa configuration normale, donc sur **votre base `data/troc`** : un test qui écrirait des données les mélangerait aux vôtres.
 
 ### Syntaxes utiles
@@ -144,7 +158,11 @@ Un fichier `src/test/resources/application-test.properties` est un **fichier de 
 
 ```properties
 spring.datasource.url=jdbc:h2:mem:troc-test;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+# une clé de test (32 caractères minimum), pour démarrer sans la variable TROC_JWT_SECRET
+troc.jwt.secret=cle-de-test-uniquement-pas-un-vrai-secret
 ```
+
+Sans la seconde ligne, les tests ne démarrent pas : `${TROC_JWT_SECRET}` n'existe pas quand on lance `./mvnw test`, ni sur le serveur d'intégration continue. Cette clé n'a rien de secret, et c'est la seule qu'on accepte de versionner : elle ne signe que des jetons de test.
 
 `jdbc:h2:mem:` : la base vit en mémoire, et `schema.sql` y crée les tables, vides, à chaque lancement. On active le profil sur une classe de test :
 
@@ -211,8 +229,9 @@ class UneApiTest {
 
     @Test
     void unScenario() throws Exception {
-        mvc.perform(post("/chemin").contentType(MediaType.APPLICATION_JSON).content("{\"cle\": \"valeur\"}"))
-                .andExpect(status().isCreated())            // isOk(), isNotFound(), isConflict()…
+        mvc.perform(post("/chemin").with(jwt())           // un utilisateur connecté (voir plus bas)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"cle\": \"valeur\"}"))
+                .andExpect(status().isCreated())            // isOk(), isNotFound(), isConflict(), isUnauthorized()…
                 .andExpect(jsonPath("$.id").isNumber());
     }
 }
@@ -223,12 +242,41 @@ class UneApiTest {
 - `@Autowired` : jusqu'ici, l'injection par constructeur suffisait. Mais une classe de test est créée par **JUnit**, pas par Spring : il faut marquer le champ que Spring doit remplir. C'est l'usage courant dans les tests, et le seul endroit du cours où on l'utilise.
 - `@Transactional` sur une classe de test : Spring fait un **`ROLLBACK`** à la fin de chaque test au lieu d'un `COMMIT`. Les tests ne se polluent pas entre eux, et leur ordre n'a pas d'importance. Ne supposez pas pour autant qu'un utilisateur créé aura l'id `1` : les compteurs de la base, eux, ne reviennent pas en arrière.
 
+#### Un utilisateur connecté : `jwt()`
+
+Depuis le TP 5, toute requête sans jeton répond `401`. Dans un test MockMvc, `jwt()` simule un utilisateur connecté, sans jeton à fabriquer ni signature à calculer :
+
+```java
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+
+mvc.perform(get("/users").with(jwt()))                                       // un utilisateur connecté
+mvc.perform(post("/trades/" + tradeId + "/accept").with(jwt().jwt(j -> j.subject("3")))) // l'utilisateur 3
+mvc.perform(get("/users"))                                                    // sans jeton : 401
+```
+
+`jwt()` place directement un jeton « déjà vérifié » dans la requête : votre contrôleur reçoit un `@AuthenticationPrincipal Jwt` comme en vrai, avec le `subject` choisi par le test. N'utilisez pas `@WithMockUser`, fréquent dans les tutoriels : il ne fournit pas de `Jwt`, et `@AuthenticationPrincipal Jwt` recevrait `null`.
+
+#### Lire une valeur dans la réponse
+
+Pour enchaîner plusieurs requêtes (inscrire Alice, puis agir en son nom), il faut lire l'id renvoyé :
+
+```java
+String json = mvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\": \"Alice\", \"username\": \"alice\", \"password\": \"tomate42\"}"))
+        .andReturn().getResponse().getContentAsString();
+Number aliceId = JsonPath.read(json, "$.id"); // com.jayway.jsonpath.JsonPath
+```
+
+Regroupez les requêtes répétées dans des méthodes utilitaires privées (`register(String username)`, `createItem(…)`, qui renvoient l'id lu dans la réponse).
+
 ### Indices
 
 - Pour `TradeServiceTest`, de petites méthodes utilitaires privées (`proposedTrade(…)`, `item(…)`) évitent de répéter dix lignes de `set…` dans chaque test.
 - Relisez `accept` et ses vérifications : à quel moment le mauvais destinataire est-il détecté ? Les objets ont-ils déjà été lus ? Ne programmez que ce qui est utilisé.
 - Vérifier qu'aucune écriture n'a eu lieu, c'est vérifier un **comportement** : la vérification est bien faite **avant** toute écriture.
 - Le test unitaire de `accept` ne voit pas la base : la contrainte `CHECK` n'existe pas ici. Il vérifie que **le service** fait son travail.
+- `TradeApiTest` : inscrivez Alice et Bob (route ouverte, sans `jwt()`), créez leurs objets, proposez le troc avec le `subject` d'Alice, puis acceptez-le avec ce même `subject`. Le `subject` est l'id **en texte** : `String.valueOf(aliceId)`.
+- `UserServiceTest` ne compile plus si `UserService` a reçu un `PasswordEncoder` au TP 5 : c'est un test unitaire, donnez-lui un mock (c'est ce que fait le test de l'expérimentation).
 
 ### Vérifier
 
@@ -261,7 +309,7 @@ Dans IntelliJ, clic droit sur `src/test/java` > **Run 'All Tests'**, ou dans le 
 (sous Windows, dans PowerShell : `.\mvnw test`)
 
 ```
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
@@ -270,7 +318,9 @@ Dans IntelliJ, clic droit sur `src/test/java` > **Run 'All Tests'**, ou dans le 
 - [ ] `application-test.properties` existe dans `src/test/resources`, et les tests d'intégration ne touchent pas `data/troc`.
 - [ ] Les trois tests de `TradeServiceTest` sont verts, et vérifient aussi qu'aucune écriture n'a eu lieu.
 - [ ] Le test cassé volontairement a été vu au rouge, puis remis au vert.
-- [ ] `UserApiTest` contient les deux tests d'intégration demandés, verts.
+- [ ] `UserApiTest` contient les trois tests d'intégration demandés (dont le `401` sans jeton), verts.
+- [ ] `TradeApiTest` vérifie le `403` d'un utilisateur qui n'est pas le destinataire.
+- [ ] La clé de test est dans `application-test.properties`, et la vraie clé dans aucun fichier versionné.
 - [ ] `./mvnw test` : `BUILD SUCCESS`.
 
 #### Que tester, et où ?
@@ -280,6 +330,7 @@ Dans IntelliJ, clic droit sur `src/test/java` > **Run 'All Tests'**, ou dans le 
 | Les règles métier | stock insuffisant, mauvais destinataire, troc déjà exécuté | unitaire |
 | Le contrat HTTP | URL, JSON, codes de statut `201`, `404`, `409` | intégration |
 | Les contraintes SQL | FK, `CHECK`, `UNIQUE` réellement appliquées | intégration |
+| La sécurité | `401` sans jeton, `403` pour qui n'a pas le droit | intégration |
 | La transaction | échec au milieu, stocks intacts | intégration (bonus 3) |
 
 Savoir **pourquoi** tel test est unitaire et tel autre d'intégration fait partie de ce qu'on attend dans le rapport du projet.
@@ -298,6 +349,10 @@ Savoir **pourquoi** tel test est unitaire et tel autre d'intégration fait parti
 | `500` « bad SQL grammar » dans les tests d'intégration | L'URL de test a perdu `;CASE_INSENSITIVE_IDENTIFIERS=TRUE`. |
 | Toute la configuration semble perdue pendant les tests | Le fichier de `src/test/resources` s'appelle `application.properties`. |
 | Un test d'intégration passe seul, échoue avec les autres | `@Transactional` oublié sur la classe, ou un id supposé (`/users/1`). |
+| `expected: <200 OK> but was: <401 UNAUTHORIZED>` | `.with(jwt())` oublié sur la requête. |
+| Les tests ne démarrent pas : `The secret length must be at least 256 bits` | `troc.jwt.secret` absent d'`application-test.properties`, ou valeur de moins de 32 caractères. |
+| Le contrôleur reçoit `jwt == null` | `@WithMockUser` au lieu de `.with(jwt())`. |
+| `403` inattendu dans `TradeApiTest` | Le `subject` n'est pas celui que vous croyez : affichez l'id lu dans la réponse, et passez-le en `String`. |
 | `expected: <201 CREATED> but was: <200 OK>` | Votre `POST` répond `200` : corrigez le contrôleur (TP 2). |
 | Avertissement `A Java agent has been loaded dynamically` | Mockito s'attache à la JVM pour fabriquer ses faux : sans conséquence. |
 
@@ -309,16 +364,7 @@ Savoir **pourquoi** tel test est unitaire et tel autre d'intégration fait parti
 
 ### Bonus 2 — Un troc de bout en bout par l'API
 
-Écrivez `TradeApiTest`, un test d'intégration qui enchaîne par MockMvc tout le scénario : créer Alice et Bob, leurs objets, proposer un troc, l'accepter (`200`, `EXECUTED`), puis vérifier par `GET /items?ownerId=…` que les stocks ont été échangés. Puis un second test : accepter deux fois répond `409`.
-
-Regroupez les requêtes répétées dans des méthodes utilitaires (`createUser(String name)`, qui renvoie l'id lu dans la réponse). Pour lire une valeur dans une réponse :
-
-```java
-String json = mvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\": \"Alice\"}"))
-        .andReturn().getResponse().getContentAsString();
-Number aliceId = JsonPath.read(json, "$.id"); // com.jayway.jsonpath.JsonPath
-```
+Complétez `TradeApiTest` avec le scénario qui marche : Bob accepte le troc d'Alice (`200`, `EXECUTED`), puis vérifiez par `GET /items?ownerId=…` que les stocks ont été échangés. Puis un second test : accepter deux fois répond `409`. Les méthodes utilitaires du test `403` servent telles quelles.
 
 ### Bonus 3 — Tester le rollback
 
@@ -339,9 +385,13 @@ doCallRealMethod().doThrow(new IllegalStateException("panne simulée"))
 
 Une fois le test vert, retirez `@Transactional` de `accept` : le test doit passer au rouge. Remettez-le.
 
+### Bonus 4 — Un test de bout en bout, avec un vrai jeton
+
+`jwt()` contourne la fabrication et la vérification du jeton : si votre `JwtEncoder` ou votre `SecurityFilterChain` se trompent, aucun test ne le voit. Écrivez un test d'intégration qui traverse tout : inscription, `POST /auth/token`, lecture du jeton dans la réponse (`JsonPath.read`), puis `GET /users` avec l'en-tête `Authorization: Bearer …` (`.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)`). Ajoutez le cas d'un jeton modifié (`401`), et celui d'un mauvais mot de passe à la connexion (`401`).
+
 ### Et ensuite
 
-Le TP 5 ajoute Spring Security : il fera passer vos tests d'intégration au rouge (`401`), puis vous les adapterez. Un projet couvert par des tests est un projet où l'on voit tout de suite ce qu'un changement casse.
+Un projet couvert par des tests est un projet où l'on voit tout de suite ce qu'un changement casse : c'est ce qui vous permettra, dans le projet de groupe, de modifier le code des autres sans crainte.
 
 ## Pour aller plus loin
 
@@ -349,5 +399,6 @@ Le TP 5 ajoute Spring Security : il fera passer vos tests d'intégration au roug
 - [Mockito — Documentation](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html) (la Javadoc de la classe `Mockito` est un vrai tutoriel)
 - [Spring Boot — Testing](https://docs.spring.io/spring-boot/reference/testing/index.html) et [tester une application Spring Boot](https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html)
 - [Spring Framework — MockMvc](https://docs.spring.io/spring-framework/reference/testing/mockmvc.html)
+- [Spring Security — Testing with JWT](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/oauth2.html)
 - [Spring Guide — Testing the Web Layer](https://spring.io/guides/gs/testing-web/)
 - [Martin Fowler — The Practical Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html) (en anglais)

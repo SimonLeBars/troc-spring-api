@@ -114,16 +114,16 @@ class UserApiTest {
 | Vérification (`MockMvcResultMatchers`) | |
 |---|---|
 | `status().isOk()` · `isCreated()` · `isNoContent()` · `isBadRequest()` · `isNotFound()` · `isConflict()` | code |
-| `status().isUnauthorized()` · `isForbidden()` | `401` · `403` (TP 5) |
+| `status().isUnauthorized()` · `isForbidden()` | `401` · `403` (sécurité du TP 5) |
 | `jsonPath("$.id").isNumber()` | champ de l'objet |
 | `jsonPath("$.status").value("EXECUTED")` | valeur exacte |
 | `jsonPath("$[*].name", hasItem("Alice"))` | un élément de la liste (`org.hamcrest.Matchers`) |
 | `header().exists("Location")` | en-tête |
 
 - ⚠️ ne pas supposer l'id `1` : les compteurs ne reviennent pas en arrière après un `ROLLBACK`
-- 💡 lire une valeur : `JsonPath.read(json, "$.id")` (`com.jayway.jsonpath`, bonus)
+- 💡 lire une valeur : `JsonPath.read(json, "$.id")` (`com.jayway.jsonpath`)
 
-## 🔒 Avec Spring Security · `TP 5`
+## 🔒 Avec Spring Security · `TP 9`
 
 ```java
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -178,7 +178,7 @@ mvc.perform(post("/trades/1/accept").with(jwt().jwt(j -> j.subject("3"))))  // c
 | passe seul, échoue avec les autres | `@Transactional` oublié · id supposé (`/users/1`) | 9 |
 | `expected: <201 CREATED> but was: <200 OK>` | le contrôleur ne renvoie pas `201` (fiche 2) | 9 |
 | `A Java agent has been loaded dynamically` | Mockito : sans conséquence | 9 |
-| tout en `401` après Spring Security | requêtes sans `.with(jwt())` | 5 |
+| tout en `401` | requêtes sans `.with(jwt())` | 9 |
 
 ## 🔗 Pour aller plus loin
 

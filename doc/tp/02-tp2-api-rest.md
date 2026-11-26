@@ -1,6 +1,6 @@
 # TP 2 — Une API REST : verbes, chemins, codes de statut
 
-> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 1 terminée (`GET` et `POST /users` répondent).
+> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 1 terminée (`GET` et `POST /users` répondent). Peut avancer en parallèle du TP 3.
 
 ## Le concept en bref
 

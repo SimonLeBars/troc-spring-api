@@ -1,6 +1,6 @@
 # TP 4 — Objets de requête (DTO) et règles métier : proposer un troc
 
-> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 3 terminée (CRUD `/users` et `/items`, `ItemProperties`).
+> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 3 terminée (CRUD `/users` et `/items`, `ItemProperties`). Peut commencer dès le TP 2 terminé, en parallèle des TP 3 et 5 : seule la règle `max-pending` reprend la syntaxe du TP 3.
 
 ## Le concept en bref
 
@@ -106,6 +106,8 @@ POST /trades
 ```
 
 L'acceptation et l'échange effectif des quantités doivent réussir ou échouer **ensemble** : c'est le TP 7 (transactions). Ici, une proposition ne modifie **aucun** stock.
+
+> `"proposerId": 1` : faute d'authentification, le client se déclare lui-même, et le serveur le croit. C'est provisoire : au TP 5, le proposeur sera lu dans le jeton de l'utilisateur connecté, et ce champ disparaîtra.
 
 Tout le code de ce TP va dans un nouveau package `fr.cours.troc.trade`.
 

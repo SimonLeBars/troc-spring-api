@@ -21,7 +21,7 @@
   - **Expérimentation** (facultative) : provoquer le problème que le concept résout, avec du code jetable dans le package `fr.cours.troc.sandbox`. Les étudiants qui savent déjà répondre aux questions d'entrée la sautent.
   - **Mise en place** (obligatoire) : objectifs, syntaxes et indices, sans solution complète ; l'implémentation est laissée à la réflexion du groupe. Se termine par une liste de vérification.
 - Les groupes en avance **passent au TP suivant** sans attendre la session d'après (supports auto-suffisants, diapos disponibles dès le début) ; les bonus de chaque TP restent une alternative pour approfondir.
-- **Journal de bord** de groupe (`JOURNAL.md`, décrit dans `doc/tp/00-organisation-des-tp.md`) : à chaque TP, noter ce qui a posé problème, ce qui aurait pu être fait plus efficacement, ce qui a bien fonctionné, ce qui était fluide/intuitif. Rappelé **en début et en fin de chaque séance** (diapo « Où en est-on ? » et diapo de synthèse). Exemple de question à faire émerger : l'authentification (TP 5) aurait-elle dû être mise en place plus tôt pour limiter ses impacts sur le code existant ? Sert de base aux choix techniques justifiés et à la présentation finale.
+- **Journal de bord** de groupe (`JOURNAL.md`, décrit dans `doc/tp/00-organisation-des-tp.md`) : à chaque TP, noter ce qui a posé problème, ce qui aurait pu être fait plus efficacement, ce qui a bien fonctionné, ce qui était fluide/intuitif. Rappelé **en début et en fin de chaque séance** (diapo « Où en est-on ? » et diapo de synthèse). Exemple de question à faire émerger : qu'a coûté l'arrivée de la sécurité (TP 5) dans le code existant, et qu'a-t-elle facilité ensuite ? Sert de base aux choix techniques justifiés et à la présentation finale.
 - Checkpoints collectifs à heure fixe (pas déclenchés à la volée), pour que les groupes s'organisent autour. Ils portent sur le TP du rythme indicatif : les groupes en avance y partagent ce qu'ils ont rencontré.
 
 ## Correspondance TP / sessions (rythme indicatif)
@@ -80,20 +80,23 @@ Supports : `../cours/01-seance-1-fondations.html`, `../tp/00-initialisation.md`,
 
 ---
 
-## Session 2 — Externalisation + REST
+## Session 2 — Externalisation + REST + Sécurité
 
-**Objectif : approfondir le Hello World avec de vrais endpoints REST et de la config externalisée.**
+**Objectif : approfondir le Hello World avec de vrais endpoints REST, de la config externalisée, et une API protégée par jeton.**
 
-Exception à la structure type : pas de checkpoint #1. Toute la théorie (y compris la transition vers les trocs) est présentée d'un seul bloc de 35 min en ouverture, puis les TP 2, 3 et 4 s'enchaînent jusqu'au checkpoint de fin de séance.
+Exception à la structure type : pas de checkpoint #1. Toute la théorie (y compris la transition vers les trocs et la sécurité) est présentée d'un seul bloc en ouverture, puis les TP 2 à 5 s'enchaînent jusqu'au checkpoint de fin de séance. La partie REST est compressée (les étudiants connaissent déjà REST) pour faire de la place à Spring Security.
+
+**Jalon de fin de séance : TP 2 à 5.** Le TP 5 est un prérequis de la séance 3 : à terminer entre les séances si besoin. Les groupes de 4 se répartissent les TP (TP 3 et TP 5 en parallèle du TP 4, voir le schéma des dépendances dans `doc/tp/00-organisation-des-tp.md`).
 
 - **Théorie (35 min)** : configuration externalisée (~20 min, la vraie nouveauté) : `application.properties`/`yml`, `@Value`/`@ConfigurationProperties`, priorité des sources. Puis REST en Spring (~10 min) : une diapo de rappel REST (verbes, codes, URLs, 400 vs 409), `@PathVariable`/`@RequestParam`/`@RequestBody`, `ResponseEntity`/`@ResponseStatus`/`ResponseStatusException`, et les pièges REST/JSON courants (415, 400, 405, champ à `null`) pour que les groupes se débloquent seuls. Puis vers les trocs (~5 min) : objectif du TP 4 (`POST /trades`), requête ≠ entité.
 - **TP 2 — API REST** : endpoints CRUD (users, objets) sur données en mémoire, moins guidés qu'en séance 1 (table de correspondance « vous connaissez → en Spring », solutions repliées). Expérimentation : jouer le client (codes renvoyés, ressource inconnue en `200`, `id` imposé par le client).
 - **TP 3 — Configuration** : `troc.item.max-per-user` via `@ConfigurationProperties`, priorité des sources. Expérimentation : valeur en dur vs `--server.port` sur le `.jar`.
 - **TP 4 — DTO et règles métier** : proposer/consulter un troc (sans persistance ni double validation). Expérimentation : *mass assignment* sur une entité reçue telle quelle.
+- **TP 5 — Sécurité** (`../tp/05-tp5-securite-authentification.md`), sur données en mémoire : inscription avec mot de passe haché (BCrypt), `POST /auth/token` qui délivre un JWT (HS256), Bearer exigé partout ailleurs, le proposeur lu dans le jeton (`proposerId` disparaît du corps de `POST /trades`), `PUT`/`DELETE /users/{id}` limités à son propre compte (`403` sinon). Expérimentation : jouer Mallory (proposer un troc au nom de Bob, modifier ou supprimer son compte), ajouter le starter seul (`401` partout), hacher un mot de passe, lire et falsifier un JWT. Bonus : rôle ADMIN, chacun ses objets, mes trocs. Lecture approfondie : l'annexe `../cours/05-annexe-spring-security.html`.
 - **Bilan de fin de séance (checkpoint)** : synthèse, blocages rencontrés, 5 min de journal de bord.
 - **Bonus** : gestion d'erreurs globale (`@RestControllerAdvice`) ; validation des entrées (`@Valid`) ; profils. Le temps gagné sur les rappels REST doit permettre à la plupart des groupes d'atteindre au moins le premier. Ils restent en bonus (pas dans le noyau) : les supports des séances 3 et 4 et le code de référence s'appuient sur `ResponseStatusException`, et `@Valid` demande une dépendance supplémentaire.
 
-Supports : `../cours/02-seance-2-configuration-rest.html`, `../tp/02-tp2-api-rest.md`, `../tp/03-tp3-configuration.md`, `../tp/04-tp4-dto-proposer-troc.md`.
+Supports : `../cours/02-seance-2-configuration-rest.html` (à renommer `02-seance-2-configuration-rest-securite.html` avec l'ajout de la partie sécurité), `../tp/02-tp2-api-rest.md`, `../tp/03-tp3-configuration.md`, `../tp/04-tp4-dto-proposer-troc.md`, `../tp/05-tp5-securite-authentification.md`.
 
 ### À faire avant la session
 - [x] Rédiger le support de TP (externalisation + endpoints CRUD + troc)
@@ -106,9 +109,11 @@ Supports : `../cours/02-seance-2-configuration-rest.html`, `../tp/02-tp2-api-res
 **Objectif : données réelles en base, avec un workflow de troc transactionnellement correct.**
 
 - **Théorie (30 min)** : Spring Data JDBC, entités/PK-FK ; lien explicite entre le workflow métier (double validation d'un échange) et la transaction technique (`@Transactional`, rollback si une opération échoue).
-- **TP 6 — Persistance** : brancher une vraie base (H2), persister users/objets/trocs. Expérimentation : redémarrage, deux instances, données orphelines.
+Prérequis : le TP 5 terminé. Les TP 6 à 9 supposent la sécurité en place.
+
+- **TP 6 — Persistance** : brancher une vraie base (H2), persister users/objets/trocs, dont le mot de passe haché (`password_hash`) et la recherche du compte par requête dérivée (`Optional<User> findByUsername`) ; ouvrir `/h2-console/**` et `frameOptions(sameOrigin())`. Expérimentation : redémarrage, deux instances (le jeton accepté par les deux, les comptes non), données orphelines.
 - **Checkpoint #1** : blocages config datasource/mapping.
-- **TP 7 — Transactions** : workflow de troc complet — validation par les deux parties, puis exécution atomique du double transfert d'objets dans une transaction unique. Expérimentation : un déplacement de stock en sandbox qui échoue au milieu, sans puis avec `@Transactional`, et les pièges du proxy. La preuve sur `accept` reste dans la mise en place (attendue dans le rapport).
+- **TP 7 — Transactions** : workflow de troc complet — validation par les deux parties, puis exécution atomique du double transfert d'objets dans une transaction unique. Le `403` « seul le destinataire peut répondre » s'appuie sur l'utilisateur connecté (pas de corps). Expérimentation : un déplacement de stock en sandbox qui échoue au milieu, sans puis avec `@Transactional`, et les pièges du proxy. La preuve sur `accept` reste dans la mise en place (attendue dans le rapport).
 - **Bonus** : gestion de la concurrence (deux trocs simultanés sur le même objet) ; requêtes personnalisées ; index.
 
 Supports : `../cours/03-seance-3-persistance-transactions.html`, `../tp/06-tp6-persistance.md`, `../tp/07-tp7-transactions.md`.
@@ -124,10 +129,10 @@ Supports : `../cours/03-seance-3-persistance-transactions.html`, `../tp/06-tp6-p
 **Objectif : logging transverse + couverture de tests minimale.**
 
 - **Théorie (30 min)** : AOP (cross-cutting concerns, ex : logger/auditer chaque tentative de troc) ; tests Spring (`@SpringBootTest`, `MockMvc`, unitaire vs intégration).
-- **TP 8 — AOP** : aspect de logging sur le service de troc. Expérimentation : le proxy de `@Transactional` (`getClass()`, pile d'appels au debugger), journalisation écrite à la main.
+- **TP 8 — AOP** : aspect de logging sur le service de troc. Expérimentation : le proxy de `@Transactional` (`getClass()`, pile d'appels au debugger), journalisation écrite à la main. Bonus : l'utilisateur connecté dans les traces.
 - **Checkpoint #1** : blocages config AOP/tests.
-- **TP 9 — Tests** : tests unitaires du service + un test d'intégration sur l'API. Expérimentation : bug caché à retrouver avec Bruno, puis un test tout fait qui le trouve en une seconde.
-- **Bonus / si le temps le permet** : aspect avancé (`@Around` avec mesure de temps d'exécution) ; les groupes en avance passent au TP 5 (sécurité).
+- **TP 9 — Tests** : tests unitaires du service + tests d'intégration MockMvc écrits avec `.with(jwt())` dès le départ, dont un `401` sans jeton et un `403` d'un utilisateur qui n'est pas le destinataire. Expérimentation : bug caché à retrouver avec Bruno, puis un test tout fait qui le trouve en une seconde. Bonus : test de bout en bout avec un vrai jeton.
+- **Bonus / si le temps le permet** : aspect avancé (`@Around` avec mesure de temps d'exécution) ; les groupes en avance passent aux sujets bonus (`../tp/sujets-bonus.md`).
 
 Supports : `../cours/04-seance-4-aop-tests.html`, `../tp/08-tp8-aop.md`, `../tp/09-tp9-tests.md`.
 
@@ -136,7 +141,7 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 1. Logging AOP (le noyau, non-négociable)
 2. Tests unitaires
 3. Test d'intégration
-4. Bonus (sautent en premier) ; la sécurité est reportée au TP 5, en séance 5
+4. Bonus (sautent en premier) ; les groupes en avance passent aux sujets bonus
 
 À annoncer explicitement aux étudiants dès le départ pour gérer leurs attentes.
 
@@ -148,11 +153,11 @@ Cette session concentre deux notions denses (AOP + tests) sur seulement ~2h20 de
 
 ## Session 5 — Autonomie de groupe
 
-- Travail en autonomie sur le projet final, sans cours magistral, et rattrapage des TP non terminés.
-- **TP 5 — Sécurité** (`../tp/05-tp5-securite-authentification.md`) : inscription avec mot de passe haché (BCrypt), `POST /auth/token` qui délivre un JWT, Bearer exigé partout ailleurs, l'identité lue dans le jeton (`proposerId` et `userId` disparaissent des corps). Expérimentation : jouer Mallory (accepter le troc de Bob), ajouter le starter seul (401 partout), hacher un mot de passe, lire et falsifier un JWT. Le cours est l'annexe `../cours/05-annexe-spring-security.html`, à lire en autonomie. Fait passer les tests du TP 9 au rouge, puis les répare (`.with(jwt())`).
-- **Annexe 1 — Documentation OpenAPI** (`../tp/annexe-1-documentation-openapi.md`) : bonus du TP 1, à rattraper ici si elle n'a pas été faite. Avec le TP 5, ouvrir les routes de springdoc et ajouter le bouton Authorize.
+- Travail en autonomie sur le projet final, sans cours magistral et sans nouveau TP : rattrapage des TP non terminés.
+- **Sujets bonus** (`../tp/sujets-bonus.md`) dans le projet de groupe : valorisables (présentés dans les choix techniques, justifiés dans `JOURNAL.md`), non obligatoires.
+- **Annexe 1 — Documentation OpenAPI** (`../tp/annexe-1-documentation-openapi.md`) : bonus du TP 1, à rattraper ici si elle n'a pas été faite. Ouvrir les routes de springdoc et ajouter le bouton Authorize (faisable dès la séance 2, la sécurité étant en place).
 - Piste d'amélioration possible (pas obligatoire, les groupes peuvent aussi la traiter pendant les TP) : le modèle `Item`, signalé comme « pas idéal » dans les TP 1 et 6. Le genre d'objet n'existe que par son nom en texte libre, mêlé au stock de chaque utilisateur.
-- **Fin du cours : rétrospective du journal de bord.** Chaque groupe relit son `JOURNAL.md` et en tire 2 ou 3 enseignements pour la présentation finale (qu'auriez-vous fait plus tôt, ou autrement ? ex. : l'authentification dès le TP 2 plutôt qu'au TP 5 ?).
+- **Fin du cours : rétrospective du journal de bord.** Chaque groupe relit son `JOURNAL.md` et en tire 2 ou 3 enseignements pour la présentation finale (qu'auriez-vous fait plus tôt, ou autrement ? ex. : qu'a coûté l'arrivée de la sécurité dans le code existant, et qu'a-t-elle facilité ensuite ?).
 - Simon disponible pour support technique ponctuel (à cadrer : combien de temps de présence prévu ?).
 
 ---
