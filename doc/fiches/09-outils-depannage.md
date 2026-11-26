@@ -9,7 +9,7 @@ Pas besoin d'installer Maven : `mvnw` télécharge la bonne version au premier l
 | Commande | Rôle |
 |---|---|
 | `./mvnw spring-boot:run` | démarrer l'API (`Tomcat started on port 8080`) · arrêter : `Ctrl+C` |
-| `./mvnw test` | lancer les tests (`TP 8`) |
+| `./mvnw test` | lancer les tests (`TP 9`) |
 | `./mvnw verify` | compiler + tester : ✅ avant chaque commit |
 | `./mvnw package` | fabriquer `target/troc-api-0.0.1-SNAPSHOT.jar` (`TP 3`) |
 | `./mvnw clean` | supprimer `target/` (compilation bizarre, fichier fantôme) |
@@ -24,10 +24,10 @@ Pas besoin d'installer Maven : `mvnw` télécharge la bonne version au premier l
 | `spring-boot-starter-webmvc` | 0 |
 | `springdoc-openapi-starter-webmvc-ui` (avec `<version>`) | Annexe 1 |
 | `spring-boot-starter-validation` | 2, 3 (bonus) |
-| `spring-boot-starter-data-jdbc` · `h2` · `spring-boot-h2console` | 5 |
-| `spring-boot-starter-aspectj` | 7 |
-| `spring-boot-starter-webmvc-test` (`test`) | 8 (déjà là) |
-| `spring-boot-starter-security` · `-security-oauth2-resource-server` · `-security-test` | 9 |
+| `spring-boot-starter-data-jdbc` · `h2` · `spring-boot-h2console` | 6 |
+| `spring-boot-starter-aspectj` | 8 |
+| `spring-boot-starter-webmvc-test` (`test`) | 9 (déjà là) |
+| `spring-boot-starter-security` · `-security-oauth2-resource-server` · `-security-test` | 5 |
 
 💡 `spring-boot-starter-*` : pas de `<version>`, Spring Boot la choisit · une bibliothèque externe (springdoc) : à nous de choisir une version compatible
 
@@ -51,7 +51,7 @@ echo $JAVA_HOME        # PowerShell : $env:JAVA_HOME
 |---|---|
 | Collection | dossier `bruno/` du projet (fichiers `.bru`, versionnés avec le code) |
 | Environnement | en haut à droite : `Local` (`baseUrl` = `http://localhost:8080`) · `Render` |
-| Variable | `{{baseUrl}}/items` · `{{token}}` (`TP 9`) |
+| Variable | `{{baseUrl}}/items` · `{{token}}` (`TP 5`) |
 | Dossiers | `Utilisateurs`, `Objets`, `Trocs` · `Expérimentation` (routes temporaires) |
 
 ```
@@ -72,7 +72,7 @@ post {
 - ⚠️ requête `POST` / `PUT` : `Content-Type: application/json` (sinon `415`)
 - 💡 `curl -i http://localhost:8080/users` : la même chose en ligne de commande, `-i` affiche le code
 
-## 🗄️ Console H2 · `TP 5`
+## 🗄️ Console H2 · `TP 6`
 
 <http://localhost:8080/h2-console> · **JDBC URL** : copier **exactement** `spring.datasource.url` · **User Name** `sa` · mot de passe vide
 
@@ -87,7 +87,7 @@ SELECT * FROM trades;
 | table inexistante, base vide | l'URL saisie n'est pas celle de l'application |
 | `404` sur `/h2-console` | `spring-boot-h2console` absent · `spring.h2.console.enabled=true` oublié |
 | « Database may be already in use » | une 2ᵉ instance tourne : l'arrêter |
-| page blanche (`TP 9`) | `frameOptions(… sameOrigin())`, et ouvrir `/h2-console/**` |
+| page blanche (`TP 5`) | `frameOptions(… sameOrigin())`, et ouvrir `/h2-console/**` |
 
 🧹 **Repartir d'une base propre :** arrêter l'application → supprimer `data/` → relancer.
 
@@ -99,13 +99,13 @@ SELECT * FROM trades;
 | <http://localhost:8080/v3/api-docs> | la description OpenAPI brute (JSON) : générer un client, importer dans Bruno |
 
 - 💡 `@Operation(summary = "…")` pour les règles qui ne se devinent pas
-- 🔒 `TP 9` : ouvrir `/swagger-ui.html`, `/swagger-ui/**`, `/v3/api-docs/**` · bouton **Authorize** pour le jeton
+- 🔒 `TP 5` : ouvrir `/swagger-ui.html`, `/swagger-ui/**`, `/v3/api-docs/**` · bouton **Authorize** pour le jeton
 
 ## ⌨️ IntelliJ · `TP 0`
 
 Tous les raccourcis (Windows / Linux et macOS) : [fiche 10 — Raccourcis IntelliJ](10-raccourcis-intellij.md).
 
-## 🐞 Déboguer · `TP 7`
+## 🐞 Déboguer · `TP 8`
 
 | Outil | Usage |
 |---|---|
@@ -123,7 +123,7 @@ Tous les raccourcis (Windows / Linux et macOS) : [fiche 10 — Raccourcis Intell
 | `git status` · `git diff` | ce qui a changé |
 | `git restore <fichier>` | annuler les modifications d'un fichier (après une expérimentation) |
 | `git add …` · `git commit -m "…"` | enregistrer une étape (✅ tests au vert) |
-| `.gitignore` | `target/`, `.idea`, **`data/`** (`TP 5`) · ❌ jamais de secret versionné (`TP 9`) |
+| `.gitignore` | `target/`, `.idea`, **`data/`** (`TP 6`) · ❌ jamais de secret versionné (`TP 5`) |
 
 ## 🗺️ Diagnostic : quel code, quelle piste ?
 

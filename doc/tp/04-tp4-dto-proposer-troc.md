@@ -105,7 +105,7 @@ POST /trades
 }
 ```
 
-L'acceptation et l'échange effectif des quantités doivent réussir ou échouer **ensemble** : c'est le TP 6 (transactions). Ici, une proposition ne modifie **aucun** stock.
+L'acceptation et l'échange effectif des quantités doivent réussir ou échouer **ensemble** : c'est le TP 7 (transactions). Ici, une proposition ne modifie **aucun** stock.
 
 Tout le code de ce TP va dans un nouveau package `fr.cours.troc.trade`.
 
@@ -148,7 +148,7 @@ Les règles de `propose`, vérifiées **dans cet ordre** :
 
 ```java
 public enum TradeStatus {
-    PROPOSED // la suite (acceptation…) au TP 6
+    PROPOSED // la suite (acceptation…) au TP 7
 }
 ```
 
@@ -171,7 +171,7 @@ Dans un record, un composant `int` absent du JSON fait échouer la lecture (`400
 
 #### Des méthodes de recherche bien nommées
 
-Le repository a besoin de deux recherches, nommées pour que Spring Data sache les écrire seul au TP 5 :
+Le repository a besoin de deux recherches, nommées pour que Spring Data sache les écrire seul au TP 6 :
 
 ```java
 List<Trade> findByProposerIdOrRecipientId(Long proposerId, Long recipientId);
@@ -232,7 +232,7 @@ Alice peut proposer dix fois exactement le même troc à Bob. Refusez une propos
 
 Alice a 10 tomates. Elle propose 8 tomates à Bob, puis 8 tomates à Charlie : chaque proposition, prise seule, est valide, mais elle ne pourra pas honorer les deux. Faites en sorte que la règle 6 tienne compte des quantités déjà offertes dans les trocs `PROPOSED` d'Alice sur le même objet.
 
-Cette question (deux opérations qui se disputent le même stock) reviendra sous une forme plus difficile au TP 6, quand deux trocs seront **exécutés** en même temps.
+Cette question (deux opérations qui se disputent le même stock) reviendra sous une forme plus difficile au TP 7, quand deux trocs seront **exécutés** en même temps.
 
 ### Bonus 3 — Valider l'objet de requête
 

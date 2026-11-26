@@ -37,7 +37,7 @@ verbe  collection  id   filtre (option)              corps JSON (données)
 | 🎯 `/{id}` | **une** ressource précise | `GET`, `PUT`, `DELETE /items/3` |
 | 🔎 `?clé=valeur` | **filtre** facultatif sur une liste | `GET /items?ownerId=1` · `GET /trades?userId=2` |
 | 📦 corps | les **données** à enregistrer (`POST`, `PUT`) | `{"name": "Vélo", …}` |
-| ⚡ `/{id}/action` | action métier qui n'est ni créer, ni remplacer, ni supprimer · `TP 6` | `POST /trades/5/accept` · `/reject` |
+| ⚡ `/{id}/action` | action métier qui n'est ni créer, ni remplacer, ni supprimer · `TP 7` | `POST /trades/5/accept` · `/reject` |
 
 **Un chemin, plusieurs verbes :**
 
@@ -64,8 +64,8 @@ verbe  collection  id   filtre (option)              corps JSON (données)
 | ✅ `201` Created | créé | `POST /users`, `/items`, `/trades` | `ResponseEntity.created(uri).body(x)` | 2 |
 | ✅ `204` No Content | succès sans corps | `DELETE /items/{id}` | `@ResponseStatus(NO_CONTENT)` | 2 |
 | ⚠️ `400` Bad Request | requête fausse **en soi** | quantité ≤ 0, troc avec soi-même | `ResponseStatusException(BAD_REQUEST, "…")` | 2 |
-| 🔑 `401` Unauthorized | 👤❓ qui êtes-vous ? | sans jeton / jeton invalide | Spring Security | 9 |
-| 🚫 `403` Forbidden | 👤✅ authentifié mais ⛔ pas le droit | accepter le troc d'un autre | `FORBIDDEN` | 6 |
+| 🔑 `401` Unauthorized | 👤❓ qui êtes-vous ? | sans jeton / jeton invalide | Spring Security | 5 |
+| 🚫 `403` Forbidden | 👤✅ authentifié mais ⛔ pas le droit | accepter le troc d'un autre | `FORBIDDEN` | 7 |
 | 🔍 `404` Not Found | inconnu | `GET /users/42` | `NOT_FOUND` | 2 |
 | 💢 `409` Conflict | valide, mais **l'état** bloque | stock insuffisant, troc déjà traité | `CONFLICT` | 2 |
 | 💥 `500` Server Error | bug | exception non traduite | ❌ à éviter | 2 |

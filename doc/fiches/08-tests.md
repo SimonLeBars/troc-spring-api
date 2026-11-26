@@ -1,8 +1,8 @@
-# 🧪 Fiche 7 — Tests
+# 🧪 Fiche 8 — Tests
 
 > `TP N` = notion vue à partir du TP N · ✅ à faire · ❌ à éviter · ⚠️ piège · 💡 astuce
 
-## ⚖️ Unitaire ou intégration ? · `TP 8`
+## ⚖️ Unitaire ou intégration ? · `TP 9`
 
 | | 🔬 Unitaire | 🔗 Intégration |
 |---|---|---|
@@ -19,7 +19,7 @@
 | contrat HTTP (URL, JSON, `201`, `404`, `409`) | 🔗 intégration |
 | contraintes SQL, transaction | 🔗 intégration |
 
-## 📁 Où ranger · `TP 8`
+## 📁 Où ranger · `TP 9`
 
 ```
 src/test/java/fr/cours/troc/user/UserServiceTest.java      ← même package que la classe testée
@@ -32,7 +32,7 @@ spring.datasource.url=jdbc:h2:mem:troc-test;CASE_INSENSITIVE_IDENTIFIERS=TRUE
 
 Dépendance `spring-boot-starter-webmvc-test` (`<scope>test</scope>`, déjà là) : JUnit + Mockito + MockMvc.
 
-## ✅ JUnit · `TP 8`
+## ✅ JUnit · `TP 9`
 
 ```java
 class UserServiceTest {
@@ -60,7 +60,7 @@ assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
 
 💡 un test qu'on n'a **jamais vu échouer** ne prouve rien : casser le code, voir rouge, réparer.
 
-## 🎭 Mockito · `TP 8`
+## 🎭 Mockito · `TP 9`
 
 ```java
 @ExtendWith(MockitoExtension.class)     // active @Mock / @InjectMocks
@@ -86,7 +86,7 @@ class TradeServiceTest {
 - ⚠️ Mockito est **strict** : un `when` inutilisé → `UnnecessaryStubbingException`. Ne programmer que ce qui sert **avant** l'exception.
 - 💡 méthodes utilitaires privées (`proposedTrade(…)`, `item(…)`) plutôt que dix `set…` par test
 
-## 🌐 Intégration : MockMvc · `TP 8`
+## 🌐 Intégration : MockMvc · `TP 9`
 
 ```java
 @SpringBootTest           // démarre tout le contexte
@@ -114,7 +114,7 @@ class UserApiTest {
 | Vérification (`MockMvcResultMatchers`) | |
 |---|---|
 | `status().isOk()` · `isCreated()` · `isNoContent()` · `isBadRequest()` · `isNotFound()` · `isConflict()` | code |
-| `status().isUnauthorized()` · `isForbidden()` | `401` · `403` (TP 9) |
+| `status().isUnauthorized()` · `isForbidden()` | `401` · `403` (TP 5) |
 | `jsonPath("$.id").isNumber()` | champ de l'objet |
 | `jsonPath("$.status").value("EXECUTED")` | valeur exacte |
 | `jsonPath("$[*].name", hasItem("Alice"))` | un élément de la liste (`org.hamcrest.Matchers`) |
@@ -123,7 +123,7 @@ class UserApiTest {
 - ⚠️ ne pas supposer l'id `1` : les compteurs ne reviennent pas en arrière après un `ROLLBACK`
 - 💡 lire une valeur : `JsonPath.read(json, "$.id")` (`com.jayway.jsonpath`, bonus)
 
-## 🔒 Avec Spring Security · `TP 9`
+## 🔒 Avec Spring Security · `TP 5`
 
 ```java
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -134,7 +134,7 @@ mvc.perform(post("/trades/1/accept").with(jwt().jwt(j -> j.subject("3"))))  // c
 
 ❌ `@WithMockUser` : pas de `Jwt` → `@AuthenticationPrincipal Jwt` reçoit `null`
 
-## ▶️ Lancer · `TP 8`
+## ▶️ Lancer · `TP 9`
 
 | Où | Comment |
 |---|---|
@@ -152,7 +152,7 @@ mvc.perform(post("/trades/1/accept").with(jwt().jwt(j -> j.subject("3"))))  // c
 
 ✅ **tous les tests au vert avant chaque commit** (la CI le vérifie sur chaque PR)
 
-## ⌨️ IntelliJ · `TP 8`
+## ⌨️ IntelliJ · `TP 9`
 
 ⭐ = aide Spring, IntelliJ **Ultimate** (licence étudiante gratuite) · raccourcis Windows / Linux ; macOS et liste générale : [fiche 10](10-raccourcis-intellij.md)
 
@@ -167,18 +167,18 @@ mvc.perform(post("/trades/1/accept").with(jwt().jwt(j -> j.subject("3"))))  // c
 
 | Symptôme | 🔎 Cause | TP |
 |---|---|:-:|
-| `UnnecessaryStubbingException` | `when(…)` jamais utilisé | 8 |
-| `NullPointerException` dans le service | dépendance utilisée mais pas déclarée en `@Mock` | 8 |
-| `NullPointerException` sur `service` | `@ExtendWith(MockitoExtension.class)` oublié | 8 |
-| `NullPointerException` sur `mvc` | `@Autowired` oublié | 8 |
-| `No qualifying bean of type 'MockMvc'` | `@AutoConfigureMockMvc` oublié | 8 |
-| `Cannot resolve symbol 'AutoConfigureMockMvc'` | import d'un tutoriel Boot 3 : package `org.springframework.boot.webmvc.test.autoconfigure` | 8 |
-| le test écrit dans `data/troc` | `@ActiveProfiles("test")` oublié · fichier mal nommé | 8 |
-| `500` « bad SQL grammar » | URL de test sans `CASE_INSENSITIVE_IDENTIFIERS=TRUE` | 8 |
-| passe seul, échoue avec les autres | `@Transactional` oublié · id supposé (`/users/1`) | 8 |
-| `expected: <201 CREATED> but was: <200 OK>` | le contrôleur ne renvoie pas `201` (fiche 2) | 8 |
-| `A Java agent has been loaded dynamically` | Mockito : sans conséquence | 8 |
-| tout en `401` après Spring Security | requêtes sans `.with(jwt())` | 9 |
+| `UnnecessaryStubbingException` | `when(…)` jamais utilisé | 9 |
+| `NullPointerException` dans le service | dépendance utilisée mais pas déclarée en `@Mock` | 9 |
+| `NullPointerException` sur `service` | `@ExtendWith(MockitoExtension.class)` oublié | 9 |
+| `NullPointerException` sur `mvc` | `@Autowired` oublié | 9 |
+| `No qualifying bean of type 'MockMvc'` | `@AutoConfigureMockMvc` oublié | 9 |
+| `Cannot resolve symbol 'AutoConfigureMockMvc'` | import d'un tutoriel Boot 3 : package `org.springframework.boot.webmvc.test.autoconfigure` | 9 |
+| le test écrit dans `data/troc` | `@ActiveProfiles("test")` oublié · fichier mal nommé | 9 |
+| `500` « bad SQL grammar » | URL de test sans `CASE_INSENSITIVE_IDENTIFIERS=TRUE` | 9 |
+| passe seul, échoue avec les autres | `@Transactional` oublié · id supposé (`/users/1`) | 9 |
+| `expected: <201 CREATED> but was: <200 OK>` | le contrôleur ne renvoie pas `201` (fiche 2) | 9 |
+| `A Java agent has been loaded dynamically` | Mockito : sans conséquence | 9 |
+| tout en `401` après Spring Security | requêtes sans `.with(jwt())` | 5 |
 
 ## 🔗 Pour aller plus loin
 

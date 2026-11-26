@@ -1,6 +1,6 @@
-# TP 9 — Sécuriser l'API : authentification et autorisation
+# TP 5 — Sécuriser l'API : authentification et autorisation
 
-> Rythme indicatif : séance 5 (autonomie). Point de départ : la mise en place du TP 8 terminée. Ce TP fait volontairement passer les tests du TP 8 au rouge, puis vous les réparez. Comptez environ 2 h 30 pour la mise en place.
+> Rythme indicatif : séance 5 (autonomie). Point de départ : la mise en place du TP 9 terminée. Ce TP fait volontairement passer les tests du TP 9 au rouge, puis vous les réparez. Comptez environ 2 h 30 pour la mise en place.
 >
 > Support complémentaire : l'annexe du cours `doc/cours/05-annexe-spring-security.html`, qui explique le mécanisme avec des schémas.
 
@@ -45,7 +45,7 @@ Mallory est le prénom traditionnel de l'attaquant dans les exemples de sécurit
 Puis répondez :
 
 - Quel code reçoit Mallory ? Les stocks de Bob ont-ils changé ?
-- Le `403` « seul le destinataire peut répondre » du TP 6 existe pourtant. Pourquoi ne protège-t-il rien ?
+- Le `403` « seul le destinataire peut répondre » du TP 7 existe pourtant. Pourquoi ne protège-t-il rien ?
 - Avec la même méthode, Mallory peut-elle proposer un troc au nom d'Alice ?
 
 La règle métier est bonne : c'est l'information d'entrée, l'identité, qui n'est pas fiable.
@@ -154,7 +154,7 @@ Et aussi :
 1. Le mot de passe est stocké **haché** (BCrypt) : vérifiez-le dans la console H2.
 2. **Aucune** réponse JSON ne contient de haché : ni `GET /users`, ni `GET /users/{id}`, ni `PUT /users/{id}`.
 3. La clé qui signe les jetons **n'est pas dans git** : elle vient de la variable d'environnement `TROC_JWT_SECRET`.
-4. `./mvnw test` est au vert : les tests du TP 8 sont adaptés, et deux nouveaux tests d'intégration vérifient le `401` sans jeton et le `403` d'un utilisateur qui n'est pas le destinataire.
+4. `./mvnw test` est au vert : les tests du TP 9 sont adaptés, et deux nouveaux tests d'intégration vérifient le `401` sans jeton et le `403` d'un utilisateur qui n'est pas le destinataire.
 5. Dans Bruno, une requête de connexion enregistre le jeton, et toutes les autres requêtes l'envoient automatiquement.
 
 > Ordre conseillé : dépendances, puis comptes et inscription, puis jetons et connexion, puis règles d'accès et contrôleurs, puis tests et Bruno. Organisation possible pour un groupe de 4 : schéma, entité et inscription (1) ; clé, jetons et `POST /auth/token` (2) ; règles d'accès et contrôleurs (3) ; tests et Bruno (4).
@@ -198,9 +198,9 @@ Un compte, c'est trois colonnes de plus dans `users` :
 | `password_hash` | le haché BCrypt, jamais le mot de passe | `VARCHAR(100)`, obligatoire |
 | `role` | `USER` ou `ADMIN` | `VARCHAR(20)`, obligatoire, `'USER'` par défaut |
 
-Ajoutez-les au `schema.sql` et à l'entité `User` (`passwordHash` en Java, `password_hash` en base, comme au TP 5). Comme au TP 5, `CREATE TABLE IF NOT EXISTS` ne modifie pas une table existante : supprimez le dossier `data/` avant de relancer.
+Ajoutez-les au `schema.sql` et à l'entité `User` (`passwordHash` en Java, `password_hash` en base, comme au TP 6). Comme au TP 6, `CREATE TABLE IF NOT EXISTS` ne modifie pas une table existante : supprimez le dossier `data/` avant de relancer.
 
-Il faudra retrouver un compte par son identifiant : c'est une requête dérivée (TP 5), qui renvoie un `Optional<User>`.
+Il faudra retrouver un compte par son identifiant : c'est une requête dérivée (TP 6), qui renvoie un `Optional<User>`.
 
 #### Où Spring trouve les comptes : `UserDetailsService`
 
@@ -263,7 +263,7 @@ troc.jwt.secret=${TROC_JWT_SECRET}
 troc.jwt.ttl=1h
 ```
 
-`${TROC_JWT_SECRET}` lit une variable d'environnement. Sans elle, l'application ne démarre pas : c'est voulu. Dans IntelliJ, renseignez-la dans **Run > Edit Configurations…** > **Environment variables**, avec une valeur d'au moins 32 caractères : HS256 exige une clé de 256 bits. Pour les tests, mettez une valeur de test dans `application-test.properties` (TP 8). Si vous avez fait le bonus « profils » du TP 3, un `application-dev.properties` non versionné convient aussi.
+`${TROC_JWT_SECRET}` lit une variable d'environnement. Sans elle, l'application ne démarre pas : c'est voulu. Dans IntelliJ, renseignez-la dans **Run > Edit Configurations…** > **Environment variables**, avec une valeur d'au moins 32 caractères : HS256 exige une clé de 256 bits. Pour les tests, mettez une valeur de test dans `application-test.properties` (TP 9). Si vous avez fait le bonus « profils » du TP 3, un `application-dev.properties` non versionné convient aussi.
 
 Lisez ces deux clés avec un record `@ConfigurationProperties("troc.jwt")`, comme au TP 3. Un `Duration` comprend directement `1h`, `30m`…
 
@@ -351,7 +351,7 @@ public Trade accept(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
 
 #### Les tests
 
-Les tests MockMvc du TP 8 envoient leurs requêtes sans jeton. `jwt()` simule un utilisateur connecté, sans signature à calculer :
+Les tests MockMvc du TP 9 envoient leurs requêtes sans jeton. `jwt()` simule un utilisateur connecté, sans signature à calculer :
 
 ```java
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -435,7 +435,7 @@ spring.security.oauth2.resourceserver.jwt.authority-prefix=ROLE_
 
 Puis, dans les règles : `.requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")`. Le rôle n'est jamais choisi par le client : passez un compte en `ADMIN` avec un `UPDATE` dans la console H2, puis reconnectez-vous. Pourquoi faut-il se reconnecter ?
 
-Autre syntaxe : `@EnableMethodSecurity` sur la configuration, puis `@PreAuthorize("hasRole('ADMIN')")` sur la méthode du service. Elle repose sur un proxy, comme `@Transactional` (TP 6) et vos aspects (TP 7) : quelle limite en découle ?
+Autre syntaxe : `@EnableMethodSecurity` sur la configuration, puis `@PreAuthorize("hasRole('ADMIN')")` sur la méthode du service. Elle repose sur un proxy, comme `@Transactional` (TP 7) et vos aspects (TP 8) : quelle limite en découle ?
 
 ### Bonus 2 — Chacun ses objets
 
@@ -447,7 +447,7 @@ Remplacez `GET /trades?userId=…` par `GET /trades/mine`, qui renvoie les trocs
 
 ### Bonus 4 — Un test de bout en bout
 
-`jwt()` contourne la fabrication et la vérification du jeton. Écrivez un test d'intégration qui traverse tout : inscription, `POST /auth/token`, lecture du jeton dans la réponse (`JsonPath.read`, bonus 2 du TP 8), puis `GET /users` avec l'en-tête `Authorization: Bearer …`. Ajoutez le cas d'un jeton modifié.
+`jwt()` contourne la fabrication et la vérification du jeton. Écrivez un test d'intégration qui traverse tout : inscription, `POST /auth/token`, lecture du jeton dans la réponse (`JsonPath.read`, bonus 2 du TP 9), puis `GET /users` avec l'en-tête `Authorization: Bearer …`. Ajoutez le cas d'un jeton modifié.
 
 ## Pour aller plus loin
 

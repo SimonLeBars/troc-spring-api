@@ -81,7 +81,7 @@ troc-api/
     ├── main/java/fr/cours/troc/
     │   └── TrocApplication.java             ← point d'entrée de l'application
     ├── main/resources/application.properties ← configuration (TP 3)
-    └── test/java/fr/cours/troc/             ← tests (TP 8)
+    └── test/java/fr/cours/troc/             ← tests (TP 9)
 ```
 
 Dans ce projet, le code est rangé **par fonctionnalité** : tout ce qui concerne les utilisateurs ira dans un package `fr.cours.troc.user`, tout ce qui concerne les objets échangés dans `fr.cours.troc.item`, etc. Créez toujours ces packages **sous** `fr.cours.troc` : vous verrez au TP 1 pourquoi Spring en a besoin.

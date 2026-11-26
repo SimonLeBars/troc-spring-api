@@ -1,4 +1,4 @@
-# TP 5 — La persistance : H2 et Spring Data JDBC
+# TP 6 — La persistance : H2 et Spring Data JDBC
 
 > Rythme indicatif : séance 3. Point de départ : la mise en place du TP 4 terminée (`POST /trades` répond). Si ce n'est pas encore le cas, les utilisateurs et les objets suffisent pour commencer : `trades` vient en dernier.
 

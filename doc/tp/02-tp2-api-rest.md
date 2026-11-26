@@ -125,7 +125,7 @@ Règles :
 - le message d'erreur (« Utilisateur 42 introuvable ») apparaît dans le corps de la réponse ;
 - les décisions métier (`404`, `400`) sont prises dans les **services**, pas dans les contrôleurs.
 
-Les données restent **en mémoire** : la base arrive au TP 5.
+Les données restent **en mémoire** : la base arrive au TP 6.
 
 > Organisation conseillée pour un groupe de 4 : deux personnes sur `user/`, deux sur `item/` (en commençant par le repository). Le découpage du projet par fonctionnalité s'y prête bien. Mettez-vous d'accord d'abord sur le changement de `findById` (ci-dessous), qui touche les deux.
 
@@ -210,7 +210,7 @@ return items.values().stream()
 
 `Objects.equals` compare deux `Long` sans risque de `NullPointerException`. Ne comparez **jamais** deux `Long` avec `==` : cela compare les objets, pas les valeurs, et donne des résultats faux au-delà de 127.
 
-Nommez les méthodes de recherche `findByOwnerId`, `countByOwnerId`… : au TP 5, Spring Data saura écrire ces requêtes tout seul à partir de leur nom.
+Nommez les méthodes de recherche `findByOwnerId`, `countByOwnerId`… : au TP 6, Spring Data saura écrire ces requêtes tout seul à partir de leur nom.
 
 ### Indices
 
@@ -230,7 +230,7 @@ Dans Bruno, les dossiers **Utilisateurs** et **Objets** contiennent une requête
 - [ ] `GET /items` (sans paramètre) et `GET /items?ownerId=1` répondent tous les deux.
 - [ ] Aucun contrôleur ne contient de `if` sur les données : les règles sont dans les services.
 
-> **Question pour le checkpoint** : on supprime un utilisateur qui possède des objets. Que deviennent ses objets ? Ici, rien : ils restent, avec un `ownerId` qui ne désigne plus personne. Au TP 5, la base de données refusera cette suppression grâce à une **clé étrangère**.
+> **Question pour le checkpoint** : on supprime un utilisateur qui possède des objets. Que deviennent ses objets ? Ici, rien : ils restent, avec un `ownerId` qui ne désigne plus personne. Au TP 6, la base de données refusera cette suppression grâce à une **clé étrangère**.
 
 ## Erreurs fréquentes
 

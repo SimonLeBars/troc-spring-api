@@ -1,6 +1,6 @@
-# TP 8 — Les tests automatisés
+# TP 9 — Les tests automatisés
 
-> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 6 terminée (le TP 7 n'est pas nécessaire). Si `accept` ne fonctionne pas chez vous, commencez par les tests de `UserService` et le test d'intégration : ils n'en dépendent pas.
+> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 7 terminée (le TP 8 n'est pas nécessaire). Si `accept` ne fonctionne pas chez vous, commencez par les tests de `UserService` et le test d'intégration : ils n'en dépendent pas.
 
 ## Le concept en bref
 
@@ -322,7 +322,7 @@ Number aliceId = JsonPath.read(json, "$.id"); // com.jayway.jsonpath.JsonPath
 
 ### Bonus 3 — Tester le rollback
 
-Transformez la preuve du TP 6 en test : si le second transfert échoue, la base doit être **exactement** dans l'état d'avant l'appel.
+Transformez la preuve du TP 7 en test : si le second transfert échoue, la base doit être **exactement** dans l'état d'avant l'appel.
 
 Pour provoquer une panne au milieu, remplacez le bean `ItemService` par un **espion** (*spy*) : un vrai `ItemService`, dont on peut reprogrammer certains appels.
 
@@ -341,7 +341,7 @@ Une fois le test vert, retirez `@Transactional` de `accept` : le test doit passe
 
 ### Et ensuite
 
-Le TP 9 ajoute Spring Security : il fera passer vos tests d'intégration au rouge (`401`), puis vous les adapterez. Un projet couvert par des tests est un projet où l'on voit tout de suite ce qu'un changement casse.
+Le TP 5 ajoute Spring Security : il fera passer vos tests d'intégration au rouge (`401`), puis vous les adapterez. Un projet couvert par des tests est un projet où l'on voit tout de suite ce qu'un changement casse.
 
 ## Pour aller plus loin
 

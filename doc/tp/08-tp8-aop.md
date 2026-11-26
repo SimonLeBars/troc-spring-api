@@ -1,6 +1,6 @@
-# TP 7 — La programmation orientée aspect (AOP) : tracer chaque troc
+# TP 8 — La programmation orientée aspect (AOP) : tracer chaque troc
 
-> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 6 terminée. Si `accept` ne fonctionne pas encore chez vous, ce n'est pas bloquant : l'aspect se branche sur toutes les méthodes de `TradeService`, `propose` suffit pour le voir à l'œuvre.
+> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 7 terminée. Si `accept` ne fonctionne pas encore chez vous, ce n'est pas bloquant : l'aspect se branche sur toutes les méthodes de `TradeService`, `propose` suffit pour le voir à l'œuvre.
 
 ## Le concept en bref
 
@@ -94,7 +94,7 @@ Une classe `TradeLoggingAspect`, dans `fr.cours.troc.trade`, écrit dans la cons
 
 Contraintes :
 
-- `TradeService` est **identique** à celui de la fin du TP 6 ;
+- `TradeService` est **identique** à celui de la fin du TP 7 ;
 - l'aspect **observe** : le client reçoit toujours les mêmes codes (`409`, `403`…), et la transaction de `accept` fait toujours son `ROLLBACK`.
 
 Le scénario de vérification doit produire une histoire lisible :
@@ -110,7 +110,7 @@ Le scénario de vérification doit produire une histoire lisible :
 ✗ reject : 403 FORBIDDEN "Seul le destinataire (utilisateur 2) peut répondre à ce troc"
 ```
 
-> Organisation conseillée pour un groupe de 4 : deux personnes sur l'aspect ; les deux autres peuvent commencer le TP 8 (tests), dont la préparation (base de test) est indépendante.
+> Organisation conseillée pour un groupe de 4 : deux personnes sur l'aspect ; les deux autres peuvent commencer le TP 9 (tests), dont la préparation (base de test) est indépendante.
 
 ### La dépendance
 
@@ -149,7 +149,7 @@ log.warn("✗ {} : {}", nom, message);
 | Désactiver ou filtrer sans toucher au code | non | oui, dans `application.properties` |
 | Envoyer vers un fichier, un outil de supervision | non | oui, par configuration |
 
-SLF4J est déjà fourni par Spring Boot. Les `{}` sont remplacés, dans l'ordre, par les arguments qui suivent. Niveaux : `info` pour ce qui se passe normalement, `warn` pour une anomalie qui n'empêche pas l'application de tourner (un troc refusé), `error` pour une panne. Vous avez déjà réglé un niveau : `logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG` (TP 5).
+SLF4J est déjà fourni par Spring Boot. Les `{}` sont remplacés, dans l'ordre, par les arguments qui suivent. Niveaux : `info` pour ce qui se passe normalement, `warn` pour une anomalie qui n'empêche pas l'application de tourner (un troc refusé), `error` pour une panne. Vous avez déjà réglé un niveau : `logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG` (TP 6).
 
 #### Le vocabulaire
 
@@ -253,7 +253,7 @@ La console doit raconter cette histoire, au milieu des lignes SQL (voir les obje
 
 - [ ] `pom.xml` contient `spring-boot-starter-aspectj`.
 - [ ] Le scénario produit l'histoire attendue (`→`, `✓`, `✗`), échecs en `WARN`, le reste en `INFO`.
-- [ ] Le client reçoit toujours les mêmes codes qu'au TP 6.
+- [ ] Le client reçoit toujours les mêmes codes qu'au TP 7.
 - [ ] `TradeService` n'a pas été modifié (vérifiez avec `git diff` sur le fichier, ou l'onglet **Commit** d'IntelliJ).
 - [ ] Les deux questions ont une réponse écrite.
 

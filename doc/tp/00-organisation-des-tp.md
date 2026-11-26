@@ -13,11 +13,11 @@ Conséquence : **votre groupe avance à son rythme**. Un groupe qui a terminé u
 | 2 | Une API REST : verbes, chemins, codes de statut | `02-tp2-api-rest.md` | séance 2 |
 | 3 | La configuration externalisée | `03-tp3-configuration.md` | séance 2 |
 | 4 | Objets de requête (DTO) et règles métier : proposer un troc | `04-tp4-dto-proposer-troc.md` | séance 2 |
-| 5 | La persistance : H2 et Spring Data JDBC | `05-tp5-persistance.md` | séance 3 |
-| 6 | Les transactions : accepter un troc, tout ou rien | `06-tp6-transactions.md` | séance 3 |
-| 7 | La programmation orientée aspect (AOP) | `07-tp7-aop.md` | séance 4 |
-| 8 | Les tests automatisés | `08-tp8-tests.md` | séance 4 |
-| 9 | Sécuriser l'API : authentification et autorisation | `09-tp9-securite-authentification.md` | séance 5 |
+| 5 | Sécuriser l'API : authentification et autorisation | `05-tp5-securite-authentification.md` | séance 2 |
+| 6 | La persistance : H2 et Spring Data JDBC | `06-tp6-persistance.md` | séance 3 |
+| 7 | Les transactions : accepter un troc, tout ou rien | `07-tp7-transactions.md` | séance 3 |
+| 8 | La programmation orientée aspect (AOP) | `08-tp8-aop.md` | séance 4 |
+| 9 | Les tests automatisés | `09-tp9-tests.md` | séance 4 |
 
 Les **annexes** sont des bonus rattachés à un TP, à faire dès que ce TP est terminé :
 
@@ -76,7 +76,7 @@ Tenez un **journal de bord** de groupe : un fichier `JOURNAL.md` à la racine du
 
 Notez-le **sur le moment** : trois séances plus tard, on ne se souvient plus que de la solution, pas du chemin.
 
-Certaines questions ne prennent leur sens qu'avec le recul. Exemple : au TP 9, ajouter l'authentification oblige à retoucher des routes, des corps de requête et des tests écrits bien avant. Aurait-il fallu la mettre en place plus tôt pour limiter ces impacts ? Qu'est-ce que ça aurait coûté, à l'inverse, de la faire dès le départ ? Il n'y a pas de bonne réponse unique : ce qui compte, c'est l'argument.
+Certaines questions ne prennent leur sens qu'avec le recul. Exemple : au TP 5, ajouter l'authentification oblige à retoucher des routes, des corps de requête et des tests écrits bien avant. Aurait-il fallu la mettre en place plus tôt pour limiter ces impacts ? Qu'est-ce que ça aurait coûté, à l'inverse, de la faire dès le départ ? Il n'y a pas de bonne réponse unique : ce qui compte, c'est l'argument.
 
 Ce journal sert directement l'évaluation : il est la matière première pour **détailler et justifier vos choix techniques** et pour préparer la présentation finale. Il sera rappelé en début et en fin de chaque séance.
 

@@ -164,7 +164,7 @@ Pour définir une variable d'environnement dans IntelliJ : **Run > Edit Configur
 
 ### Indices
 
-- Pour compter les objets d'un utilisateur, ajoutez au repository une méthode `long countByOwnerId(Long ownerId)` (le nom servira au TP 5).
+- Pour compter les objets d'un utilisateur, ajoutez au repository une méthode `long countByOwnerId(Long ownerId)` (le nom servira au TP 6).
 - La vérification de la limite ne concerne que `create` : modifier un objet existant ne change pas leur nombre.
 
 ### Vérifier

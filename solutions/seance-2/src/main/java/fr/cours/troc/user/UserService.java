@@ -36,7 +36,7 @@ public class UserService {
 	}
 
 	// Ses objets éventuels restent, avec un ownerId qui ne désigne plus personne :
-	// au TP 5, la clé étrangère de la base refusera cette suppression.
+	// au TP 6, la clé étrangère de la base refusera cette suppression.
 	public void delete(Long id) {
 		findById(id);
 		userRepository.deleteById(id);

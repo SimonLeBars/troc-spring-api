@@ -1,6 +1,6 @@
-# TP 6 — Les transactions : accepter un troc, tout ou rien
+# TP 7 — Les transactions : accepter un troc, tout ou rien
 
-> Rythme indicatif : séance 3. Point de départ : la mise en place du TP 5 terminée (les trois tables, plus de classe `InMemory…`).
+> Rythme indicatif : séance 3. Point de départ : la mise en place du TP 6 terminée (les trois tables, plus de classe `InMemory…`).
 
 ## Le concept en bref
 
@@ -22,7 +22,7 @@ Le code temporaire va dans le package `fr.cours.troc.sandbox.transaction`.
 
 ### Étape 1 — Deux écritures, dont la seconde échoue
 
-Un déplacement de stock simplifié, comme un virement bancaire : on **crédite** un objet, puis on **débite** l'autre. Si le stock débité est insuffisant, la contrainte `CHECK (quantity >= 0)` du TP 5 refuse la seconde écriture.
+Un déplacement de stock simplifié, comme un virement bancaire : on **crédite** un objet, puis on **débite** l'autre. Si le stock débité est insuffisant, la contrainte `CHECK (quantity >= 0)` du TP 6 refuse la seconde écriture.
 
 ```java
 package fr.cours.troc.sandbox.transaction;
@@ -68,7 +68,7 @@ public class StockMoveDemoController {
 
 ### Étape 2 — Premier essai : sans transaction
 
-Arrêtez l'application, **supprimez `data/`**, relancez. Dans Bruno, créez Alice et Bob, puis **Créer objet (Alice)** (10 tomates, objet 1) et **Créer objet (Bob)** (5 carottes, objet 2). Exécutez **Expérimentation > TP6 - Déplacer du stock** : 8 unités de l'objet 2 vers l'objet 1, alors que Bob n'en a que 5.
+Arrêtez l'application, **supprimez `data/`**, relancez. Dans Bruno, créez Alice et Bob, puis **Créer objet (Alice)** (10 tomates, objet 1) et **Créer objet (Bob)** (5 carottes, objet 2). Exécutez **Expérimentation > TP7 - Déplacer du stock** : 8 unités de l'objet 2 vers l'objet 1, alors que Bob n'en a que 5.
 
 Notez la réponse, la dernière ligne `Caused by` de la console, puis regardez la base (console H2) :
 
@@ -176,7 +176,7 @@ public record TradeDecisionRequest(Long userId) {
 }
 ```
 
-> Dans une vraie application, l'identité viendrait de l'authentification (un jeton, une session), jamais du corps : n'importe qui peut écrire `"userId": 2`. C'est le sujet du TP 9 (Spring Security).
+> Dans une vraie application, l'identité viendrait de l'authentification (un jeton, une session), jamais du corps : n'importe qui peut écrire `"userId": 2`. C'est le sujet du TP 5 (Spring Security).
 
 `403 Forbidden` dit : « je sais ce que vous demandez, mais **vous** n'avez pas le droit ». C'est différent de `401 Unauthorized` : « je ne sais pas qui vous êtes ».
 
@@ -226,7 +226,7 @@ Item credited = repository.findBy…(…).orElseGet(() -> { /* construire un nou
 ### Indices
 
 - Commencez par **refuser** : une seule écriture, sans transaction. Les vérifications « destinataire » et « statut » serviront aussi à `accept` : une méthode privée commune évite de les écrire deux fois.
-- Le **transfert** d'une quantité d'un objet vers un utilisateur (débit, puis crédit d'une ligne existante ou nouvelle) manipule des objets : il a sa place dans `ItemService`. La contrainte `UNIQUE (owner_id, name)` du TP 5 garantit qu'il y a au plus une ligne à créditer.
+- Le **transfert** d'une quantité d'un objet vers un utilisateur (débit, puis crédit d'une ligne existante ou nouvelle) manipule des objets : il a sa place dans `ItemService`. La contrainte `UNIQUE (owner_id, name)` du TP 6 garantit qu'il y a au plus une ligne à créditer.
 - N'utilisez pas la méthode `update` d'`ItemService` pour le transfert : sa vérification « quantité > 0 » refuserait un stock qui tombe à 0.
 - `accept` lit les deux objets, revérifie les deux stocks, **puis** fait les deux transferts et change le statut.
 - La règle `max-pending` du TP 4 compte les trocs `PROPOSED` : un troc accepté ou refusé libère une place pour son proposeur, sans rien changer.
@@ -338,7 +338,7 @@ Documentation : [Optimistic Locking](https://docs.spring.io/spring-data/relation
 
 ### Bonus 4 — Dater la réponse
 
-Si vous avez fait le bonus « Dater les trocs » du TP 5, ajoutez une colonne `decided_at TIMESTAMP` (sans `NOT NULL` : elle reste vide tant que le troc est `PROPOSED`), renseignée par `accept` et `reject`.
+Si vous avez fait le bonus « Dater les trocs » du TP 6, ajoutez une colonne `decided_at TIMESTAMP` (sans `NOT NULL` : elle reste vide tant que le troc est `PROPOSED`), renseignée par `accept` et `reject`.
 
 ## Pour aller plus loin
 

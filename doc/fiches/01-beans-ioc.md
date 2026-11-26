@@ -9,7 +9,7 @@
 | 🌐 `@RestController` | web (JSON) | `UserController`, `ItemController`, `TradeController` |
 | ⚙️ `@Service` | métier | `UserService`, `ItemService`, `TradeService` |
 | 🗄️ `@Repository` | données | `InMemoryUserRepository` (TP 1 → 4) |
-| 🧩 `@Component` | autre | `TradeLoggingAspect` (TP 7) |
+| 🧩 `@Component` | autre | `TradeLoggingAspect` (TP 8) |
 
 - ✅ annoter la **classe**, ❌ jamais l'interface
 - ⚠️ classe dans le package de `TrocApplication` (`fr.cours.troc`) ou un sous-package : `@SpringBootApplication` ne scanne que là
@@ -59,15 +59,15 @@ flowchart TD
         TR["TradeRepository · TP 4"]
     end
     subgraph spring["🍃 Fournis par Spring Boot"]
-        DS[("DataSource → H2 · TP 5")]
+        DS[("DataSource → H2 · TP 6")]
     end
-    ASP["🧩 TradeLoggingAspect · TP 7"]
+    ASP["🧩 TradeLoggingAspect · TP 8"]
 
     UC --> US
     IC --> IS
     TC --> TS
     US --> UR
-    US -->|TP 5| IR
+    US -->|TP 6| IR
     IS --> IR
     IS --> UR
     IS --> IP
@@ -75,7 +75,7 @@ flowchart TD
     TS --> US
     TS --> IS
     TS --> TP
-    UR & IR & TR -.->|implémentation générée · TP 5| DS
+    UR & IR & TR -.->|implémentation générée · TP 6| DS
     ASP -.->|intercepte| TS
 
     classDef fourni fill:#e8f5e9,stroke:#6db33f
@@ -85,13 +85,13 @@ flowchart TD
 | Repositories | Implémentation |
 |---|---|
 | TP 1 → 4 | `InMemory…Repository` + `@Repository`, stockage dans une `Map` |
-| TP 5 → | 🍃 **générée** par Spring Data JDBC (`extends ListCrudRepository<…>`) |
+| TP 6 → | 🍃 **générée** par Spring Data JDBC (`extends ListCrudRepository<…>`) |
 
-🍃 **Beans fournis par Spring :** `ObjectMapper` (JSON, TP 1) · `DataSource` (TP 5) · gestionnaire de transactions (TP 6)
+🍃 **Beans fournis par Spring :** `ObjectMapper` (JSON, TP 1) · `DataSource` (TP 6) · gestionnaire de transactions (TP 7)
 
-### 🔒 Ajouts sécurité · `TP 9`
+### 🔒 Ajouts sécurité · `TP 5`
 
-⚠️ noms tirés du TP 9, *à vérifier* dans votre projet.
+⚠️ noms tirés du TP 5, *à vérifier* dans votre projet.
 
 ```mermaid
 flowchart LR
@@ -126,7 +126,7 @@ flowchart LR
 | Situation | Résultat |
 |---|:-:|
 | `TradeService → ItemService`, `TradeService → UserService` | ✅ dépendances dans un seul sens |
-| `UserService → ItemRepository` (supprimer un utilisateur et ses objets · `TP 5`) | ✅ un repository est une feuille |
+| `UserService → ItemRepository` (supprimer un utilisateur et ses objets · `TP 6`) | ✅ un repository est une feuille |
 | `ItemService → TradeService` **et** `TradeService → ItemService` | ❌ cycle |
 
 **🛠️ Sortir d'un cycle :**

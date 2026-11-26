@@ -11,7 +11,7 @@ public interface ItemRepository {
 
 	Optional<Item> findById(Long id);
 
-	// noms choisis pour que Spring Data sache écrire ces requêtes seul au TP 5
+	// noms choisis pour que Spring Data sache écrire ces requêtes seul au TP 6
 	List<Item> findByOwnerId(Long ownerId);
 
 	long countByOwnerId(Long ownerId);

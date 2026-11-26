@@ -1,10 +1,10 @@
-# 🔒 Fiche 8 — Sécurité
+# 🔒 Fiche 5 — Sécurité
 
 > `TP N` = notion vue à partir du TP N · ✅ à faire · ❌ à éviter · ⚠️ piège · 💡 astuce
 
-⚠️ noms de classes tirés du TP 9, *à adapter* à votre projet.
+⚠️ noms de classes tirés du TP 5, *à adapter* à votre projet.
 
-## ❓ Deux questions, dans cet ordre · `TP 9`
+## ❓ Deux questions, dans cet ordre · `TP 5`
 
 | | Question | Si non | Qui répond |
 |:-:|---|---|---|
@@ -13,7 +13,7 @@
 
 ❌ le client ne **déclare** pas son identité (`"userId": 2` dans le corps) · ✅ il la **prouve** (jeton signé)
 
-## 🎟️ Le parcours d'un jeton · `TP 9`
+## 🎟️ Le parcours d'un jeton · `TP 5`
 
 ```mermaid
 sequenceDiagram
@@ -34,7 +34,7 @@ sequenceDiagram
     end
 ```
 
-## 📦 Dépendances · `TP 9`
+## 📦 Dépendances · `TP 5`
 
 | Starter | Rôle |
 |---|---|
@@ -46,7 +46,7 @@ sequenceDiagram
 
 **Sans configuration :** tout en `401` · compte `user` + `Using generated security password: …` · `POST` refusés (CSRF)
 
-## 🔑 Mots de passe · `TP 9`
+## 🔑 Mots de passe · `TP 5`
 
 ```java
 @Bean
@@ -70,7 +70,7 @@ PasswordEncoder passwordEncoder() {
 | `password_hash` | `VARCHAR(100) NOT NULL` |
 | `role` | `VARCHAR(20) NOT NULL DEFAULT 'USER'` · ❌ jamais choisi par le client |
 
-## 🧱 Les beans à fournir · `TP 9`
+## 🧱 Les beans à fournir · `TP 5`
 
 | Bean | Rôle | Appelé |
 |---|---|---|
@@ -100,7 +100,7 @@ NimbusJwtEncoder.withSecretKey(key).build();
 NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
 ```
 
-## 🎫 Le JWT · `TP 9`
+## 🎫 Le JWT · `TP 5`
 
 ```
 eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOiIxIiwiZXhwIjoxNzkyNjY2ODAwfQ . DBlqUDT6esOk…
@@ -124,7 +124,7 @@ authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthent
 // AuthenticationException → 401, même message que le compte existe ou non
 ```
 
-## 🚧 Les règles d'accès · `TP 9`
+## 🚧 Les règles d'accès · `TP 5`
 
 ```java
 @Bean
@@ -146,7 +146,7 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 - 🔍 à ouvrir aussi : `/h2-console/**` · `/error` · Swagger UI (`/swagger-ui.html`, `/swagger-ui/**`, `/v3/api-docs/**`)
 - 👑 bonus : `.requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")`, ou `@EnableMethodSecurity` + `@PreAuthorize("hasRole('ADMIN')")` (un proxy, comme `@Transactional`)
 
-## 🪪 Lire l'identité · `TP 9`
+## 🪪 Lire l'identité · `TP 5`
 
 ```java
 @PostMapping("/{id}/accept")
@@ -158,13 +158,13 @@ public Trade accept(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {  
 
 ✅ le service ne change presque pas : seule la **provenance** de l'id change · `proposerId` et `userId` disparaissent des corps
 
-## 🐶 Bruno · `TP 9`
+## 🐶 Bruno · `TP 5`
 
 1. Requête `POST {{baseUrl}}/auth/token` dans un dossier **Authentification**, onglet **Script > Post Response** : `bru.setVar("token", res.body.token);`
 2. Collection > **Settings > Auth** : **Bearer Token** `{{token}}`
 3. Chaque requête, onglet **Auth** : **Inherit**
 
-## ⌨️ IntelliJ · `TP 9`
+## ⌨️ IntelliJ · `TP 5`
 
 ⭐ = aide Spring, IntelliJ **Ultimate** (licence étudiante gratuite) · raccourcis Windows / Linux ; macOS et liste générale : [fiche 10](10-raccourcis-intellij.md)
 
@@ -179,16 +179,16 @@ public Trade accept(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {  
 
 | Symptôme | 🔎 Cause | TP |
 |---|---|:-:|
-| `401` partout | pas encore de `SecurityFilterChain` · route non ouverte | 9 |
-| `409` attendu, `401` reçu avec un corps vide | `/error` est protégé : l'ouvrir | 9 |
-| `401` avec un jeton | expiré, mal copié, `Bearer ` oublié → lire l'en-tête `WWW-Authenticate` | 9 |
-| `403` sur chaque `POST`, `PUT`, `DELETE` | CSRF encore actif | 9 |
-| `The secret length must be at least 256 bits` | clé < 32 caractères · `TROC_JWT_SECRET` absente | 9 |
-| `There is no PasswordEncoder mapped for the id "null"` | mot de passe inséré à la main, sans `{bcrypt}` | 9 |
-| `jwt == null` dans un test | `@WithMockUser` au lieu de `.with(jwt())` | 9 |
-| console H2 blanche | `frameOptions(… sameOrigin())` oublié | 9 |
-| `passwordHash` dans un JSON | l'entité est renvoyée au lieu d'un DTO de réponse | 9 |
-| tutoriel avec `WebSecurityConfigurerAdapter`, `antMatchers`, `.and()`, `jjwt` | Spring Security 5 : en version 7, bean `SecurityFilterChain`, `requestMatchers`, lambdas, `oauth2ResourceServer` | 9 |
+| `401` partout | pas encore de `SecurityFilterChain` · route non ouverte | 5 |
+| `409` attendu, `401` reçu avec un corps vide | `/error` est protégé : l'ouvrir | 5 |
+| `401` avec un jeton | expiré, mal copié, `Bearer ` oublié → lire l'en-tête `WWW-Authenticate` | 5 |
+| `403` sur chaque `POST`, `PUT`, `DELETE` | CSRF encore actif | 5 |
+| `The secret length must be at least 256 bits` | clé < 32 caractères · `TROC_JWT_SECRET` absente | 5 |
+| `There is no PasswordEncoder mapped for the id "null"` | mot de passe inséré à la main, sans `{bcrypt}` | 5 |
+| `jwt == null` dans un test | `@WithMockUser` au lieu de `.with(jwt())` | 5 |
+| console H2 blanche | `frameOptions(… sameOrigin())` oublié | 5 |
+| `passwordHash` dans un JSON | l'entité est renvoyée au lieu d'un DTO de réponse | 5 |
+| tutoriel avec `WebSecurityConfigurerAdapter`, `antMatchers`, `.and()`, `jjwt` | Spring Security 5 : en version 7, bean `SecurityFilterChain`, `requestMatchers`, lambdas, `oauth2ResourceServer` | 5 |
 
 💡 `logging.level.org.springframework.security=DEBUG` : chaque filtre traversé et la raison du refus.
 

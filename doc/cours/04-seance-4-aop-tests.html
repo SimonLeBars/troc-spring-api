@@ -205,7 +205,7 @@
     <div class="pageno">01</div>
   </section>
   <aside class="notes">
-    <p>Accueil. Déroulé : 30 min de théorie d'un seul bloc (≈ 13 min AOP, 17 min tests), pause, TP 7 (aspect), checkpoint #1 (10 min), TP 8 (tests), checkpoint #2. Les groupes qui ont pris de l'avance ont peut-être déjà commencé l'un ou l'autre.</p>
+    <p>Accueil. Déroulé : 30 min de théorie d'un seul bloc (≈ 13 min AOP, 17 min tests), pause, TP 8 (aspect), checkpoint #1 (10 min), TP 9 (tests), checkpoint #2. Les groupes qui ont pris de l'avance ont peut-être déjà commencé l'un ou l'autre.</p>
     <p>Séance dense : annoncer dès maintenant l'ordre de priorité (diapo 04). Les groupes dont accept ne fonctionne pas encore peuvent quand même écrire l'aspect : il se branche sur n'importe quelle méthode de TradeService.</p>
   </aside>
 
@@ -237,14 +237,14 @@
     <ul>
       <li><b>01 · Le code qui se répète partout</b> <span>préoccupations transverses, vocabulaire, un aspect</span><span class="dur">13 min</span></li>
       <li><b>02 · Prouver que ça marche</b> <span>la pyramide, Mockito, MockMvc</span><span class="dur">17 min</span></li>
-      <li class="hl"><b>Puis · TP 7</b> <span>tracer chaque troc avec un aspect</span></li>
+      <li class="hl"><b>Puis · TP 8</b> <span>tracer chaque troc avec un aspect</span></li>
       <li><b>03 · Checkpoint #1 : vers les tests</b> <span>log absent, base de test, lancer ses tests</span><span class="dur">10 min</span></li>
-      <li class="hl"><b>Puis · TP 8</b> <span>protéger les règles, puis checkpoint #2 et journal de bord</span></li>
+      <li class="hl"><b>Puis · TP 9</b> <span>protéger les règles, puis checkpoint #2 et journal de bord</span></li>
     </ul>
     <div class="pageno">03</div>
   </section>
   <aside class="notes">
-    <p>Les parties 01 et 02 sont présentées d'un seul bloc, avant la pause. Le checkpoint #1 arrive quand les groupes ont globalement fini le TP 7. Dans chaque TP, l'expérimentation reste facultative, la mise en place obligatoire.</p>
+    <p>Les parties 01 et 02 sont présentées d'un seul bloc, avant la pause. Le checkpoint #1 arrive quand les groupes ont globalement fini le TP 8. Dans chaque TP, l'expérimentation reste facultative, la mise en place obligatoire.</p>
   </aside>
 
   <!-- ============ 04 · PRIORITÉS ============ -->
@@ -256,7 +256,7 @@
       <li><b>1 · Aspect de log</b> <span>le noyau : tout le monde le termine</span></li>
       <li><b>2 · Tests unitaires</b> <span>les règles d'acceptation de TradeService, avec Mockito</span></li>
       <li><b>3 · Test d'intégration</b> <span>l'API de bout en bout, avec MockMvc et une base de test</span></li>
-      <li><b>4 · En avance</b> <span>chronométrer avec @Around, tester le rollback, TP 9 (sécurité)</span></li>
+      <li><b>4 · En avance</b> <span>chronométrer avec @Around, tester le rollback, TP 5 (sécurité)</span></li>
       <li class="hl"><b>Si le temps manque</b> <span>on coupe par le bas de la liste, jamais par le haut</span></li>
     </ul>
     <div class="pageno">04</div>
@@ -691,11 +691,11 @@
     <p>Le test du rollback est un excellent bonus : il transforme l'expérience manuelle de la séance 3 en preuve reproductible.</p>
   </aside>
 
-  <!-- ============ 17 · TP 7 ============ -->
+  <!-- ============ 17 · TP 8 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 7 · 07-tp7-aop.md</div>
-    <h2>Place au TP 7</h2>
+    <div class="tag">TP 8 · 08-tp8-aop.md</div>
+    <h2>Place au TP 8</h2>
     <div class="grid two">
       <div class="card opt">
         <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
@@ -706,11 +706,11 @@
         <div class="v">spring-boot-starter-aspectj, puis <b>TradeLoggingAspect</b> : chaque appel à TradeService, chaque succès, chaque échec.<br><br>Proposer, accepter, puis accepter sans stock : la console raconte l'histoire.</div>
       </div>
     </div>
-    <div class="memo"><b>EN AVANCE ?</b>TP 8 (tests), ou bonus : chronométrer avec @Around, annotation maison.</div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 9 (tests), ou bonus : chronométrer avec @Around, annotation maison.</div>
     <div class="pageno">17</div>
   </section>
   <aside class="notes">
-    <p>Diapo projetée pendant le TP 7. Checkpoint #1 quand tout le monde a globalement fini : pourquoi un log n'apparaît pas, puis préparer les tests.</p>
+    <p>Diapo projetée pendant le TP 8. Checkpoint #1 quand tout le monde a globalement fini : pourquoi un log n'apparaît pas, puis préparer les tests.</p>
     <p>Durée indicative : 45 à 60 min, plus court que d'habitude pour laisser de la place aux tests. Ajouter @AfterReturning (succès, avec le statut du troc retourné) fait partie du noyau dans le support.</p>
     <p>Répartition possible dans un groupe de 4 : deux sur l'aspect, deux qui préparent déjà la base de test (application-test.properties, dépendances), voir diapo 20.</p>
   </aside>
@@ -800,16 +800,16 @@
     <div class="pageno">21</div>
   </section>
   <aside class="notes">
-    <p>Synthèse avant de lancer le TP 8. Elle sera reprise au checkpoint #2 pour le bilan.</p>
+    <p>Synthèse avant de lancer le TP 9. Elle sera reprise au checkpoint #2 pour le bilan.</p>
     <p>Annonce séance 5 : pas d'intervenant présent, les groupes sont autonomes. Rappeler où trouver les supports, les critères de notation, et qu'un projet qui passe ses tests avant chaque commit est un projet qu'on peut modifier sans peur à plusieurs.</p>
     <p>Fil des quatre séances : IoC (séance 1) → configuration (2) → transactions par proxy (3) → aspects et tests (4). Tout repose sur le conteneur et l'injection par constructeur.</p>
   </aside>
 
-  <!-- ============ 22 · TP 8 ============ -->
+  <!-- ============ 22 · TP 9 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 8 · 08-tp8-tests.md</div>
-    <h2>Place au TP 8</h2>
+    <div class="tag">TP 9 · 09-tp9-tests.md</div>
+    <h2>Place au TP 9</h2>
     <div class="grid two">
       <div class="card opt">
         <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
@@ -820,20 +820,20 @@
         <div class="v"><b>TradeServiceTest</b> : trois règles d'acceptation avec Mockito, puis un test d'intégration MockMvc sur /users ou /trades.<br><br>Supprimer l'appel à checkStock : quel test passe au rouge ? Puis le remettre.</div>
       </div>
     </div>
-    <div class="memo"><b>EN AVANCE ?</b>TP 9 (sécurité), annexe 1 (OpenAPI), ou bonus : tester le rollback. <b>FIN DE SÉANCE</b>Checkpoint #2 : bilan, puis 5 min de journal de bord.</div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 5 (sécurité), annexe 1 (OpenAPI), ou bonus : tester le rollback. <b>FIN DE SÉANCE</b>Checkpoint #2 : bilan, puis 5 min de journal de bord.</div>
     <div class="pageno">22</div>
   </section>
   <aside class="notes">
-    <p>Diapo projetée pendant tout le TP 8. Durée indicative : 60 à 75 min. Les trois règles suggérées dans le support : stock insuffisant (409, rien d'écrit), mauvais destinataire (403), troc déjà exécuté (409). Plus le cas nominal si le temps le permet.</p>
+    <p>Diapo projetée pendant tout le TP 9. Durée indicative : 60 à 75 min. Les trois règles suggérées dans le support : stock insuffisant (409, rien d'écrit), mauvais destinataire (403), troc déjà exécuté (409). Plus le cas nominal si le temps le permet.</p>
     <p>L'expérience montre l'intérêt du test : une régression introduite volontairement est détectée en une seconde, avec un message qui pointe la règle cassée.</p>
-    <p>TP 9 (Spring Security) : son expérimentation commence par ajouter la dépendance seule, qui verrouille tout (401 partout) et fait échouer les tests d'intégration du TP 8. Le cours correspondant est l'annexe Spring Security, à lire en autonomie.</p>
+    <p>TP 5 (Spring Security) : son expérimentation commence par ajouter la dépendance seule, qui verrouille tout (401 partout) et fait échouer les tests d'intégration du TP 9. Le cours correspondant est l'annexe Spring Security, à lire en autonomie.</p>
     <p>Journal de bord : laisser 5 minutes en fin de checkpoint #2 pour le compléter (ce qui a bloqué, ce que vous feriez autrement ou plus tôt, ce qui a bien marché, ce qui était fluide). Faire citer une ou deux entrées à voix haute : ce qui a bloqué aujourd'hui sert de point de départ au rappel de la prochaine séance.</p>
   </aside>
 
   <!-- ============ 23 · BONUS @AROUND ============ -->
   <section class="slide s-code dense">
     <div class="bar"></div>
-    <div class="tag">TP 7-8 · BONUS</div>
+    <div class="tag">TP 8-9 · BONUS</div>
     <h3>@Around : l'advice qui décide d'appeler la méthode</h3>
     <div class="win">
       <div class="winbar">trade/TradeLoggingAspect.java</div>

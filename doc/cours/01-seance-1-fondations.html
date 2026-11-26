@@ -378,7 +378,7 @@
   <aside class="notes">
     <p>Les supports (diapos + TP) sont fournis en amont, leur lecture n'est pas obligatoire. Séance 5 : pas d'intervenant présent, les groupes doivent être autonomes, d'où l'importance de s'appuyer sur les supports dès maintenant.</p>
     <p>À partir de la séance 2, des checkpoints collectifs à heure fixe permettent de faire le point ensemble. Aujourd'hui, un seul bilan collectif en fin de séance.</p>
-    <p>Journal de bord (détails dans 00-organisation-des-tp.md) : un fichier JOURNAL.md par groupe, complété à la fin de chaque TP. Exemple de question qui ne prendra son sens qu'avec le recul : au TP 9, l'authentification oblige à retoucher routes, corps de requête et tests ; aurait-il fallu la mettre en place plus tôt ?</p>
+    <p>Journal de bord (détails dans 00-organisation-des-tp.md) : un fichier JOURNAL.md par groupe, complété à la fin de chaque TP. Exemple de question qui ne prendra son sens qu'avec le recul : au TP 5, l'authentification oblige à retoucher routes, corps de requête et tests ; aurait-il fallu la mettre en place plus tôt ?</p>
     <p>Point sur la vulgarisation : les analogies de cette séance (prise électrique, Hollywood) sont un bon modèle pour votre future présentation. Pondération : à préciser si elle est fixée d'ici là.</p>
   </aside>
 
@@ -573,7 +573,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
   </section>
   <aside class="notes">
     <p>Confusion fréquente : « Spring » et « Spring Boot » sont souvent employés l'un pour l'autre. Ce ne sont pas des concurrents, l'un est construit sur l'autre.</p>
-    <p>Spring Framework : le conteneur IoC (partie 04), plus des modules : AOP en séance 4, Web MVC pour nos contrôleurs, transactions en séance 3. Les projets de l'écosystème sont des bibliothèques séparées : dans le cours, Spring Data JDBC (séance 3) et Spring Security (TP 9).</p>
+    <p>Spring Framework : le conteneur IoC (partie 04), plus des modules : AOP en séance 4, Web MVC pour nos contrôleurs, transactions en séance 3. Les projets de l'écosystème sont des bibliothèques séparées : dans le cours, Spring Data JDBC (séance 3) et Spring Security (TP 5).</p>
     <p>Spring Boot n'ajoute presque aucun concept nouveau : il choisit des réglages par défaut raisonnables et branche tout automatiquement (« convention plutôt que configuration »). On le verra concrètement sur la structure du projet.</p>
   </aside>
 
@@ -703,7 +703,7 @@ String label = <span class="kw">switch</span> (trade.getStatus()) {     <span cl
     <p>Code volontairement naïf, c'est ce que tout le monde écrit spontanément. Demander à la salle « qu'est-ce qui vous gêne ici ? » en ne montrant que le code, puis valider avec la liste.</p>
     <p>Ressources dupliquées : chaque <code>new</code> crée une nouvelle instance, même quand l'application ne devrait en avoir qu'une. Exemple pro : 10 services × un pool de 10 connexions = 100 connexions, la base refuse au-delà de sa limite. Dans le TP, avec un stockage en mémoire, le symptôme est encore plus visible : deux maps, Alice introuvable.</p>
     <p>Ces problèmes sont exactement ceux que l'expérimentation du TP 1 fait vivre, via trois évolutions demandées par le client. Les groupes qui les comprennent déjà pourront la sauter.</p>
-    <p>Un cinquième problème existe (impossible de tester UserService seul, sans son vrai stockage) : ne pas le développer, on y reviendra au TP 8 (tests).</p>
+    <p>Un cinquième problème existe (impossible de tester UserService seul, sans son vrai stockage) : ne pas le développer, on y reviendra au TP 9 (tests).</p>
   </aside>
 
   <!-- ============ 17 · PRINCIPE D ============ -->

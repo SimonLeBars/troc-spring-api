@@ -15,9 +15,9 @@ personnel de Simon** — pas le squelette distribué aux étudiants.
 
 Ajouter les dépendances progressivement, en suivant les TP, pas tout d'un coup :
 - TP 1 : `spring-boot-starter-webmvc` seulement.
-- TP 5 : Spring Data JDBC + H2 (persistance).
-- TP 7-8 : `spring-boot-starter-aspectj`, tests.
-- TP 9 : Spring Security (`spring-boot-starter-security`, `-security-oauth2-resource-server`, `-security-test`).
+- TP 5 : Spring Security (`spring-boot-starter-security`, `-security-oauth2-resource-server`).
+- TP 6 : Spring Data JDBC + H2 (persistance).
+- TP 8-9 : `spring-boot-starter-aspectj`, tests (dont `spring-security-test`).
 - Annexe 1 (bonus du TP 1) : springdoc-openapi.
 
 Le `pom.xml` doit refléter ce que les étudiants ont vu à un instant donné du cours.
@@ -50,7 +50,7 @@ Le `pom.xml` doit refléter ce que les étudiants ont vu à un instant donné du
 - Auto-suffisants : un étudiant doit pouvoir suivre les étapes sans avoir vu le cours en amont,
   avec des liens vers de la documentation externe en complément (pas en remplacement).
 - Ne pas présumer de notions vues dans un TP ultérieur. En particulier, JUnit/les tests n'arrivent
-  qu'au TP 8 — éviter d'y faire référence dans les TP précédents.
+  qu'au TP 9 — éviter d'y faire référence dans les TP précédents.
 - Avancer par petites étapes : introduire une seule notion/entité à la fois plutôt que tout
   d'un bloc (ex. créer l'entité `User` seule avant d'ajouter `Objet`/`Troc` plus tard).
 - Pour illustrer un problème technique (ex. couplage fort), préférer une liste de conséquences
