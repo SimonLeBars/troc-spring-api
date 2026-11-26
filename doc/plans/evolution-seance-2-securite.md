@@ -108,6 +108,16 @@ tests → 08.
   à ajouter, 2-3 liens (documentation officielle, tutoriel).
 - Distinction explicite avec les bonus de TP (même concept, guidés) : ces sujets ne sont pas vus en
   cours, les groupes les explorent seuls.
+- **Bonus de TP hors écosystème Spring**, guidés comme les autres bonus de TP, en précisant
+  qu'ils ne font pas partie de Spring :
+  - **Lombok**, bonus du TP 2 : générer getters, setters et constructeurs des entités (`User`,
+    `Item`) avec `@Getter`, `@Setter`, `@NoArgsConstructor`… Comparer avec les `record` : à quoi
+    sert encore Lombok quand Java a les records ? Configurer le traitement d'annotations dans le
+    `pom.xml`.
+  - **MapStruct**, bonus du TP 4 : générer la conversion entre objet de requête et entité
+    (`ProposeTradeRequest` → `Trade`), voire un objet de réponse. Montrer l'erreur de compilation
+    quand un champ n'est pas mappé. Si Lombok est aussi utilisé, ordre des processeurs
+    d'annotations (`lombok-mapstruct-binding`).
 - Référencé depuis `00-organisation-des-tp.md` et la diapo de clôture de chaque séance.
 - **Notation** : valorisable (présenté dans les choix techniques, justifié dans `JOURNAL.md`), non
   obligatoire, aucune pénalité pour les groupes qui n'en font pas.
