@@ -39,20 +39,21 @@ public class TradeService {
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Troc " + id + " introuvable"));
     }
 
-    public Trade propose(ProposeTradeRequest request) {
+    // proposerId : l'utilisateur connecté, lu dans le jeton par le contrôleur (TP 5).
+    public Trade propose(Long proposerId, ProposeTradeRequest request) {
         // 404 : utilisateurs et objets existants (findById lève l'erreur)
-        userService.findById(request.proposerId());
+        userService.findById(proposerId);
         userService.findById(request.recipientId());
         Item offered = itemService.findById(request.offeredItemId());
         Item requested = itemService.findById(request.requestedItemId());
 
         // 400 : la requête est incohérente en elle-même
-        if (Objects.equals(request.proposerId(), request.recipientId())) {
+        if (Objects.equals(proposerId, request.recipientId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Impossible de troquer avec soi-même");
         }
-        if (!Objects.equals(offered.getOwnerId(), request.proposerId())) {
+        if (!Objects.equals(offered.getOwnerId(), proposerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "L'objet " + offered.getId() + " n'appartient pas à l'utilisateur " + request.proposerId());
+                    "L'objet " + offered.getId() + " n'appartient pas à l'utilisateur " + proposerId);
         }
         if (!Objects.equals(requested.getOwnerId(), request.recipientId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -67,14 +68,14 @@ public class TradeService {
                 || request.requestedQuantity() > requested.getQuantity()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Stock insuffisant");
         }
-        if (trades.countByProposerIdAndStatus(request.proposerId(), TradeStatus.PROPOSED) >= props.maxPending()) {
+        if (trades.countByProposerIdAndStatus(proposerId, TradeStatus.PROPOSED) >= props.maxPending()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "L'utilisateur " + request.proposerId() + " a déjà " + props.maxPending() + " trocs en attente");
+                    "L'utilisateur " + proposerId + " a déjà " + props.maxPending() + " trocs en attente");
         }
 
         Trade trade = new Trade();
         trade.setStatus(TradeStatus.PROPOSED);
-        trade.setProposerId(request.proposerId());
+        trade.setProposerId(proposerId);
         trade.setOfferedItemId(request.offeredItemId());
         trade.setOfferedQuantity(request.offeredQuantity());
         trade.setRecipientId(request.recipientId());

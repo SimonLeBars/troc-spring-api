@@ -1,0 +1,13 @@
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Depuis le TP 5, toutes les routes sauf l'inscription (POST /users) et la connexion (POST /auth/token)
+  exigent un jeton. Exécutez une requête du dossier Authentification : elle enregistre le jeton reçu
+  dans la variable {{token}}, que chaque requête envoie (onglet Auth : Inherit).
+}

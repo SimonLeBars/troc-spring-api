@@ -20,11 +20,16 @@ Les recommandations de travail détaillées (git, dépendances, supports de TP, 
 ```bash
 ./mvnw verify            # compile + lance les tests (à exécuter avant chaque commit)
 ./mvnw test              # tests seuls
-./mvnw spring-boot:run   # démarre l'API sur http://localhost:8080
+TROC_JWT_SECRET=dev-secret-de-32-caracteres-min!! ./mvnw spring-boot:run   # démarre l'API sur http://localhost:8080
 ```
 
+L'application ne démarre pas sans la variable `TROC_JWT_SECRET` (clé de signature des JWT, 32 caractères
+minimum, jamais versionnée). Les tests utilisent la clé de test d'`application-test.properties`.
+
 Pour tester un endpoint pendant que l'application tourne : `curl -s http://localhost:8080/...`
-(ou la collection Bruno dans `bruno/`). Lancer l'application en arrière-plan et l'arrêter une
+(ou la collection Bruno dans `bruno/`). Toutes les routes sauf `POST /users` (inscription) et
+`POST /auth/token` (connexion) exigent `Authorization: Bearer <jeton>` ; dans Bruno, le dossier
+`Authentification` enregistre le jeton dans `{{token}}`, hérité par les autres requêtes. Lancer l'application en arrière-plan et l'arrêter une
 fois la vérification faite.
 
 ## Intégration continue
@@ -35,6 +40,8 @@ fois la vérification faite.
 ## Déploiement (Render)
 
 - `Dockerfile` à la racine : build Maven puis image JRE 25. Le port vient de la variable `PORT`.
+- Variable d'environnement `TROC_JWT_SECRET` à définir sur le service Render (sans elle, l'application ne
+  démarre pas) ; les previews de pull request reprennent les variables du service.
 - `main` est déployé automatiquement sur Render (https://troc-spring-api.onrender.com, offre gratuite, 512 Mo de RAM, mise en veille
   après 15 min sans requête : la première requête suivante prend ~1 min).
 - Chaque pull request obtient sa propre preview (URL visible sur la PR, « View deployment »),

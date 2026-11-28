@@ -97,7 +97,7 @@ Rien à refaire : la documentation se met à jour à chaque démarrage. Quelques
 
 - **TP 2 et suivants** : chaque nouvelle route apparaît dans Swagger UI. Revenez-y de temps en temps pour vérifier que les codes de réponse affichés sont ceux que vous attendez.
 - **TP 4** : les objets de requête (DTO) documentent exactement ce que le client doit envoyer ; comparez le schéma affiché avant et après.
-- **TP 9 (Spring Security)** : Swagger UI et la description OpenAPI deviennent des routes comme les autres, donc fermées par défaut. Ouvrez-les dans votre `SecurityFilterChain` : `/swagger-ui.html`, `/swagger-ui/**` et `/v3/api-docs/**`. Pour essayer les routes protégées depuis Swagger UI, déclarez à springdoc que l'API attend un jeton Bearer, avec une annotation sur une classe `@Configuration` :
+- **TP 5 (Spring Security)** : Swagger UI et la description OpenAPI deviennent des routes comme les autres, donc fermées par défaut. Ouvrez-les dans votre `SecurityFilterChain` : `/swagger-ui.html`, `/swagger-ui/**` et `/v3/api-docs/**`. Pour essayer les routes protégées depuis Swagger UI, déclarez à springdoc que l'API attend un jeton Bearer, avec une annotation sur une classe `@Configuration` :
 
   ```java
   import io.swagger.v3.oas.annotations.OpenAPIDefinition;

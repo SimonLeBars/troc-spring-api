@@ -13,11 +13,11 @@ Conséquence : **votre groupe avance à son rythme**. Un groupe qui a terminé u
 | 2 | Une API REST : verbes, chemins, codes de statut | `02-tp2-api-rest.md` | séance 2 |
 | 3 | La configuration externalisée | `03-tp3-configuration.md` | séance 2 |
 | 4 | Objets de requête (DTO) et règles métier : proposer un troc | `04-tp4-dto-proposer-troc.md` | séance 2 |
-| 5 | La persistance : H2 et Spring Data JDBC | `05-tp5-persistance.md` | séance 3 |
-| 6 | Les transactions : accepter un troc, tout ou rien | `06-tp6-transactions.md` | séance 3 |
-| 7 | La programmation orientée aspect (AOP) | `07-tp7-aop.md` | séance 4 |
-| 8 | Les tests automatisés | `08-tp8-tests.md` | séance 4 |
-| 9 | Sécuriser l'API : authentification et autorisation | `09-tp9-securite-authentification.md` | séance 5 |
+| 5 | Sécuriser l'API : authentification et autorisation | `05-tp5-securite-authentification.md` | séance 2 |
+| 6 | La persistance : H2 et Spring Data JDBC | `06-tp6-persistance.md` | séance 3 |
+| 7 | Les transactions : accepter un troc, tout ou rien | `07-tp7-transactions.md` | séance 3 |
+| 8 | La programmation orientée aspect (AOP) | `08-tp8-aop.md` | séance 4 |
+| 9 | Les tests automatisés | `09-tp9-tests.md` | séance 4 |
 
 Les **annexes** sont des bonus rattachés à un TP, à faire dès que ce TP est terminé :
 
@@ -26,6 +26,8 @@ Les **annexes** sont des bonus rattachés à un TP, à faire dès que ce TP est 
 | 1 | Documenter l'API : OpenAPI et Swagger UI | `annexe-1-documentation-openapi.md` | TP 1 |
 
 Le **rythme indicatif** est celui que suit le cours magistral : c'est le minimum à atteindre pour suivre les checkpoints collectifs. Il n'est pas une limite.
+
+> **Jalon de fin de séance 2 : TP 2 à 5.** Le TP 5 (sécurité) est un prérequis de la séance 3 : s'il n'est pas terminé en séance, terminez-le avant la séance suivante.
 
 ## Deux parties par TP
 
@@ -63,6 +65,45 @@ Chaque TP propose quelques bonus, pour aller plus loin sur le même concept. Ils
 
 - Le projet est découpé **par fonctionnalité** (`user/`, `item/`, `trade/`) : c'est ce qui permet de se répartir le travail sans se marcher dessus. Plusieurs TP proposent une organisation pour un groupe de 4.
 - Une personne peut faire l'expérimentation pendant qu'une autre attaque la mise en place : mettez ensuite en commun ce que vous avez constaté.
+- Tous les TP ne se suivent pas strictement : certains peuvent avancer **en parallèle**, ce qui permet de se répartir les TP eux-mêmes (voir ci-dessous). L'en-tête de chaque TP dit dès quand il peut commencer.
+
+### Les dépendances entre TP
+
+```mermaid
+flowchart LR
+    T1["TP 1 · Injection"] --> T2["TP 2 · API REST"]
+    T1 --> T3["TP 3 · Configuration"]
+    T2 --> T4["TP 4 · Proposer un troc"]
+    T2 --> T5["TP 5 · Sécurité"]
+    T4 -. "dernière étape :<br/>proposeur lu dans le jeton" .-> T5
+    T5 --> T6["TP 6 · Persistance"]
+    T6 --> T7["TP 7 · Transactions"]
+    T7 --> T8["TP 8 · AOP"]
+    T7 --> T9["TP 9 · Tests"]
+```
+
+| TP | Peut commencer dès que… | En parallèle de… |
+|---|---|---|
+| 2 | le TP 1 est terminé | TP 3 |
+| 3 | le TP 1 est terminé ; la vérification par Bruno utilise `POST /items` (TP 2) | TP 2, puis TP 4 et 5 |
+| 4 | le TP 2 est terminé (utilisateurs, objets) ; la règle `max-pending` reprend la syntaxe du TP 3 | TP 3, TP 5 |
+| 5 | le TP 2 est terminé (utilisateurs) ; seule l'étape « proposer un troc » attend le TP 4 | TP 3, TP 4 |
+| 6 | le TP 5 est terminé | — |
+| 7 | le TP 6 est terminé | — |
+| 8 | le TP 7 est terminé (le TP 6 suffit pour voir l'aspect sur `propose`) | TP 9 |
+| 9 | le TP 7 est terminé ; la base de test peut se préparer dès le TP 6 | TP 8 |
+
+### Une répartition possible pour un groupe de 4
+
+Ce n'est qu'une suggestion : chaque groupe s'organise comme il veut, du moment que tout le monde passe par chaque concept (relisez le code des autres, expliquez-le-vous).
+
+| Séance | Binôme A | Binôme B |
+|---|---|---|
+| 2 | TP 2 côté `user/`, puis TP 3, puis TP 4 | TP 2 côté `item/`, puis TP 5 (inscription, jetons, routes protégées) ; on se retrouve pour brancher le proposeur du jeton dans `POST /trades` |
+| 3 | TP 6 ensemble (dépendances, configuration, table `users`), puis une table chacun | TP 7 dès que les tables sont là : `reject`, puis `accept` |
+| 4 | TP 8 (l'aspect) | TP 9 (base de test, tests unitaires, puis d'intégration) |
+
+Les TP 6 et 7 se suivent strictement : c'est la séance où le groupe travaille le plus ensemble. Chaque TP propose aussi, dans sa mise en place, une organisation interne pour quatre.
 - Commitez à la fin de chaque TP (au minimum), avec un message qui dit ce qui a été fait. Le code d'expérimentation n'a pas besoin d'être commité.
 
 ## Le journal de bord : notez vos observations à chaque TP
@@ -76,10 +117,10 @@ Tenez un **journal de bord** de groupe : un fichier `JOURNAL.md` à la racine du
 
 Notez-le **sur le moment** : trois séances plus tard, on ne se souvient plus que de la solution, pas du chemin.
 
-Certaines questions ne prennent leur sens qu'avec le recul. Exemple : au TP 9, ajouter l'authentification oblige à retoucher des routes, des corps de requête et des tests écrits bien avant. Aurait-il fallu la mettre en place plus tôt pour limiter ces impacts ? Qu'est-ce que ça aurait coûté, à l'inverse, de la faire dès le départ ? Il n'y a pas de bonne réponse unique : ce qui compte, c'est l'argument.
+Certaines questions ne prennent leur sens qu'avec le recul. Exemple : **qu'a coûté l'arrivée de la sécurité dans le code existant, et qu'a-t-elle facilité ensuite ?** Au TP 5, il faut retoucher des routes et des corps de requête écrits aux TP 2 et 4 ; aux TP 7 et 9, l'identité est déjà là quand on en a besoin. Aurait-il fallu la mettre en place plus tôt, ou plus tard ? Il n'y a pas de bonne réponse unique : ce qui compte, c'est l'argument.
 
 Ce journal sert directement l'évaluation : il est la matière première pour **détailler et justifier vos choix techniques** et pour préparer la présentation finale. Il sera rappelé en début et en fin de chaque séance.
 
 ## Tester les routes : Bruno
 
-Les routes sont testées avec [Bruno](https://www.usebruno.com/), un client HTTP dont les collections sont des fichiers texte versionnés dans le dépôt (dossier `bruno/`). La collection est rangée par dossiers : **Utilisateurs**, **Objets**, **Trocs**, et **Expérimentation** pour les routes temporaires des parties 1. Choisissez l'environnement **Local** (`baseUrl = http://localhost:8080`) en haut à droite.
+Les routes sont testées avec [Bruno](https://www.usebruno.com/), un client HTTP dont les collections sont des fichiers texte versionnés dans le dépôt (dossier `bruno/`). La collection est rangée par dossiers : **Utilisateurs**, **Objets**, **Trocs**, **Authentification** (à partir du TP 5), et **Expérimentation** pour les routes temporaires des parties 1. Choisissez l'environnement **Local** (`baseUrl = http://localhost:8080`) en haut à droite.

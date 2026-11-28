@@ -76,7 +76,7 @@ public class TradeService {
 		}
 
 		// Le service construit l'entité après les vérifications : id et statut sont décidés par le serveur.
-		// Une proposition ne modifie aucun stock (l'échange arrive au TP 6).
+		// Une proposition ne modifie aucun stock (l'échange arrive au TP 7).
 		Trade trade = new Trade();
 		trade.setStatus(TradeStatus.PROPOSED);
 		trade.setProposerId(request.proposerId());

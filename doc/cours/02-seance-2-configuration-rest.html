@@ -635,7 +635,7 @@ server.port=8080
     <p>On retrouve le Trade de la diapo fil rouge de la séance 1, mais seulement sa première étape : « Proposé ».</p>
     <p>Chaque vérification qui échoue produit un code de statut différent. Pour le stock insuffisant, le code est laissé au choix des groupes (400, 409 ou 422) : c'est un choix technique à justifier, exactement ce qui est évalué.</p>
     <p>Le TP ajoute deux vérifications en 400 qui ne figurent pas sur le schéma : troquer avec soi-même, quantités ≤ 0.</p>
-    <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigera avec Spring Security, au TP 9.</p>
+    <p>proposerId dans le corps : faute d'authentification, le client se déclare lui-même. On le corrigera avec Spring Security, au TP 5.</p>
   </aside>
 
   <!-- ============ 17 · REQUÊTE ≠ ENTITÉ ============ -->
@@ -712,7 +712,7 @@ server.port=8080
         <div class="v">POST /trades, GET /trades/{id}, GET /trades?userId=…, avec max-pending dans TradeProperties.</div>
       </div>
     </div>
-    <div class="memo"><b>DANS CHAQUE TP</b>Expérimentation facultative (ses questions d'entrée disent si vous pouvez la sauter), puis mise en place obligatoire.<br><b>À VÉRIFIER</b>Chaque endpoint avec Bruno ou curl -i : le bon code, pas seulement le bon JSON. Pour le 409 du TP 4, relancez avec TROC_TRADE_MAXPENDING=1.<br><b>EN AVANCE ?</b>TP 5 (persistance) ou bonus : @RestControllerAdvice, @Valid. <b>FIN DE SÉANCE</b>Checkpoint : bilan collectif, puis 5 min de journal de bord.</div>
+    <div class="memo"><b>DANS CHAQUE TP</b>Expérimentation facultative (ses questions d'entrée disent si vous pouvez la sauter), puis mise en place obligatoire.<br><b>À VÉRIFIER</b>Chaque endpoint avec Bruno ou curl -i : le bon code, pas seulement le bon JSON. Pour le 409 du TP 4, relancez avec TROC_TRADE_MAXPENDING=1.<br><b>EN AVANCE ?</b>TP 6 (persistance) ou bonus : @RestControllerAdvice, @Valid. <b>FIN DE SÉANCE</b>Checkpoint : bilan collectif, puis 5 min de journal de bord.</div>
     <div class="pageno">18</div>
   </section>
   <aside class="notes">

@@ -205,8 +205,8 @@
     <div class="pageno">01</div>
   </section>
   <aside class="notes">
-    <p>Accueil. Déroulé : 30 min de théorie d'un seul bloc (≈ 15 min persistance, 15 min transactions), pause, TP 5, checkpoint #1 (10 min), TP 6, checkpoint #2. Rythme indicatif : les groupes en avance continuent sur les TP suivants.</p>
-    <p>Faire lever la main aux groupes dont POST /trades ne tourne pas encore. Pas bloquant pour le TP 5 : la persistance de users et items suit exactement le même schéma, et trades vient ensuite.</p>
+    <p>Accueil. Déroulé : 30 min de théorie d'un seul bloc (≈ 15 min persistance, 15 min transactions), pause, TP 6, checkpoint #1 (10 min), TP 7, checkpoint #2. Rythme indicatif : les groupes en avance continuent sur les TP suivants.</p>
+    <p>Faire lever la main aux groupes dont POST /trades ne tourne pas encore. Pas bloquant pour le TP 6 : la persistance de users et items suit exactement le même schéma, et trades vient ensuite.</p>
   </aside>
 
   <!-- ============ 02 · OÙ EN EST-ON ============ -->
@@ -237,14 +237,14 @@
     <ul>
       <li><b>01 · Des données qui survivent</b> <span>Spring Data JDBC, schéma, entité et repository</span><span class="dur">15 min</span></li>
       <li><b>02 · Tout ou rien</b> <span>cycle de vie d'un troc, @Transactional, pièges</span><span class="dur">15 min</span></li>
-      <li class="hl"><b>Puis · TP 5</b> <span>users, items et trades en base H2</span></li>
+      <li class="hl"><b>Puis · TP 6</b> <span>users, items et trades en base H2</span></li>
       <li><b>03 · Checkpoint #1 : vers l'acceptation</b> <span>pièges du mapping, ce que la base garantit</span><span class="dur">10 min</span></li>
-      <li class="hl"><b>Puis · TP 6</b> <span>accepter un troc, puis checkpoint #2 et journal de bord</span></li>
+      <li class="hl"><b>Puis · TP 7</b> <span>accepter un troc, puis checkpoint #2 et journal de bord</span></li>
     </ul>
     <div class="pageno">03</div>
   </section>
   <aside class="notes">
-    <p>Les parties 01 et 02 sont présentées d'un seul bloc, avant la pause. Le checkpoint #1 arrive quand les groupes ont globalement fini le TP 5. Dans chaque TP, l'expérimentation reste facultative, la mise en place obligatoire.</p>
+    <p>Les parties 01 et 02 sont présentées d'un seul bloc, avant la pause. Le checkpoint #1 arrive quand les groupes ont globalement fini le TP 6. Dans chaque TP, l'expérimentation reste facultative, la mise en place obligatoire.</p>
   </aside>
 
   <!-- ============ 04 · SECTION 01 ============ -->
@@ -453,7 +453,7 @@ spring.h2.console.enabled=true
   <aside class="notes">
     <p>Toutes les flèches pointent vers une clé primaire : une clé étrangère dit « cette valeur doit exister là-bas ». Impossible d'enregistrer un objet dont le propriétaire n'existe pas, même avec un bug dans le code.</p>
     <p>trades référence deux fois users et deux fois items : c'est normal, un troc a deux participants et deux objets.</p>
-    <p>CHECK et UNIQUE : on y revient au checkpoint #1, ce sont des filets de sécurité qui serviront pendant la preuve du TP 6.</p>
+    <p>CHECK et UNIQUE : on y revient au checkpoint #1, ce sont des filets de sécurité qui serviront pendant la preuve du TP 7.</p>
   </aside>
 
   <!-- ============ 09 · SCHEMA.SQL ============ -->
@@ -665,7 +665,7 @@ spring.h2.console.enabled=true
     <p>Pourquoi l'étape 3 échoue-t-elle ? Bob avait 5 carottes à la proposition, il en a donné 4 ailleurs entre-temps. Le stock a changé entre la proposition et l'acceptation : il faut revérifier au moment d'exécuter.</p>
     <p>Ici c'est la contrainte CHECK (quantity &gt;= 0) qui refuse l'écriture. Dans un bon code, la vérification est faite avant toute écriture (diapo suivante) ; la contrainte est le filet si le code se trompe.</p>
     <p>Une panne réseau, un crash, un bug dans le crédit produiraient le même état incohérent. La transaction couvre tous ces cas, pas seulement ceux qu'on a prévus.</p>
-    <p>Ordre réel du code de référence : chaque transfert débite puis crédite (l'objet offert, puis l'objet demandé). C'est exactement ce qu'on observe dans la preuve du TP 6 : Alice à 7 tomates, une ligne « tomates » à 3 chez Bob, troc toujours PROPOSED.</p>
+    <p>Ordre réel du code de référence : chaque transfert débite puis crédite (l'objet offert, puis l'objet demandé). C'est exactement ce qu'on observe dans la preuve du TP 7 : Alice à 7 tomates, une ligne « tomates » à 3 chez Bob, troc toujours PROPOSED.</p>
   </aside>
 
   <!-- ============ 15 · @TRANSACTIONAL ============ -->
@@ -765,11 +765,11 @@ spring.h2.console.enabled=true
     <p>Garder la transaction courte : pas d'appel réseau ni d'attente à l'intérieur, elle bloque des lignes pendant ce temps.</p>
   </aside>
 
-  <!-- ============ 18 · TP 5 ============ -->
+  <!-- ============ 18 · TP 6 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 5 · 05-tp5-persistance.md</div>
-    <h2>Place au TP 5</h2>
+    <div class="tag">TP 6 · 06-tp6-persistance.md</div>
+    <h2>Place au TP 6</h2>
     <div class="grid two">
       <div class="card opt">
         <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
@@ -780,11 +780,11 @@ spring.h2.console.enabled=true
         <div class="v">H2 et schema.sql, puis <b>users</b>, <b>items</b> et <b>trades</b> en Spring Data JDBC. Supprimer les classes en mémoire.<br><br>Redémarrer : les données sont toujours là, visibles dans /h2-console.</div>
       </div>
     </div>
-    <div class="memo"><b>EN AVANCE ?</b>TP 6 (transactions), ou bonus : data.sql, profil demo, dater les trocs.</div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 7 (transactions), ou bonus : data.sql, profil demo, dater les trocs.</div>
     <div class="pageno">18</div>
   </section>
   <aside class="notes">
-    <p>Diapo projetée pendant le TP 5. Checkpoint #1 quand tout le monde a globalement fini : les pièges du mapping, puis l'acceptation du troc.</p>
+    <p>Diapo projetée pendant le TP 6. Checkpoint #1 quand tout le monde a globalement fini : les pièges du mapping, puis l'acceptation du troc.</p>
     <p>Durée indicative : 60 à 75 min. Le support de TP détaille l'ordre conseillé : users d'abord (le plus simple), puis items (la clé étrangère), puis trades.</p>
     <p>Répartition possible dans un groupe de 4 : une personne sur le schéma SQL, les autres sur une fonctionnalité chacune. Le schéma doit être fini en premier.</p>
     <p>Les fichiers de requêtes de test de la séance 2 servent de non-régression : tout doit répondre pareil qu'avant.</p>
@@ -799,7 +799,7 @@ spring.h2.console.enabled=true
       <div class="list">
         <div>Les pièges du mapping</div>
         <div>Ce que la base garantit</div>
-        <div>L'expérience du TP 6</div>
+        <div>L'expérience du TP 7</div>
       </div>
     </div>
     <div class="pageno">19</div>
@@ -846,7 +846,7 @@ spring.h2.console.enabled=true
   <aside class="notes">
     <p>FK : DELETE /users/1 alors qu'il possède des objets → la base lève une exception d'intégrité → 500 si on ne fait rien. Aux groupes de choisir : vérifier et renvoyer 409, ou supprimer d'abord ses objets. Les deux se défendent.</p>
     <p>Index : CREATE INDEX IF NOT EXISTS idx_trades_recipient ON trades(recipient_id); idem sur proposer_id. Un index accélère les lectures mais ralentit un peu les écritures : on indexe ce qu'on interroge. Selon le SGBD, une clé étrangère n'est pas indexée automatiquement (PostgreSQL ne le fait pas, H2 si).</p>
-    <p>Transition vers le TP 6 : la contrainte CHECK va servir de déclencheur dans l'expérience.</p>
+    <p>Transition vers le TP 7 : la contrainte CHECK va servir de déclencheur dans l'expérience.</p>
   </aside>
 
   <!-- ============ 22 · SYNTHÈSE ============ -->
@@ -877,15 +877,15 @@ spring.h2.console.enabled=true
     <div class="pageno">22</div>
   </section>
   <aside class="notes">
-    <p>Synthèse avant de lancer le TP 6. Elle sera reprise au checkpoint #2 pour le bilan.</p>
+    <p>Synthèse avant de lancer le TP 7. Elle sera reprise au checkpoint #2 pour le bilan.</p>
     <p>Annonce séance 4 : le proxy vu aujourd'hui, on va en écrire un nous-mêmes (AOP). Et on testera TradeService avec un faux repository, grâce à l'injection par constructeur de la séance 1. Prévenir que la séance 4 est dense : arriver avec un projet qui tourne.</p>
   </aside>
 
-  <!-- ============ 23 · TP 6 ============ -->
+  <!-- ============ 23 · TP 7 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 6 · 06-tp6-transactions.md</div>
-    <h2>Place au TP 6</h2>
+    <div class="tag">TP 7 · 07-tp7-transactions.md</div>
+    <h2>Place au TP 7</h2>
     <div class="grid two">
       <div class="card opt">
         <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
@@ -896,11 +896,11 @@ spring.h2.console.enabled=true
         <div class="v"><b>POST /trades/{id}/accept</b> et <b>/reject</b> : l'échange des stocks dans une seule méthode @Transactional.<br><br>La preuve : sans @Transactional, stock de Bob à 1, accept. Que reste-t-il à Alice ? Puis avec.</div>
       </div>
     </div>
-    <div class="memo"><b>EN AVANCE ?</b>TP 7 (AOP) ou bonus : concurrence, index justifiés. <b>FIN DE SÉANCE</b>Checkpoint #2 : bilan collectif, puis 5 min de journal de bord.</div>
+    <div class="memo"><b>EN AVANCE ?</b>TP 8 (AOP) ou bonus : concurrence, index justifiés. <b>FIN DE SÉANCE</b>Checkpoint #2 : bilan collectif, puis 5 min de journal de bord.</div>
     <div class="pageno">23</div>
   </section>
   <aside class="notes">
-    <p>Diapo projetée pendant tout le TP 6. Durée indicative : 60 à 75 min. Expérience détaillée dans le support : retirer temporairement @Transactional et la vérification du stock du destinataire, passer les carottes de Bob à 1 (requête Bruno « Réduire le stock de Bob »), accepter → 500 (contrainte CHECK). Dans /h2-console, le stock d'Alice a baissé. Remettre @Transactional, recommencer : même 500, mais stock d'Alice intact. Remettre enfin la vérification : 409 propre.</p>
+    <p>Diapo projetée pendant tout le TP 7. Durée indicative : 60 à 75 min. Expérience détaillée dans le support : retirer temporairement @Transactional et la vérification du stock du destinataire, passer les carottes de Bob à 1 (requête Bruno « Réduire le stock de Bob »), accepter → 500 (contrainte CHECK). Dans /h2-console, le stock d'Alice a baissé. Remettre @Transactional, recommencer : même 500, mais stock d'Alice intact. Remettre enfin la vérification : 409 propre.</p>
     <p>À noter dans le rapport du projet : c'est une preuve concrète, reproductible, du rôle de la transaction.</p>
     <p>Bonus concurrence : deux acceptations en parallèle peuvent toutes deux passer la vérification de stock. Pistes : UPDATE conditionnel (… SET quantity = quantity - :qty WHERE id = :id AND quantity &gt;= :qty, avec @Modifying et @Query, en testant le nombre de lignes modifiées), ou verrouillage optimiste avec @Version.</p>
     <p>Journal de bord : laisser 5 minutes en fin de checkpoint #2 pour le compléter (ce qui a bloqué, ce que vous feriez autrement ou plus tôt, ce qui a bien marché, ce qui était fluide). Faire citer une ou deux entrées à voix haute : ce qui a bloqué aujourd'hui sert de point de départ au rappel de la prochaine séance.</p>

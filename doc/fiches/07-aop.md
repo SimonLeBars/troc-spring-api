@@ -1,17 +1,17 @@
-# 🧩 Fiche 6 — AOP
+# 🧩 Fiche 7 — AOP
 
 > `TP N` = notion vue à partir du TP N · ✅ à faire · ❌ à éviter · ⚠️ piège · 💡 astuce
 
-## 💡 L'idée · `TP 7`
+## 💡 L'idée · `TP 8`
 
 Une **préoccupation transverse** concerne toutes les classes sans appartenir au métier d'aucune : journaliser, chronométrer, ouvrir une transaction, vérifier des droits. Un **aspect** l'écrit **une fois** et l'applique aux méthodes choisies.
 
 | Déjà vu | C'est un aspect fourni par Spring |
 |---|---|
-| `@Transactional` (TP 6) | `BEGIN` avant, `COMMIT` / `ROLLBACK` après |
-| `@PreAuthorize` (TP 9, bonus) | vérifier un rôle avant |
+| `@Transactional` (TP 7) | `BEGIN` avant, `COMMIT` / `ROLLBACK` après |
+| `@PreAuthorize` (TP 5, bonus) | vérifier un rôle avant |
 
-## 🎭 Le proxy · `TP 6`
+## 🎭 Le proxy · `TP 7`
 
 ```
 TradeController ──accept(1, 2)──▶ ┌──────── TradeService$$SpringCGLIB$$0 (proxy) ─────────┐
@@ -28,7 +28,7 @@ TradeController ──accept(1, 2)──▶ ┌──────── TradeSer
 - ⚠️ appel interne `this.findById(…)`, méthode `private` → **pas** interceptés
 - 💡 appel d'un **autre** bean (`itemService.findById`) → intercepté
 
-## 📖 Vocabulaire · `TP 7`
+## 📖 Vocabulaire · `TP 8`
 
 | Terme | Question | troc-api |
 |---|---|---|
@@ -37,7 +37,7 @@ TradeController ──accept(1, 2)──▶ ┌──────── TradeSer
 | **Advice** | *quoi* et *quand* ? | écrire une ligne avant / après |
 | **Aspect** | dans quelle classe ? | `TradeLoggingAspect` |
 
-## 📦 Dépendance · `TP 7`
+## 📦 Dépendance · `TP 8`
 
 ```xml
 <dependency>
@@ -46,7 +46,7 @@ TradeController ──accept(1, 2)──▶ ┌──────── TradeSer
 </dependency>
 ```
 
-## ✍️ Un aspect · `TP 7`
+## ✍️ Un aspect · `TP 8`
 
 ```java
 @Aspect                                       // org.aspectj.lang.annotation
@@ -70,7 +70,7 @@ public class UnAspect {
 }
 ```
 
-## 🎯 Pointcuts · `TP 7`
+## 🎯 Pointcuts · `TP 8`
 
 ```
 execution(  *        fr.cours.troc.trade.TradeService  .*        (..)  )
@@ -80,14 +80,14 @@ execution(  *        fr.cours.troc.trade.TradeService  .*        (..)  )
 
 | Expression | Cible | TP |
 |---|---|:-:|
-| `execution(* fr.cours.troc.trade.TradeService.*(..))` | méthodes publiques de `TradeService` | 7 |
-| `execution(* fr.cours.troc.trade.TradeService.accept(..))` | `accept` seulement | 7 |
-| `execution(* fr.cours.troc..*Service.*(..))` | tous les `…Service` (`..` = sous-packages) | 7 (bonus) |
-| `@annotation(fr.cours.troc.Timed)` | méthodes annotées `@Timed` | 7 (bonus) |
+| `execution(* fr.cours.troc.trade.TradeService.*(..))` | méthodes publiques de `TradeService` | 8 |
+| `execution(* fr.cours.troc.trade.TradeService.accept(..))` | `accept` seulement | 8 |
+| `execution(* fr.cours.troc..*Service.*(..))` | tous les `…Service` (`..` = sous-packages) | 8 (bonus) |
+| `@annotation(fr.cours.troc.Timed)` | méthodes annotées `@Timed` | 8 (bonus) |
 
 ⚠️ faute de frappe → **aucune erreur**, aucune trace · 💡 nom complet : clic droit sur la classe > **Copy Reference**
 
-## ⏰ Advices · `TP 7`
+## ⏰ Advices · `TP 8`
 
 | Advice | Quand | Paramètres |
 |---|---|---|
@@ -122,9 +122,9 @@ public Object timed(ProceedingJoinPoint jp) throws Throwable {
 ```
 
 - ❌ ni `try`/`catch`, ni `return` dans `@AfterThrowing` : le client doit recevoir le même code, la transaction doit faire son `ROLLBACK`
-- ⚠️ `Arrays.toString(jp.getArgs())` sur un mot de passe → il finit dans les logs (TP 9)
+- ⚠️ `Arrays.toString(jp.getArgs())` sur un mot de passe → il finit dans les logs (TP 5)
 
-## 📝 Logger · `TP 7`
+## 📝 Logger · `TP 8`
 
 ```java
 private static final Logger log = LoggerFactory.getLogger(MaClasse.class);   // org.slf4j
@@ -140,7 +140,7 @@ log.info("→ {} {}", nom, args);                                             //
 
 ✅ `log.info(…)` plutôt que `System.out.println` : date, thread, classe, niveau, filtrable par configuration
 
-## ⌨️ IntelliJ · `TP 7`
+## ⌨️ IntelliJ · `TP 8`
 
 ⭐ = aide Spring, IntelliJ **Ultimate** (licence étudiante gratuite) · raccourcis Windows / Linux ; macOS et liste générale : [fiche 10](10-raccourcis-intellij.md)
 
@@ -155,15 +155,15 @@ log.info("→ {} {}", nom, args);                                             //
 
 | Symptôme | 🔎 Cause | TP |
 |---|---|:-:|
-| aucune trace, aucune erreur | faute dans le pointcut · `@Component` oublié | 7 |
-| `Cannot resolve symbol 'Aspect'` | `spring-boot-starter-aspectj` absent, Maven pas rechargé | 7 |
-| `spring-boot-starter-aop` introuvable | ancien nom (Boot 3) | 7 |
-| `error at ::0 formal unbound in pointcut` | `returning` / `throwing` ≠ nom du paramètre | 7 |
-| `JoinPoint` introuvable ou incompatible | mauvais import : `org.aspectj.lang.JoinPoint` | 7 |
-| le client reçoit `200` au lieu d'une erreur | l'advice attrape l'exception | 7 |
-| pas de ligne pour `findById` pendant `accept` | appel interne : normal | 7 |
-| `Trade@1b2c3d` dans les logs | `toString()` absent (un record l'a, une classe non) | 7 |
-| flèches `?` ou `â†'` | console IntelliJ pas en UTF-8 (**Settings > Editor > General > Console**) | 7 |
+| aucune trace, aucune erreur | faute dans le pointcut · `@Component` oublié | 8 |
+| `Cannot resolve symbol 'Aspect'` | `spring-boot-starter-aspectj` absent, Maven pas rechargé | 8 |
+| `spring-boot-starter-aop` introuvable | ancien nom (Boot 3) | 8 |
+| `error at ::0 formal unbound in pointcut` | `returning` / `throwing` ≠ nom du paramètre | 8 |
+| `JoinPoint` introuvable ou incompatible | mauvais import : `org.aspectj.lang.JoinPoint` | 8 |
+| le client reçoit `200` au lieu d'une erreur | l'advice attrape l'exception | 8 |
+| pas de ligne pour `findById` pendant `accept` | appel interne : normal | 8 |
+| `Trade@1b2c3d` dans les logs | `toString()` absent (un record l'a, une classe non) | 8 |
+| flèches `?` ou `â†'` | console IntelliJ pas en UTF-8 (**Settings > Editor > General > Console**) | 8 |
 
 ## 🔗 Pour aller plus loin
 

@@ -6,16 +6,6 @@ meta {
 
 post {
   url: {{baseUrl}}/trades/2/reject
-  body: json
-  auth: none
-}
-
-headers {
-  Content-Type: application/json
-}
-
-body:json {
-  {
-    "userId": 2
-  }
+  body: none
+  auth: inherit
 }

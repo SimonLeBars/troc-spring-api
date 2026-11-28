@@ -71,7 +71,7 @@ démarrage.
 | `UserRepository` | `InMemoryUserRepository`, puis une version avec base de données | on remplace la classe, les services ne bougent pas |
 
 - C'est ce que fait le **Bonus 2** du TP 1 avec `LoggingUserRepository` et `@Profile("dev")`.
-- Le **TP 5** en est un exemple grandeur nature : le stockage en mémoire est remplacé par une
+- Le **TP 6** en est un exemple grandeur nature : le stockage en mémoire est remplacé par une
   base de données, sans toucher aux services.
 
 #### 2. Plusieurs implémentations actives, utilisées à des endroits différents
@@ -126,14 +126,14 @@ public PaymentService(Map<String, PaymentGateway> gateways) { … }
 - Même usage pour une liste de règles de validation : chaque règle est une classe, le service les
   applique toutes.
 - Spring lui-même fonctionne ainsi : la conversion objet ↔ JSON passe par une liste de
-  `HttpMessageConverter` (JSON, XML, texte…), et Spring Security (TP 9) par une chaîne de filtres.
+  `HttpMessageConverter` (JSON, XML, texte…), et Spring Security (TP 5) par une chaîne de filtres.
 - Dans le troc : prévenir un utilisateur qu'il a reçu une proposition, à la fois par email et
   dans l'application.
 
 #### Et les tests ?
 
 Une autre implémentation très courante est la **fausse** : une passerelle de paiement qui ne
-débite personne, un envoi d'email qui ne fait que mémoriser le message. Ce sera vu au TP 8.
+débite personne, un envoi d'email qui ne fait que mémoriser le message. Ce sera vu au TP 9.
 
 #### La nuance honnête
 
@@ -142,7 +142,7 @@ En entreprise, **beaucoup d'interfaces n'ont qu'une seule implémentation**. Cr�
 elle sert de **contrat** entre couches, quand on veut pouvoir **substituer** l'implémentation
 (environnement, tests) ou quand une **migration** est prévisible.
 
-Clin d'œil au TP 5 : avec Spring Data, on écrit **seulement l'interface** du repository, et c'est
+Clin d'œil au TP 6 : avec Spring Data, on écrit **seulement l'interface** du repository, et c'est
 Spring qui fabrique l'implémentation.
 
 #### Pour aller plus loin
@@ -177,13 +177,13 @@ pour ça qu'elles produisent toutes un bean.
 
 | Annotation | Ce qu'elle apporte en plus de `@Component` |
 |---|---|
-| `@Service` | **Rien de technique.** Elle sert à documenter que la classe contient de la logique métier. Elle est aussi utile pour cibler « toutes les classes de service » d'un coup (aspects, TP 7). |
+| `@Service` | **Rien de technique.** Elle sert à documenter que la classe contient de la logique métier. Elle est aussi utile pour cibler « toutes les classes de service » d'un coup (aspects, TP 8). |
 | `@Repository` | La **traduction des exceptions** : les exceptions propres à la base (`SQLException`, erreurs du pilote…) sont converties en `DataAccessException`, une hiérarchie commune à Spring. Le code appelant ne dépend donc pas de la base utilisée. |
 | `@Controller` | Spring MVC repère la classe et enregistre ses méthodes `@GetMapping`, `@PostMapping`… comme des routes HTTP. |
 | `@RestController` | `@Controller` + `@ResponseBody` : la valeur renvoyée est convertie en JSON au lieu d'être vue comme le nom d'une page HTML à afficher. |
 | `@Configuration` | La classe sert de source de définitions `@Bean`. Spring l'entoure d'un proxy pour qu'un appel entre méthodes `@Bean` renvoie le même singleton au lieu de créer une nouvelle instance. |
 
-Au TP 5, avec Spring Data, une interface qui étend `ListCrudRepository` n'a pas besoin de
+Au TP 6, avec Spring Data, une interface qui étend `ListCrudRepository` n'a pas besoin de
 `@Repository` : Spring Data la détecte et l'implémente lui-même.
 
 #### `@SpringBootApplication` : un cas à part

@@ -205,26 +205,26 @@
     <div class="pageno">01</div>
   </section>
   <aside class="notes">
-    <p>Support annexe, hors séance : le cours du TP 9 (doc/tp/09-tp9-securite-authentification.md), à lire en autonomie. La partie 03 suit les étapes de la mise en place du TP.</p>
+    <p>Support annexe, hors séance : le cours du TP 5 (doc/tp/05-tp5-securite-authentification.md), à lire en autonomie. La partie 03 suit les étapes de la mise en place du TP.</p>
     <p>Quatre parties : pourquoi sécuriser, comment fonctionne une authentification par jeton, l'ajout concret à l'API de troc, puis rôles, tests et choix techniques.</p>
   </aside>
 
   <!-- ============ 02 · SOMMAIRE ============ -->
   <section class="slide s-content">
     <div class="bar"></div>
-    <div class="tag">SOMMAIRE · ANNEXE DU TP 9</div>
+    <div class="tag">SOMMAIRE · ANNEXE DU TP 5</div>
     <h3>Au programme</h3>
     <ul>
       <li><b>01 · Pourquoi sécuriser l'API ?</b> <span>le client se déclare lui-même, 401 et 403</span></li>
       <li><b>02 · Comment ça fonctionne</b> <span>connexion puis jeton, anatomie d'un JWT, le starter seul</span></li>
       <li><b>03 · Ajouter l'authentification au troc</b> <span>comptes, mots de passe, jetons, contrôleurs</span></li>
       <li><b>04 · Aller plus loin</b> <span>rôles, tests, pourquoi un jeton, pièges</span></li>
-      <li class="hl"><b>Puis · TP 9</b> <span>expérimentation facultative, mise en place obligatoire</span></li>
+      <li class="hl"><b>Puis · TP 5</b> <span>expérimentation facultative, mise en place obligatoire</span></li>
     </ul>
     <div class="pageno">02</div>
   </section>
   <aside class="notes">
-    <p>Support à lire en autonomie, sans durée imposée. La partie 03 suit pas à pas les étapes de la mise en place du TP 9 : on peut la lire en parallèle du TP.</p>
+    <p>Support à lire en autonomie, sans durée imposée. La partie 03 suit pas à pas les étapes de la mise en place du TP 5 : on peut la lire en parallèle du TP.</p>
   </aside>
 
   <!-- ============ 03 · SECTION 01 ============ -->
@@ -1129,16 +1129,16 @@ curl -i -H <span class="kw">"Authorization: Bearer $TOKEN"</span> -X POST localh
     <div class="pageno">27</div>
   </section>
   <aside class="notes">
-    <p>Synthèse avant de lancer le TP 9.</p>
+    <p>Synthèse avant de lancer le TP 5.</p>
     <p>Pour la présentation finale, la sécurité coche plusieurs critères : choix technique à justifier (pourquoi un jeton, pourquoi HS256, quelle durée de vie), concept SQL (UNIQUE et son index), vulgarisation (401 vs 403, hacher vs chiffrer, encodé vs signé).</p>
     <p>Pour aller plus loin : la documentation de référence de Spring Security (docs.spring.io/spring-security/reference), sections « Servlet Applications » → « OAuth2 » → « Resource Server » → « JWT ».</p>
   </aside>
 
-  <!-- ============ 28 · TP 9 ============ -->
+  <!-- ============ 28 · TP 5 ============ -->
   <section class="slide s-close">
     <div class="bar"></div>
-    <div class="tag">TP 9 · 09-tp9-securite-authentification.md</div>
-    <h2>Place au TP 9</h2>
+    <div class="tag">TP 5 · 05-tp5-securite-authentification.md</div>
+    <h2>Place au TP 5</h2>
     <div class="grid two">
       <div class="card opt">
         <div class="k">PARTIE 1 · EXPÉRIMENTATION · FACULTATIVE</div>
@@ -1149,11 +1149,11 @@ curl -i -H <span class="kw">"Authorization: Bearer $TOKEN"</span> -X POST localh
         <div class="v">Inscription avec BCrypt, <b>POST /auth/token</b> qui délivre un JWT, Bearer exigé partout ailleurs.<br><br>proposerId et userId disparaissent des corps : l'identité vient du jeton.</div>
       </div>
     </div>
-    <div class="memo"><b>LES TESTS DU TP 8</b>Ils passent au rouge (401 partout) : les réparer avec <code>.with(jwt())</code>.</div>
+    <div class="memo"><b>LES TESTS DU TP 9</b>Ils passent au rouge (401 partout) : les réparer avec <code>.with(jwt())</code>.</div>
     <div class="pageno">28</div>
   </section>
   <aside class="notes">
-    <p>Diapo de lancement du TP 9. Les étapes 1 à 6 de la partie 03 correspondent à la mise en place, dans le même ordre.</p>
+    <p>Diapo de lancement du TP 5. Les étapes 1 à 6 de la partie 03 correspondent à la mise en place, dans le même ordre.</p>
   </aside>
 
 </div>

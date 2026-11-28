@@ -17,12 +17,12 @@ flowchart LR
 | Contient | ce que le client **peut** choisir | tout ce qui est enregistré |
 | Construit par | Jackson, à partir du JSON | le **service**, après ses vérifications |
 | Forme | `record` (immuable) | classe avec getters / setters |
-| troc-api | `ProposeTradeRequest`, `TradeDecisionRequest` (TP 6) | `User`, `Item`, `Trade` |
+| troc-api | `ProposeTradeRequest`, la requête d'inscription (TP 5) | `User`, `Item`, `Trade` |
 
 - ❌ `@RequestBody Trade trade` : le client choisit `id`, `status`… (*mass assignment*)
 - ✅ `@RequestBody ProposeTradeRequest request` : une clé JSON inconnue (`"status"`, `"id"`) est **ignorée**
 - 💡 le DTO documente le contrat de la route : ses champs sont exactement ce qu'il faut envoyer (visible dans Swagger UI)
-- 🔒 `TP 9` : un DTO de **réponse** aussi, pour ne jamais renvoyer `passwordHash` ; ❌ pas de champ `role` dans la requête d'inscription
+- 🔒 `TP 5` : un DTO de **réponse** aussi, pour ne jamais renvoyer `passwordHash` ; ❌ pas de champ `role` dans la requête d'inscription
 
 ## 📝 Record · `TP 3`
 
@@ -36,7 +36,7 @@ public record ProposeTradeRequest(Long proposerId, Long offeredItemId, int offer
 |---|---|
 | constructeur avec tous les composants | `new ProposeTradeRequest(1L, 1L, 3, 2L, 2L, 4)` |
 | un accesseur par composant (**sans** `get`) | `request.offeredQuantity()` |
-| `equals`, `hashCode`, `toString` | `ProposeTradeRequest[proposerId=1, …]` dans les logs (TP 7) |
+| `equals`, `hashCode`, `toString` | `ProposeTradeRequest[offeredItemId=1, …]` dans les logs (TP 8) |
 
 | Composant absent du JSON | Résultat |
 |---|---|
@@ -46,10 +46,10 @@ public record ProposeTradeRequest(Long proposerId, Long offeredItemId, int offer
 ## 🔢 Enum · `TP 4`
 
 ```java
-public enum TradeStatus { PROPOSED, EXECUTED, REJECTED }   // EXECUTED, REJECTED : TP 6
+public enum TradeStatus { PROPOSED, EXECUTED, REJECTED }   // EXECUTED, REJECTED : TP 7
 ```
 
-- JSON ↔ texte : `"status": "PROPOSED"` · base ↔ `VARCHAR` : `'PROPOSED'` (TP 5)
+- JSON ↔ texte : `"status": "PROPOSED"` · base ↔ `VARCHAR` : `'PROPOSED'` (TP 6)
 - valeur inconnue dans le JSON (`"PAYED"`) → `400` au lieu d'être enregistrée
 - ✅ comparer avec `==` : `trade.getStatus() != TradeStatus.PROPOSED`
 - ⚠️ mais **jamais** deux `Long` avec `==` → `Objects.equals(a, b)`
@@ -64,7 +64,7 @@ Ordre de `propose` : **existe** (`404`) → **cohérent en soi** (`400`) → **�
 | utilisateur, objet existent | ⚙️ service (`userService.findById` lève le `404`) | `404` |
 | pas de troc avec soi-même, objet au bon propriétaire | ⚙️ service | `400` |
 | stock suffisant, `max-pending` atteint | ⚙️ service (dépend des données) | `409` |
-| seul le destinataire répond | ⚙️ service | `403` (TP 6) |
+| seul le destinataire répond | ⚙️ service | `403` (TP 7) |
 
 ✅ `TradeService` reçoit `UserService` et `ItemService` (leurs `findById` font déjà le `404`) · ❌ `ItemService` ne reçoit jamais `TradeService` (cycle, fiche 1)
 
@@ -85,9 +85,9 @@ public Trade findById(Long id) {
 |---|---|:-:|
 | `orElseThrow(() -> …)` | la valeur, ou lever une exception | 2 |
 | `isPresent()`, `isEmpty()` | tester | 2 |
-| `filter(x -> …)` | garder la valeur si elle respecte la condition | 5 |
-| `ifPresent(x -> …)` | agir seulement s'il y a une valeur | 5 |
-| `orElseGet(() -> …)` | la valeur, ou en construire une | 6 |
+| `filter(x -> …)` | garder la valeur si elle respecte la condition | 6 |
+| `ifPresent(x -> …)` | agir seulement s'il y a une valeur | 6 |
+| `orElseGet(() -> …)` | la valeur, ou en construire une | 7 |
 
 - ⚠️ `IllegalArgumentException`, `NullPointerException` → `500`
 - ⚠️ message absent de la réponse → `spring.web.error.include-message=always` (fiche 2)
@@ -138,7 +138,7 @@ public class ApiExceptionHandler {
 ```
 
 - `NotFoundException extends RuntimeException`, dans `fr.cours.troc.common` : le service ne connaît plus HTTP
-- ⚠️ `RuntimeException`, pas `Exception` : sinon `@Transactional` ne fait pas de `ROLLBACK` (fiche 5)
+- ⚠️ `RuntimeException`, pas `Exception` : sinon `@Transactional` ne fait pas de `ROLLBACK` (fiche 6)
 - 💡 `ProblemDetail` : corps d'erreur standard (RFC 9457) → `{"type", "title", "status", "detail", "instance"}`
 
 ## ⌨️ IntelliJ · `TP 4`

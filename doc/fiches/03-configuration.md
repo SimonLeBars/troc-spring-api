@@ -15,10 +15,10 @@ troc.item.max-per-user=20
 | Préfixe | Lu par | Exemples |
 |---|---|---|
 | `server.*` | Spring Boot (serveur web) | `server.port=9090` |
-| `spring.*` | Spring Boot | `spring.datasource.url` (TP 5), `spring.profiles.active` |
-| `logging.level.*` | Spring Boot (logs) | `logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG` (TP 5) |
+| `spring.*` | Spring Boot | `spring.datasource.url` (TP 6), `spring.profiles.active` |
+| `logging.level.*` | Spring Boot (logs) | `logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG` (TP 6) |
 | `springdoc.*` | springdoc | `springdoc.swagger-ui.operations-sorter=method` (Annexe 1) |
-| 🍅 `troc.*` | **nous** | `troc.item.max-per-user`, `troc.trade.max-pending` (TP 4), `troc.jwt.secret` (TP 9) |
+| 🍅 `troc.*` | **nous** | `troc.item.max-per-user`, `troc.trade.max-pending` (TP 4), `troc.jwt.secret` (TP 5) |
 
 - ✅ mots séparés par des tirets : `max-per-user`
 - ❌ commentaire en fin de ligne : `troc.item.max-per-user=20 # max` → la valeur devient `20 # max`
@@ -92,10 +92,10 @@ public class ItemService {
 |---|---|---|
 | Pour | une valeur isolée | un **groupe** de réglages d'une fonctionnalité |
 | Clé | chaîne libre, non vérifiée | préfixe + noms des composants |
-| Dans troc-api | — | `ItemProperties` (TP 3), `TradeProperties` (TP 4), un record `troc.jwt` (TP 9) |
+| Dans troc-api | — | `ItemProperties` (TP 3), `TradeProperties` (TP 4), un record `troc.jwt` (TP 5) |
 
 - `@DefaultValue` : `org.springframework.boot.context.properties.bind`
-- 💡 `Duration` comprend `1h`, `30m`, `10s` (`troc.jwt.ttl=1h`, TP 9)
+- 💡 `Duration` comprend `1h`, `30m`, `10s` (`troc.jwt.ttl=1h`, TP 5)
 - ✅ `ItemService` ne contient ni `20`, ni `"troc.item.max-per-user"`
 
 ## 🎭 Profils · `TP 3` (bonus)
@@ -109,16 +109,16 @@ application-demo.properties        ← en plus, si le profil "demo" est actif (n
 |---|---|
 | IntelliJ | **Run > Edit Configurations…** > **Active profiles** : `demo` |
 | Variable | `SPRING_PROFILES_ACTIVE=demo` |
-| Test | `@ActiveProfiles("test")` sur la classe (`TP 8`) |
+| Test | `@ActiveProfiles("test")` sur la classe (`TP 9`) |
 
 | Profil | Fichier | Contenu | TP |
 |---|---|---|:-:|
-| `demo` | `src/main/resources/application-demo.properties` | `troc.item.max-per-user=3`, ou une base H2 en mémoire | 3, 5 |
-| `test` | `src/test/resources/application-test.properties` | base H2 en mémoire, secret JWT de test | 8, 9 |
+| `demo` | `src/main/resources/application-demo.properties` | `troc.item.max-per-user=3`, ou une base H2 en mémoire | 3, 6 |
+| `test` | `src/test/resources/application-test.properties` | base H2 en mémoire, secret JWT de test | 9 |
 
 ⚠️ `src/test/resources/application.properties` **remplace entièrement** celui de `main` : nommez-le `application-test.properties`.
 
-## 🔐 Secrets · `TP 9`
+## 🔐 Secrets · `TP 5`
 
 ```properties
 # lu dans l'environnement : jamais la valeur dans git
@@ -149,7 +149,7 @@ troc.jwt.secret=${TROC_JWT_SECRET}
 | variable d'environnement ignorée | `TROC_ITEM_MAX_PER_USER` au lieu de `TROC_ITEM_MAXPERUSER` | 3 |
 | `Failed to convert value of type 'java.lang.String' to required type 'int'` | commentaire en fin de ligne (`20 # max`) | 3 |
 | `Web server failed to start. Port 8080 was already in use` | une autre instance tourne déjà : l'arrêter, ou `--server.port=8081` | 3 |
-| toute la configuration semble perdue pendant les tests | `src/test/resources/application.properties` au lieu de `application-test.properties` | 8 |
+| toute la configuration semble perdue pendant les tests | `src/test/resources/application.properties` au lieu de `application-test.properties` | 9 |
 
 ## 🔗 Pour aller plus loin
 

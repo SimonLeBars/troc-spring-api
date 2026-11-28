@@ -1,8 +1,8 @@
-# 🗄️ Fiche 5 — Persistance et transactions
+# 🗄️ Fiche 6 — Persistance et transactions
 
 > `TP N` = notion vue à partir du TP N · ✅ à faire · ❌ à éviter · ⚠️ piège · 💡 astuce
 
-## 🧱 Les pièces · `TP 5`
+## 🧱 Les pièces · `TP 6`
 
 ```mermaid
 flowchart LR
@@ -20,7 +20,7 @@ flowchart LR
 | entité (`@Table`, `@Id`) | une ligne de la table |
 | interface repository | les requêtes, générées par Spring |
 
-## ⚙️ Configuration · `TP 5`
+## ⚙️ Configuration · `TP 6`
 
 ```properties
 spring.datasource.url=jdbc:h2:file:./data/troc;CASE_INSENSITIVE_IDENTIFIERS=TRUE
@@ -36,12 +36,12 @@ logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG
 
 | URL | Base | TP |
 |---|---|:-:|
-| `jdbc:h2:file:./data/troc` | fichier `data/troc.mv.db`, survit à l'arrêt · ✅ `data/` dans `.gitignore` | 5 |
-| `jdbc:h2:mem:troc` | en mémoire, vide à chaque lancement | 5 (bonus), 8 |
+| `jdbc:h2:file:./data/troc` | fichier `data/troc.mv.db`, survit à l'arrêt · ✅ `data/` dans `.gitignore` | 6 |
+| `jdbc:h2:mem:troc` | en mémoire, vide à chaque lancement | 6 (bonus), 9 |
 
 ⚠️ `;CASE_INSENSITIVE_IDENTIFIERS=TRUE` obligatoire : sinon « Table "users" not found ».
 
-## 📜 `schema.sql` · `TP 5`
+## 📜 `schema.sql` · `TP 6`
 
 ```sql
 CREATE TABLE IF NOT EXISTS items (
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS items (
 - ⚠️ `IF NOT EXISTS` : modifier un `CREATE TABLE` existant **n'a aucun effet** → arrêter, **supprimer `data/`**, relancer
 - 💡 le code **vérifie** (code clair au client), la base **garantit** (même si le code se trompe)
 
-## 🧩 Entité · `TP 5`
+## 🧩 Entité · `TP 6`
 
 ```java
 @Table("items")                  // org.springframework.data.relational.core.mapping.Table
@@ -84,7 +84,7 @@ public class Item {
 - ✅ relier par **identifiant** (`Long ownerId`), pas par objet (`User owner`)
 - ⚠️ le nom de la colonne **suit** celui du champ
 
-## 📚 Repository · `TP 5`
+## 📚 Repository · `TP 6`
 
 ```java
 public interface ItemRepository extends ListCrudRepository<Item, Long> {    // <entité, type de l'id>
@@ -105,14 +105,14 @@ public interface ItemRepository extends ListCrudRepository<Item, Long> {    // <
 
 | Méthode | SQL | TP |
 |---|---|:-:|
-| `findByOwnerId(Long ownerId)` | `WHERE owner_id = ?` | 2 → 5 |
-| `findByProposerIdOrRecipientId(Long p, Long r)` | `WHERE proposer_id = ? OR recipient_id = ?` | 4 → 5 |
-| `countByProposerIdAndStatus(Long p, TradeStatus s)` | `SELECT COUNT(*) … AND status = ?` | 4 → 5 |
-| `findByUsername(String username)` → `Optional<User>` | `WHERE username = ?` | 9 |
+| `findByOwnerId(Long ownerId)` | `WHERE owner_id = ?` | 2 → 6 |
+| `findByProposerIdOrRecipientId(Long p, Long r)` | `WHERE proposer_id = ? OR recipient_id = ?` | 4 → 6 |
+| `countByProposerIdAndStatus(Long p, TradeStatus s)` | `SELECT COUNT(*) … AND status = ?` | 4 → 6 |
+| `findByUsername(String username)` → `Optional<User>` | `WHERE username = ?` | 5 |
 
 ⚠️ un champ inconnu (`findByOwner`) → erreur **au démarrage**, qui cite la méthode · ✅ supprimer chaque `InMemory…Repository`
 
-## 🖥️ Console H2 · `TP 5`
+## 🖥️ Console H2 · `TP 6`
 
 <http://localhost:8080/h2-console> · **JDBC URL** = **exactement** `spring.datasource.url` · **User Name** `sa` · mot de passe vide
 
@@ -123,7 +123,7 @@ INSERT INTO items (owner_id, name, quantity) VALUES (99, 'radis', 5);   -- refus
 
 ⚠️ un `DELETE` tapé ici s'applique pour de vrai · ❌ jamais activée en production
 
-## 🔁 Transaction : tout ou rien · `TP 6`
+## 🔁 Transaction : tout ou rien · `TP 7`
 
 ```
 Contrôleur ──accept(…)──▶ [ proxy : BEGIN ] ──▶ TradeService.accept(…) : 5 écritures
@@ -164,7 +164,7 @@ public Trade accept(Long tradeId, Long userId) { … }
 | 🔁 la transaction **protège** | annuler ce qui est déjà écrit | stocks intacts |
 | 🧱 les contraintes **garantissent** | refuser l'incohérent, même si le code se trompe | `CHECK` bloque le stock négatif |
 
-## ⌨️ IntelliJ · `TP 5`
+## ⌨️ IntelliJ · `TP 6`
 
 ⭐ = aide Spring, IntelliJ **Ultimate** (licence étudiante gratuite) · raccourcis Windows / Linux ; macOS et liste générale : [fiche 10](10-raccourcis-intellij.md)
 
@@ -180,20 +180,20 @@ public Trade accept(Long tradeId, Long userId) { … }
 
 | Symptôme | 🔎 Cause | TP |
 |---|---|:-:|
-| « Table "users" not found (candidates are: "USERS") » | `CASE_INSENSITIVE_IDENTIFIERS=TRUE` absent de l'URL | 5 |
-| `Syntax error … CREATE TABLE IF NOT EXISTS USER` | table nommée `user` | 5 |
-| `Table "USERS" already exists` | `IF NOT EXISTS` oublié | 5 |
-| colonne ajoutée introuvable | table déjà existante : supprimer `data/` | 5 |
-| `Column "OWNERID" not found`, champ toujours `null` | colonne qui ne suit pas le champ (`owner_id`) | 5 |
-| `Referential integrity constraint violation` au démarrage | table créée avant celle qu'elle référence | 5 |
-| `No property 'owner' found for type 'Item'` | méthode dérivée qui cite un champ inexistant | 5 |
-| `required a single bean, but 2 were found` | un `InMemory…Repository` est resté | 5 |
-| `Failed to instantiate [fr.cours.troc.item.Item]` | constructeur sans paramètre manquant | 5 |
-| `id` toujours `null` | `jakarta.persistence.Id` au lieu de `org.springframework.data.annotation.Id` | 5 |
-| « Database may be already in use » | 2 instances ouvrent le même fichier H2 | 5 |
-| `500` « Unique index or primary key violation » | doublon : vérifier avant d'écrire (`findByOwnerIdAndName`) → `409` | 5 |
-| même résultat avec ou sans `@Transactional` | mauvais import · `private` · appel interne · pas relancé | 6 |
-| « Transaction rolled back because it has been marked as rollback-only » | exception levée par un **autre bean** `@Transactional` (ex. `itemService.transfer`), puis attrapée dans `accept` | 6 |
+| « Table "users" not found (candidates are: "USERS") » | `CASE_INSENSITIVE_IDENTIFIERS=TRUE` absent de l'URL | 6 |
+| `Syntax error … CREATE TABLE IF NOT EXISTS USER` | table nommée `user` | 6 |
+| `Table "USERS" already exists` | `IF NOT EXISTS` oublié | 6 |
+| colonne ajoutée introuvable | table déjà existante : supprimer `data/` | 6 |
+| `Column "OWNERID" not found`, champ toujours `null` | colonne qui ne suit pas le champ (`owner_id`) | 6 |
+| `Referential integrity constraint violation` au démarrage | table créée avant celle qu'elle référence | 6 |
+| `No property 'owner' found for type 'Item'` | méthode dérivée qui cite un champ inexistant | 6 |
+| `required a single bean, but 2 were found` | un `InMemory…Repository` est resté | 6 |
+| `Failed to instantiate [fr.cours.troc.item.Item]` | constructeur sans paramètre manquant | 6 |
+| `id` toujours `null` | `jakarta.persistence.Id` au lieu de `org.springframework.data.annotation.Id` | 6 |
+| « Database may be already in use » | 2 instances ouvrent le même fichier H2 | 6 |
+| `500` « Unique index or primary key violation » | doublon : vérifier avant d'écrire (`findByOwnerIdAndName`) → `409` | 6 |
+| même résultat avec ou sans `@Transactional` | mauvais import · `private` · appel interne · pas relancé | 7 |
+| « Transaction rolled back because it has been marked as rollback-only » | exception levée par un **autre bean** `@Transactional` (ex. `itemService.transfer`), puis attrapée dans `accept` | 7 |
 
 ## 🔗 Pour aller plus loin
 

@@ -1,6 +1,8 @@
 package fr.cours.troc.trade;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,20 +34,25 @@ public class TradeController {
         return tradeService.findById(id);
     }
 
+    // L'utilisateur connecté est lu dans le jeton (déjà vérifié par Spring Security), jamais dans le corps.
     @PostMapping
-    public ResponseEntity<Trade> propose(@RequestBody ProposeTradeRequest request) {
-        Trade saved = tradeService.propose(request);
+    public ResponseEntity<Trade> propose(@RequestBody ProposeTradeRequest request, @AuthenticationPrincipal Jwt jwt) {
+        Trade saved = tradeService.propose(currentUserId(jwt), request);
         return ResponseEntity.created(URI.create("/trades/" + saved.getId())).body(saved);
     }
 
-    // Actions métier sur un troc existant : des sous-ressources en POST.
+    // Actions métier sur un troc existant : des sous-ressources en POST, sans corps.
     @PostMapping("/{id}/accept")
-    public Trade accept(@PathVariable Long id, @RequestBody TradeDecisionRequest request) {
-        return tradeService.accept(id, request.userId());
+    public Trade accept(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        return tradeService.accept(id, currentUserId(jwt));
     }
 
     @PostMapping("/{id}/reject")
-    public Trade reject(@PathVariable Long id, @RequestBody TradeDecisionRequest request) {
-        return tradeService.reject(id, request.userId());
+    public Trade reject(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        return tradeService.reject(id, currentUserId(jwt));
+    }
+
+    private static Long currentUserId(Jwt jwt) {
+        return Long.valueOf(jwt.getSubject()); // le subject du jeton : l'id de l'utilisateur, en texte
     }
 }

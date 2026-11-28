@@ -1,0 +1,27 @@
+meta {
+  name: Se connecter (Mallory)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/token
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "mallory",
+    "password": "mallory42"
+  }
+}
+
+script:post-response {
+  // Le jeton reçu est envoyé par toutes les autres requêtes (Auth : Inherit)
+  bru.setVar("token", res.body.token);
+}

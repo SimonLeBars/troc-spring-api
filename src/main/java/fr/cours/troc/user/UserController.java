@@ -2,6 +2,8 @@ package fr.cours.troc.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,29 +28,32 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> findAll() {
-        return userService.findAll();
+    public List<UserResponse> findAll() {
+        return userService.findAll().stream().map(UserResponse::from).toList();
     }
 
     @GetMapping("/{id}")
-    public User findById(@PathVariable Long id) {
-        return userService.findById(id);
+    public UserResponse findById(@PathVariable Long id) {
+        return UserResponse.from(userService.findById(id));
     }
 
+    // Inscription : route ouverte (voir SecurityConfig).
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        User saved = userService.create(user);
-        return ResponseEntity.created(URI.create("/users/" + saved.getId())).body(saved);
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+        User saved = userService.register(request);
+        return ResponseEntity.created(URI.create("/users/" + saved.getId())).body(UserResponse.from(saved));
     }
 
+    // L'utilisateur connecté est lu dans le jeton (déjà vérifié), jamais dans le corps.
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) {
-        return userService.update(id, user);
+    public UserResponse update(@PathVariable Long id, @RequestBody UpdateUserRequest request,
+                               @AuthenticationPrincipal Jwt jwt) {
+        return UserResponse.from(userService.update(id, Long.valueOf(jwt.getSubject()), request));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        userService.delete(id);
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        userService.delete(id, Long.valueOf(jwt.getSubject()));
     }
 }

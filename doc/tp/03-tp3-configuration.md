@@ -1,6 +1,6 @@
 # TP 3 — La configuration externalisée
 
-> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 2 terminée (CRUD `/users` et `/items`).
+> Rythme indicatif : séance 2. Point de départ : la mise en place du TP 2 terminée (CRUD `/users` et `/items`). Peut commencer dès le TP 1 terminé, en parallèle du TP 2 : la règle se code dans `ItemService`, seule la vérification par Bruno attend `POST /items`. Peut aussi avancer en parallèle des TP 4 et 5.
 
 ## Le concept en bref
 
@@ -164,7 +164,7 @@ Pour définir une variable d'environnement dans IntelliJ : **Run > Edit Configur
 
 ### Indices
 
-- Pour compter les objets d'un utilisateur, ajoutez au repository une méthode `long countByOwnerId(Long ownerId)` (le nom servira au TP 5).
+- Pour compter les objets d'un utilisateur, ajoutez au repository une méthode `long countByOwnerId(Long ownerId)` (le nom servira au TP 6).
 - La vérification de la limite ne concerne que `create` : modifier un objet existant ne change pas leur nombre.
 
 ### Vérifier

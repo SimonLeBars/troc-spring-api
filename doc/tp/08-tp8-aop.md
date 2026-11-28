@@ -1,6 +1,6 @@
-# TP 7 — La programmation orientée aspect (AOP) : tracer chaque troc
+# TP 8 — La programmation orientée aspect (AOP) : tracer chaque troc
 
-> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 6 terminée. Si `accept` ne fonctionne pas encore chez vous, ce n'est pas bloquant : l'aspect se branche sur toutes les méthodes de `TradeService`, `propose` suffit pour le voir à l'œuvre.
+> Rythme indicatif : séance 4. Point de départ : la mise en place du TP 7 terminée. Si `accept` ne fonctionne pas encore chez vous, ce n'est pas bloquant : l'aspect se branche sur toutes les méthodes de `TradeService`, `propose` suffit pour le voir à l'œuvre. Peut avancer en parallèle du TP 9.
 
 ## Le concept en bref
 
@@ -39,7 +39,9 @@ Faites de même dans `ItemController` pour `itemService`. Relancez, et comparez 
 
 ### Étape 2 — Voir l'interception
 
-Posez un **point d'arrêt** sur la première ligne de `TradeService.accept` (clic dans la marge), lancez l'application en mode debug (icône d'insecte d'IntelliJ), et exécutez **Trocs > Accepter troc** dans Bruno.
+Posez un **point d'arrêt** sur la première ligne de `TradeService.accept` (clic dans la marge), lancez l'application en mode debug (icône d'insecte d'IntelliJ), et exécutez **Trocs > Accepter troc** dans Bruno (connecté en tant que destinataire du troc).
+
+Pendant que l'exécution est arrêtée, remontez aussi la pile jusqu'au début de la requête : vous y croiserez une longue suite de `…Filter`. C'est Spring Security (TP 5), qui vérifie le jeton avant que la requête atteigne votre contrôleur.
 
 Quand l'exécution s'arrête, regardez la pile d'appels (onglet **Debugger > Frames**) entre `TradeController.accept` et `TradeService.accept`. Quelles classes y trouvez-vous, qui ne viennent pas de votre code ?
 
@@ -94,13 +96,13 @@ Une classe `TradeLoggingAspect`, dans `fr.cours.troc.trade`, écrit dans la cons
 
 Contraintes :
 
-- `TradeService` est **identique** à celui de la fin du TP 6 ;
+- `TradeService` est **identique** à celui de la fin du TP 7 ;
 - l'aspect **observe** : le client reçoit toujours les mêmes codes (`409`, `403`…), et la transaction de `accept` fait toujours son `ROLLBACK`.
 
-Le scénario de vérification doit produire une histoire lisible :
+Le scénario de vérification doit produire une histoire lisible (les arguments dépendent des signatures de votre `TradeService` : ici, `propose` reçoit l'id du proposeur lu dans le jeton, puis la requête ; `accept` et `reject` l'id du troc, puis celui de l'utilisateur) :
 
 ```
-→ propose [ProposeTradeRequest[proposerId=1, offeredItemId=1, offeredQuantity=3, recipientId=2, requestedItemId=2, requestedQuantity=4]]
+→ propose [1, ProposeTradeRequest[offeredItemId=1, offeredQuantity=3, recipientId=2, requestedItemId=2, requestedQuantity=4]]
 ✓ propose : troc 1 PROPOSED
 → accept [1, 2]
 ✓ accept : troc 1 EXECUTED
@@ -110,7 +112,7 @@ Le scénario de vérification doit produire une histoire lisible :
 ✗ reject : 403 FORBIDDEN "Seul le destinataire (utilisateur 2) peut répondre à ce troc"
 ```
 
-> Organisation conseillée pour un groupe de 4 : deux personnes sur l'aspect ; les deux autres peuvent commencer le TP 8 (tests), dont la préparation (base de test) est indépendante.
+> Organisation conseillée pour un groupe de 4 : deux personnes sur l'aspect ; les deux autres peuvent commencer le TP 9 (tests), dont la préparation (base de test) est indépendante.
 
 ### La dépendance
 
@@ -149,7 +151,7 @@ log.warn("✗ {} : {}", nom, message);
 | Désactiver ou filtrer sans toucher au code | non | oui, dans `application.properties` |
 | Envoyer vers un fichier, un outil de supervision | non | oui, par configuration |
 
-SLF4J est déjà fourni par Spring Boot. Les `{}` sont remplacés, dans l'ordre, par les arguments qui suivent. Niveaux : `info` pour ce qui se passe normalement, `warn` pour une anomalie qui n'empêche pas l'application de tourner (un troc refusé), `error` pour une panne. Vous avez déjà réglé un niveau : `logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG` (TP 5).
+SLF4J est déjà fourni par Spring Boot. Les `{}` sont remplacés, dans l'ordre, par les arguments qui suivent. Niveaux : `info` pour ce qui se passe normalement, `warn` pour une anomalie qui n'empêche pas l'application de tourner (un troc refusé), `error` pour une panne. Vous avez déjà réglé un niveau : `logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG` (TP 6).
 
 #### Le vocabulaire
 
@@ -238,12 +240,12 @@ Commencez par l'advice `@Before` seul : relancez, exécutez **Trocs > Lister tro
 
 Puis repartez d'une base propre (arrêtez, supprimez `data/`, relancez) et, dans Bruno :
 
-1. **Créer utilisateur** (Alice), **Créer un 2e utilisateur** (Bob) ;
+1. inscrivez Alice et Bob, puis connectez-vous en tant qu'Alice ;
 2. **Créer objet (Alice)** (10 tomates), **Créer objet (Bob)** (5 carottes) ;
 3. **Proposer troc**, deux fois (trocs 1 et 2) ;
-4. **Accepter troc** sur le troc 1 ;
+4. connectez-vous en tant que Bob, puis **Accepter troc** sur le troc 1 ;
 5. **Accepter troc** sur le troc 2 (URL `/trades/2/accept`) : Bob n'a plus qu'une carotte ;
-6. **Refuser troc** sur le troc 2, avec `"userId": 1` ;
+6. connectez-vous en tant qu'Alice, puis **Refuser troc** sur le troc 2 : elle n'en est pas la destinataire ;
 7. **Consulter troc** (`GET /trades/1`).
 
 La console doit raconter cette histoire, au milieu des lignes SQL (voir les objectifs, plus `→ findById [1]` et `✓ findById : troc 1 EXECUTED` à la fin). Répondez ensuite, par écrit :
@@ -253,7 +255,7 @@ La console doit raconter cette histoire, au milieu des lignes SQL (voir les obje
 
 - [ ] `pom.xml` contient `spring-boot-starter-aspectj`.
 - [ ] Le scénario produit l'histoire attendue (`→`, `✓`, `✗`), échecs en `WARN`, le reste en `INFO`.
-- [ ] Le client reçoit toujours les mêmes codes qu'au TP 6.
+- [ ] Le client reçoit toujours les mêmes codes qu'au TP 7.
 - [ ] `TradeService` n'a pas été modifié (vérifiez avec `git diff` sur le fichier, ou l'onglet **Commit** d'IntelliJ).
 - [ ] Les deux questions ont une réponse écrite.
 
@@ -313,7 +315,18 @@ Le pointcut `@annotation(fr.cours.troc.Timed)` choisit les méthodes qui la port
 
 1. Élargissez le pointcut : `execution(* fr.cours.troc..*Service.*(..))` (`..` entre deux packages : n'importe quel sous-package). Déplacez l'aspect dans `fr.cours.troc`, et ajoutez le nom de la classe dans chaque ligne (`jp.getSignature().getDeclaringType().getSimpleName()`).
 2. Proposez un troc : pourquoi les appels de `propose` à `userService.findById` et `itemService.findById` sont-ils interceptés, alors que le `findById` interne ne l'était pas ?
-3. **Données sensibles** : si `User` avait un champ `password`, que se passerait-il avec `Arrays.toString(jp.getArgs())` sur `create` ? Les logs sont lus par beaucoup de monde (exploitation, support, outils externes) : comment l'éviter ?
+3. **Données sensibles** : l'inscription reçoit un mot de passe en clair (TP 5). Que se passe-t-il avec `Arrays.toString(jp.getArgs())` sur la méthode d'inscription de `UserService` ? Les logs sont lus par beaucoup de monde (exploitation, support, outils externes) : comment l'éviter ?
+
+### Bonus 4 — Qui a fait quoi ?
+
+Ajoutez à chaque ligne l'utilisateur connecté, pour pouvoir répondre plus tard à « qui a accepté ce troc ? » :
+
+```java
+Authentication auth = SecurityContextHolder.getContext().getAuthentication(); // org.springframework.security.core
+String who = (auth == null) ? "anonyme" : auth.getName();                    // avec un JWT : le subject, l'id de l'utilisateur
+```
+
+Spring Security range l'utilisateur de la requête en cours dans le `SecurityContextHolder`, accessible de n'importe où pendant le traitement de cette requête. Pourquoi est-ce plus fiable que de lire l'id dans les arguments de la méthode ? Dans quel cas `auth` peut-il valoir `null` ?
 
 ## Pour aller plus loin
 

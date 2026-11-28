@@ -85,7 +85,7 @@ Taper l'abréviation puis `Tab`.
 - **Settings > Tools > Actions on Save** : *Reformat code* + *Optimize imports*
 - ⚠️ deux classes du même nom (`Item` du projet, `Item` d'une bibliothèque) : vérifier l'import proposé par `Alt+Entrée`
 
-## 🐞 Déboguer · `TP 7`
+## 🐞 Déboguer · `TP 8`
 
 | Windows / Linux | macOS | Effet |
 |---|---|---|
@@ -106,10 +106,10 @@ Chaque fiche a sa section ⌨️ IntelliJ, avec les gestes utiles pour son thèm
 | [2 — HTTP et REST](02-http-rest.md) | fenêtre **Endpoints**, `HttpStatus.` + complétion |
 | [3 — Configuration](03-configuration.md) | complétion dans `application.properties`, une configuration de lancement par profil |
 | [4 — DTO](04-dto-validation-erreurs.md) | **Convert to record**, **Create missing branches** |
-| [5 — Persistance](05-persistance-transactions.md) | méthodes héritées du repository, complétion `findBy…`, fenêtre **Database** |
-| [6 — AOP](06-aop.md) | icônes aspect ↔ méthodes ciblées, **Copy Reference** pour le pointcut |
-| [7 — Tests](07-tests.md) | créer le test, relancer les rouges, couverture |
-| [8 — Sécurité](08-securite.md) | ouvrir et déboguer un filtre de Spring Security |
+| [5 — Sécurité](05-securite.md) | ouvrir et déboguer un filtre de Spring Security |
+| [6 — Persistance](06-persistance-transactions.md) | méthodes héritées du repository, complétion `findBy…`, fenêtre **Database** |
+| [7 — AOP](07-aop.md) | icônes aspect ↔ méthodes ciblées, **Copy Reference** pour le pointcut |
+| [8 — Tests](08-tests.md) | créer le test, relancer les rouges, couverture |
 
 ## 🔗 Pour aller plus loin
 

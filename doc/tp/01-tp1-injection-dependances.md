@@ -225,7 +225,7 @@ Le code couplé fonctionnait : le problème n'est jamais « ça ne marche pas »
 | **Effet cascade** | évolution 3 | une bibliothèque dont un constructeur change bloque toute l'équipe tant que chaque appel n'est pas corrigé |
 | **Deux métiers dans une classe** | `UserService` a changé pour des raisons sans rapport avec les utilisateurs | contraire au **S** de SOLID : une classe, une seule raison de changer |
 
-Un cinquième problème, la **testabilité**, sera vu au TP 8.
+Un cinquième problème, la **testabilité**, sera vu au TP 9.
 
 `ManualDemo` résout tout, mais sur un projet de 50 classes, quelqu'un doit écrire tous ces `new`, dans le bon ordre. C'est ce travail qu'on confie à Spring dans la partie 2.
 
@@ -341,7 +341,7 @@ curl http://localhost:8080/users
 
 (sous Windows PowerShell, tapez `curl.exe`). Pour un `GET`, un navigateur suffit aussi : <http://localhost:8080/users>.
 
-Les données sont en mémoire : elles disparaissent à chaque redémarrage. La base de données arrive au TP 5.
+Les données sont en mémoire : elles disparaissent à chaque redémarrage. La base de données arrive au TP 6.
 
 #### Provoquer une erreur, pour lire Spring
 
